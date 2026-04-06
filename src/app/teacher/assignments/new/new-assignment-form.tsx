@@ -3,23 +3,50 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createAssignment } from "@/app/actions/assignment-actions";
-import { SAMPLE_ASSIGNMENT_JSON } from "@/lib/sample-assignment-json";
 import { Button } from "@/libs/components/ui/button";
 import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
-import { Textarea } from "@/libs/components/ui/textarea";
+import { QuestionBuilder } from "@/app/teacher/assignments/question-builder";
+import type { Question } from "@/core/lms/domain/question.types";
 
 export function NewAssignmentForm() {
   const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [timeLimit, setTimeLimit] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(questions: Question[]) {
     setError(null);
+    if (!title.trim()) {
+      setError("Tiêu đề bắt buộc.");
+      return;
+    }
+    if (questions.length === 0) {
+      setError("Cần ít nhất 1 câu hỏi.");
+      return;
+    }
+
+    // Validate: mỗi câu hỏi phải có ít nhất 1 đáp án đúng
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].correct.length === 0) {
+        setError(`Câu ${i + 1} chưa có đáp án đúng.`);
+        return;
+      }
+      if (!questions[i].question.text.trim()) {
+        setError(`Câu ${i + 1} chưa có nội dung câu hỏi.`);
+        return;
+      }
+    }
+
     setPending(true);
-    const fd = new FormData(e.currentTarget);
     try {
+      const fd = new FormData();
+      fd.append("title", title.trim());
+      fd.append("content", JSON.stringify(questions));
+      const timeLimitMinutes = timeLimit.trim() ? Number(timeLimit) : null;
+      if (timeLimitMinutes !== null)
+        fd.append("timeLimitSeconds", String(timeLimitMinutes * 60));
       const res = await createAssignment(fd);
       if (res?.ok) router.push(`/teacher/assignments/${res.id}/edit`);
     } catch (err) {
@@ -30,33 +57,50 @@ export function NewAssignmentForm() {
   }
 
   return (
-    <form className="space-y-6" onSubmit={onSubmit}>
-      {error ? <p className="text-sm text-red-600 dark:text-red-400">{error}</p> : null}
-      <div className="space-y-2">
-        <Label htmlFor="title">Tiêu đề</Label>
-        <Input id="title" name="title" required placeholder="Unit 1 — Review" />
-      </div>
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Label htmlFor="content">Nội dung (JSON mảng câu hỏi)</Label>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-auto py-1"
-            onClick={() => {
-              const el = document.getElementById("content") as HTMLTextAreaElement | null;
-              if (el) el.value = SAMPLE_ASSIGNMENT_JSON;
-            }}
-          >
-            Điền mẫu
-          </Button>
+    <div className="space-y-6">
+      {error ? (
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
+          {error}
+        </p>
+      ) : null}
+
+      {/* Tiêu đề + Thời gian */}
+      <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+        <div className="space-y-2">
+          <Label htmlFor="title">Tiêu đề</Label>
+          <Input
+            id="title"
+            name="title"
+            required
+            placeholder="Unit 1 — Review"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
-        <Textarea id="content" name="content" required rows={16} defaultValue={SAMPLE_ASSIGNMENT_JSON} />
+        <div className="space-y-2">
+          <Label htmlFor="timeLimit">
+            Giới hạn thời gian{" "}
+            <span className="font-normal text-zinc-400">(phút, tuỳ chọn)</span>
+          </Label>
+          <Input
+            id="timeLimit"
+            type="number"
+            min={1}
+            max={300}
+            placeholder="Không giới hạn"
+            value={timeLimit}
+            onChange={(e) => setTimeLimit(e.target.value)}
+          />
+        </div>
       </div>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Đang lưu…" : "Tạo bài tập"}
-      </Button>
-    </form>
+
+      {/* Question builder */}
+      <div className="space-y-2">
+        <Label>Câu hỏi</Label>
+        <QuestionBuilder onSubmit={handleSubmit} />
+      </div>
+
+      {pending && <p className="text-sm text-zinc-500">Đang lưu bài tập…</p>}
+    </div>
   );
 }

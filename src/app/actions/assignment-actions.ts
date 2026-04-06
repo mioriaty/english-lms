@@ -17,6 +17,8 @@ export async function createAssignment(formData: FormData) {
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const contentRaw = String(formData.get("content") ?? "");
+  const timeLimitRaw = formData.get("timeLimitSeconds");
+  const timeLimitSeconds = timeLimitRaw ? Number(timeLimitRaw) : null;
   if (!title) throw new Error("Tiêu đề bắt buộc");
   let parsed: unknown;
   try {
@@ -26,7 +28,7 @@ export async function createAssignment(formData: FormData) {
   }
   const content = parseAssignmentQuestions(parsed);
   const assignment = await prisma.assignment.create({
-    data: { title, content: content as object },
+    data: { title, content: content as object, timeLimitSeconds },
   });
   revalidatePath("/teacher/assignments");
   return { ok: true as const, id: assignment.id };
@@ -36,6 +38,8 @@ export async function updateAssignment(assignmentId: string, formData: FormData)
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const contentRaw = String(formData.get("content") ?? "");
+  const timeLimitRaw = formData.get("timeLimitSeconds");
+  const timeLimitSeconds = timeLimitRaw ? Number(timeLimitRaw) : null;
   if (!title) throw new Error("Tiêu đề bắt buộc");
   let parsed: unknown;
   try {
@@ -46,7 +50,7 @@ export async function updateAssignment(assignmentId: string, formData: FormData)
   const content = parseAssignmentQuestions(parsed);
   await prisma.assignment.update({
     where: { id: assignmentId },
-    data: { title, content: content as object },
+    data: { title, content: content as object, timeLimitSeconds },
   });
   revalidatePath("/teacher/assignments");
   revalidatePath(`/teacher/assignments/${assignmentId}/edit`);

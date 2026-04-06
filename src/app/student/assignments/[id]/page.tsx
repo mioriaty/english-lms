@@ -24,7 +24,7 @@ export default async function StudentAssignmentPage({ params }: PageProps) {
       <Link href="/student" className="text-sm text-zinc-600 underline dark:text-zinc-400">
         ← Danh sách bài tập
       </Link>
-      <AssignmentTakeForm assignmentId={id} title={assignment.title} questions={questions} />
+      <AssignmentTakeForm assignmentId={id} title={assignment.title} questions={questions} timeLimitSeconds={assignment.timeLimitSeconds} />
     </div>
   );
 }

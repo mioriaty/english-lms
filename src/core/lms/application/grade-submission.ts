@@ -12,7 +12,7 @@ const multipleChoiceSchema = z.object({
   question: questionTextSchema,
   options: z.array(z.string()),
   correct: z.array(z.string()),
-  explain: z.string(),
+  explain: z.string().optional(),
 });
 
 const fillBlankSchema = z.object({
@@ -20,7 +20,7 @@ const fillBlankSchema = z.object({
   type: z.literal("FILL_IN_THE_BLANK"),
   question: questionTextSchema,
   correct: z.array(z.string()),
-  explain: z.string(),
+  explain: z.string().optional(),
 });
 
 const questionSchema = z.discriminatedUnion("type", [

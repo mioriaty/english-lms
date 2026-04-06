@@ -22,7 +22,7 @@ export default async function EditAssignmentPage({ params }: PageProps) {
         </Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">Sửa bài tập</h1>
       </div>
-      <EditAssignmentForm assignmentId={id} initialTitle={assignment.title} initialContent={contentStr} />
+      <EditAssignmentForm assignmentId={id} initialTitle={assignment.title} initialContent={contentStr} initialTimeLimitSeconds={assignment.timeLimitSeconds} />
     </div>
   );
 }

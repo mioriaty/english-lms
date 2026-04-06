@@ -18,12 +18,13 @@ model User {
 }
 
 model Assignment {
-  id          String       @id @default(cuid())
-  title       String
-  content     Json
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  submissions Submission[]
+  id               String       @id @default(cuid())
+  title            String
+  content          Json
+  isActive         Boolean      @default(true)
+  timeLimitSeconds Int?
+  createdAt        DateTime     @default(now())
+  submissions      Submission[]
 }
 
 model Submission {

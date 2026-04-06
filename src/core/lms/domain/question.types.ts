@@ -11,7 +11,7 @@ export interface MultipleChoiceQuestion {
   question: QuestionText;
   options: string[];
   correct: string[];
-  explain: string;
+  explain?: string;
 }
 
 export interface FillInTheBlankQuestion {
@@ -19,7 +19,7 @@ export interface FillInTheBlankQuestion {
   type: "FILL_IN_THE_BLANK";
   question: QuestionText;
   correct: string[];
-  explain: string;
+  explain?: string;
 }
 
 export type Question = MultipleChoiceQuestion | FillInTheBlankQuestion;
