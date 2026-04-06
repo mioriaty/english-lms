@@ -14,18 +14,18 @@ export default async function TeacherAssignmentsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Bài tập</h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Nội dung câu hỏi lưu dạng JSON.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Assignments</h1>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Question content is stored as JSON.</p>
         </div>
         <Button asChild>
-          <Link href="/teacher/assignments/new">Tạo mới</Link>
+          <Link href="/teacher/assignments/new">New</Link>
         </Button>
       </div>
 
       <ul className="space-y-3">
         {assignments.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-zinc-500">Chưa có bài tập.</CardContent>
+            <CardContent className="py-8 text-center text-zinc-500">No assignments yet.</CardContent>
           </Card>
         ) : (
           assignments.map((a) => (
@@ -35,13 +35,13 @@ export default async function TeacherAssignmentsPage() {
                   <div>
                     <CardTitle className="text-lg">{a.title}</CardTitle>
                     <p className="mt-1 text-sm text-zinc-500">
-                      {a._count.submissions} lượt nộp · {a.isActive ? "Đang mở" : "Đã đóng"}
+                      {a._count.submissions} submission{a._count.submissions !== 1 ? "s" : ""} · {a.isActive ? "Open" : "Closed"}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <AssignmentToggle id={a.id} isActive={a.isActive} />
                     <Button variant="secondary" size="sm" asChild>
-                      <Link href={`/teacher/assignments/${a.id}/edit`}>Sửa</Link>
+                      <Link href={`/teacher/assignments/${a.id}/edit`}>Edit</Link>
                     </Button>
                   </div>
                 </CardHeader>

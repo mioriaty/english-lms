@@ -94,7 +94,7 @@ export function AssignmentTakeForm({
       const res = await submitAssignment(assignmentId, currentAnswers);
       setResult(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không nộp được bài.");
+      setError(err instanceof Error ? err.message : "Failed to submit.");
       setSubmitted(false);
     } finally {
       setPending(false);
@@ -121,7 +121,7 @@ export function AssignmentTakeForm({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {questions.length} câu hỏi
+            {questions.length} question{questions.length !== 1 ? "s" : ""}
           </p>
         </div>
         {remaining !== null && !submitted && (
@@ -134,9 +134,9 @@ export function AssignmentTakeForm({
           <Card key={q.id}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-medium">
-                Câu {idx + 1}{" "}
+                Question {idx + 1}{" "}
                 <span className="font-normal text-zinc-500">
-                  ({q.type === "MULTIPLE_CHOICE" ? "Trắc nghiệm" : "Điền từ"})
+                  ({q.type === "MULTIPLE_CHOICE" ? "Multiple Choice" : "Fill in the Blank"})
                 </span>
               </CardTitle>
             </CardHeader>
@@ -144,7 +144,7 @@ export function AssignmentTakeForm({
               <p className="text-zinc-800 dark:text-zinc-200">{q.question.text}</p>
               {q.type === "MULTIPLE_CHOICE" ? (
                 <fieldset className="space-y-2">
-                  <legend className="sr-only">Chọn đáp án</legend>
+                  <legend className="sr-only">Choose an answer</legend>
                   {q.options.map((opt) => (
                     <label key={opt} className="flex cursor-pointer items-center gap-2 text-sm">
                       <input
@@ -162,7 +162,7 @@ export function AssignmentTakeForm({
                 </fieldset>
               ) : (
                 <div className="space-y-2">
-                  <Label htmlFor={q.id}>Điền đáp án</Label>
+                  <Label htmlFor={q.id}>Fill in your answer</Label>
                   <Input
                     id={q.id}
                     value={answers[q.id] ?? ""}
@@ -182,7 +182,7 @@ export function AssignmentTakeForm({
 
         {!submitted && (
           <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-            {pending ? "Đang chấm…" : "Nộp bài"}
+            {pending ? "Grading…" : "Submit"}
           </Button>
         )}
       </form>
@@ -190,14 +190,14 @@ export function AssignmentTakeForm({
       {result ? (
         <Card className="border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-950/30">
           <CardHeader>
-            <CardTitle className="text-lg">Kết quả</CardTitle>
+            <CardTitle className="text-lg">Results</CardTitle>
             <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-200">
-              {result.score.toFixed(1)} điểm
+              {result.score.toFixed(1)} pts
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Câu sai — xem giải thích
+              Incorrect answers — see explanation
             </p>
             <ul className="space-y-3 text-sm">
               {result.details
@@ -209,7 +209,7 @@ export function AssignmentTakeForm({
                   >
                     <p className="font-mono text-xs text-zinc-500">{d.questionId}</p>
                     <p className="mt-1">
-                      Bạn trả lời:{" "}
+                      Your answer:{" "}
                       <span className="font-medium">&quot;{d.studentAnswer || "—"}&quot;</span>
                     </p>
                     {d.explain ? (
@@ -220,7 +220,7 @@ export function AssignmentTakeForm({
             </ul>
             {result.details.every((d) => d.isCorrect) ? (
               <p className="text-emerald-700 dark:text-emerald-300">
-                Chúc mừng — tất cả đều đúng.
+                Congratulations — all correct!
               </p>
             ) : null}
           </CardContent>

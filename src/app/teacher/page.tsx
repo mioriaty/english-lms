@@ -13,26 +13,26 @@ export default async function TeacherHomePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Xin chào</h1>
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">Quản lý bài tập và học sinh.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+        <p className="mt-1 text-zinc-600 dark:text-zinc-400">Manage assignments and students.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Bài tập</CardDescription>
+            <CardDescription>Assignments</CardDescription>
             <CardTitle className="text-3xl">{assignmentCount}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Học sinh</CardDescription>
+            <CardDescription>Students</CardDescription>
             <CardTitle className="text-3xl">{studentCount}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Bài đã nộp</CardDescription>
+            <CardDescription>Submissions</CardDescription>
             <CardTitle className="text-3xl">{submissionCount}</CardTitle>
           </CardHeader>
         </Card>
@@ -40,10 +40,10 @@ export default async function TeacherHomePage() {
 
       <div className="flex flex-wrap gap-3">
         <Button asChild>
-          <Link href="/teacher/assignments/new">Tạo bài tập</Link>
+          <Link href="/teacher/assignments/new">New Assignment</Link>
         </Button>
         <Button variant="secondary" asChild>
-          <Link href="/teacher/students">Thêm học sinh</Link>
+          <Link href="/teacher/students">Add Student</Link>
         </Button>
       </div>
     </div>

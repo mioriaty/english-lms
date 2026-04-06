@@ -6,12 +6,12 @@ export default function NewAssignmentPage() {
     <div className="space-y-6">
       <div>
         <Link href="/teacher/assignments" className="text-sm text-zinc-600 underline dark:text-zinc-400">
-          ← Danh sách bài tập
+          ← Assignments
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">Tạo bài tập</h1>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight">New Assignment</h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Mỗi phần tử có{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-900">MULTIPLE_CHOICE</code> hoặc{" "}
+          Each question has type{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-900">MULTIPLE_CHOICE</code> or{" "}
           <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-900">FILL_IN_THE_BLANK</code>.
         </p>
       </div>

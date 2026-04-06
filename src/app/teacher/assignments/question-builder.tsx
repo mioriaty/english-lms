@@ -82,14 +82,14 @@ function OptionRow({
             ? "border-emerald-500 bg-emerald-500 text-white"
             : "border-zinc-300 text-zinc-400 hover:border-zinc-400 dark:border-zinc-600"
         }`}
-        title="Đánh dấu đáp án đúng"
+        title="Mark as correct answer"
       >
         {String.fromCharCode(65 + index)}
       </button>
       <Input
         value={value}
         onChange={(e) => onChangeValue(e.target.value)}
-        placeholder={`Đáp án ${String.fromCharCode(65 + index)}`}
+        placeholder={`Option ${String.fromCharCode(65 + index)}`}
         className="flex-1"
       />
       <button
@@ -189,7 +189,7 @@ function QuestionCard({
         <div className="flex items-center gap-2">
           <GripVertical className="h-4 w-4 text-zinc-400" />
           <span className="text-sm font-semibold text-zinc-500">
-            Câu {index + 1}
+            Question {index + 1}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -198,8 +198,8 @@ function QuestionCard({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="MULTIPLE_CHOICE">Trắc nghiệm</SelectItem>
-              <SelectItem value="FILL_IN_THE_BLANK">Điền từ vào chỗ trống</SelectItem>
+              <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
+              <SelectItem value="FILL_IN_THE_BLANK">Fill in the Blank</SelectItem>
             </SelectContent>
           </Select>
           <button
@@ -214,7 +214,7 @@ function QuestionCard({
 
       {/* Question text */}
       <div className="mb-4 space-y-1.5">
-        <Label className="text-xs text-zinc-500">Câu hỏi</Label>
+        <Label className="text-xs text-zinc-500">Question text</Label>
         <Textarea
           value={draft.questionText}
           onChange={(e) => setQuestionText(e.target.value)}
@@ -232,8 +232,8 @@ function QuestionCard({
       {draft.type === "MULTIPLE_CHOICE" && (
         <div className="mb-4 space-y-1.5">
           <Label className="text-xs text-zinc-500">
-            Các đáp án{" "}
-            <span className="text-zinc-400">(click chữ cái để đánh dấu đúng)</span>
+            Options{" "}
+            <span className="text-zinc-400">(click the letter to mark correct)</span>
           </Label>
           <div className="space-y-2">
             {draft.options.map((opt, i) => (
@@ -256,7 +256,7 @@ function QuestionCard({
             onClick={addOption}
           >
             <Plus className="mr-1 h-3 w-3" />
-            Thêm đáp án
+            Add option
           </Button>
         </div>
       )}
@@ -265,8 +265,8 @@ function QuestionCard({
       {draft.type === "FILL_IN_THE_BLANK" && (
         <div className="mb-4 space-y-1.5">
           <Label className="text-xs text-zinc-500">
-            Đáp án đúng{" "}
-            <span className="text-zinc-400">(nhiều đáp án được chấp nhận)</span>
+            Correct answers{" "}
+            <span className="text-zinc-400">(multiple accepted)</span>
           </Label>
           <div className="flex flex-wrap gap-1.5">
             {draft.correct.map((val) => (
@@ -297,7 +297,7 @@ function QuestionCard({
               className="h-8 shrink-0"
               onClick={addCorrectAnswer}
             >
-              Thêm
+              Add
             </Button>
           </div>
         </div>
@@ -305,7 +305,7 @@ function QuestionCard({
 
       {/* Explain */}
       <div className="space-y-1.5">
-        <Label className="text-xs text-zinc-500">Giải thích (tuỳ chọn)</Label>
+        <Label className="text-xs text-zinc-500">Explanation (optional)</Label>
         <Input
           value={draft.explain}
           onChange={(e) => onChange({ ...draft, explain: e.target.value })}
@@ -379,7 +379,7 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
           onClick={() => addQuestion("MULTIPLE_CHOICE")}
         >
           <Plus className="mr-1.5 h-4 w-4" />
-          Thêm trắc nghiệm
+          Add Multiple Choice
         </Button>
         <Button
           type="button"
@@ -388,13 +388,13 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
           onClick={() => addQuestion("FILL_IN_THE_BLANK")}
         >
           <Plus className="mr-1.5 h-4 w-4" />
-          Thêm điền từ
+          Add Fill in the Blank
         </Button>
       </div>
 
       <div className="pt-2">
         <Button type="button" onClick={handleSubmit} className="w-full sm:w-auto">
-          Lưu câu hỏi
+          Save Questions
         </Button>
       </div>
     </div>

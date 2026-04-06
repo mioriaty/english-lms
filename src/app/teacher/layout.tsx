@@ -11,11 +11,11 @@ export default async function TeacherLayout({ children }: { children: React.Reac
   return (
     <div className="min-h-screen">
       <AppHeader
-        title="Khu vực giáo viên"
+        title="Teacher Portal"
         links={[
-          { href: "/teacher", label: "Tổng quan" },
-          { href: "/teacher/assignments", label: "Bài tập" },
-          { href: "/teacher/students", label: "Học sinh" },
+          { href: "/teacher", label: "Overview" },
+          { href: "/teacher/assignments", label: "Assignments" },
+          { href: "/teacher/students", label: "Students" },
         ]}
       />
       <main className="mx-auto max-w-4xl px-4 py-8">{children}</main>

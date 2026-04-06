@@ -19,22 +19,22 @@ export function NewAssignmentForm() {
   async function handleSubmit(questions: Question[]) {
     setError(null);
     if (!title.trim()) {
-      setError("Tiêu đề bắt buộc.");
+      setError("Title is required.");
       return;
     }
     if (questions.length === 0) {
-      setError("Cần ít nhất 1 câu hỏi.");
+      setError("At least 1 question required.");
       return;
     }
 
     // Validate: mỗi câu hỏi phải có ít nhất 1 đáp án đúng
     for (let i = 0; i < questions.length; i++) {
       if (questions[i].correct.length === 0) {
-        setError(`Câu ${i + 1} chưa có đáp án đúng.`);
+        setError(`Question ${i + 1} has no correct answer.`);
         return;
       }
       if (!questions[i].question.text.trim()) {
-        setError(`Câu ${i + 1} chưa có nội dung câu hỏi.`);
+        setError(`Question ${i + 1} has no question text.`);
         return;
       }
     }
@@ -50,7 +50,7 @@ export function NewAssignmentForm() {
       const res = await createAssignment(fd);
       if (res?.ok) router.push(`/teacher/assignments/${res.id}/edit`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không tạo được bài tập.");
+      setError(err instanceof Error ? err.message : "Failed to create assignment.");
     } finally {
       setPending(false);
     }
@@ -67,7 +67,7 @@ export function NewAssignmentForm() {
       {/* Tiêu đề + Thời gian */}
       <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
         <div className="space-y-2">
-          <Label htmlFor="title">Tiêu đề</Label>
+          <Label htmlFor="title">Title</Label>
           <Input
             id="title"
             name="title"
@@ -79,15 +79,15 @@ export function NewAssignmentForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="timeLimit">
-            Giới hạn thời gian{" "}
-            <span className="font-normal text-zinc-400">(phút, tuỳ chọn)</span>
+            Time limit{" "}
+            <span className="font-normal text-zinc-400">(minutes, optional)</span>
           </Label>
           <Input
             id="timeLimit"
             type="number"
             min={1}
             max={300}
-            placeholder="Không giới hạn"
+            placeholder="No limit"
             value={timeLimit}
             onChange={(e) => setTimeLimit(e.target.value)}
           />
@@ -96,11 +96,11 @@ export function NewAssignmentForm() {
 
       {/* Question builder */}
       <div className="space-y-2">
-        <Label>Câu hỏi</Label>
+        <Label>Questions</Label>
         <QuestionBuilder onSubmit={handleSubmit} />
       </div>
 
-      {pending && <p className="text-sm text-zinc-500">Đang lưu bài tập…</p>}
+      {pending && <p className="text-sm text-zinc-500">Saving…</p>}
     </div>
   );
 }

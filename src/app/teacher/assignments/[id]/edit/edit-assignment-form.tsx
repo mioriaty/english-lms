@@ -11,7 +11,7 @@ import type { Question } from "@/core/lms/domain/question.types";
 interface EditAssignmentFormProps {
   assignmentId: string;
   initialTitle: string;
-  initialContent: string; // JSON string của Question[]
+  initialContent: string; // JSON string of Question[]
   initialTimeLimitSeconds: number | null;
 }
 
@@ -29,7 +29,7 @@ export function EditAssignmentForm({
   const [ok, setOk] = useState(false);
   const [pending, setPending] = useState(false);
 
-  // Parse initial questions — fallback về empty nếu lỗi
+  // Parse initial questions — fallback to empty on error
   const initialQuestions: Question[] = (() => {
     try {
       return JSON.parse(initialContent) as Question[];
@@ -42,20 +42,20 @@ export function EditAssignmentForm({
     setError(null);
     setOk(false);
     if (!title.trim()) {
-      setError("Tiêu đề bắt buộc.");
+      setError("Title is required.");
       return;
     }
     if (questions.length === 0) {
-      setError("Cần ít nhất 1 câu hỏi.");
+      setError("At least 1 question required.");
       return;
     }
     for (let i = 0; i < questions.length; i++) {
       if (questions[i].correct.length === 0) {
-        setError(`Câu ${i + 1} chưa có đáp án đúng.`);
+        setError(`Question ${i + 1} has no correct answer.`);
         return;
       }
       if (!questions[i].question.text.trim()) {
-        setError(`Câu ${i + 1} chưa có nội dung câu hỏi.`);
+        setError(`Question ${i + 1} has no question text.`);
         return;
       }
     }
@@ -71,7 +71,7 @@ export function EditAssignmentForm({
       await updateAssignment(assignmentId, fd);
       setOk(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không cập nhật được.");
+      setError(err instanceof Error ? err.message : "Failed to update assignment.");
     } finally {
       setPending(false);
     }
@@ -86,14 +86,14 @@ export function EditAssignmentForm({
       ) : null}
       {ok ? (
         <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
-          Đã lưu thay đổi.
+          Changes saved.
         </p>
       ) : null}
 
-      {/* Tiêu đề + Thời gian */}
+      {/* Title + Time limit */}
       <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
         <div className="space-y-2">
-          <Label htmlFor="title">Tiêu đề</Label>
+          <Label htmlFor="title">Title</Label>
           <Input
             id="title"
             name="title"
@@ -104,15 +104,15 @@ export function EditAssignmentForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="timeLimit">
-            Giới hạn thời gian{" "}
-            <span className="font-normal text-zinc-400">(phút, tuỳ chọn)</span>
+            Time limit{" "}
+            <span className="font-normal text-zinc-400">(minutes, optional)</span>
           </Label>
           <Input
             id="timeLimit"
             type="number"
             min={1}
             max={300}
-            placeholder="Không giới hạn"
+            placeholder="No limit"
             value={timeLimit}
             onChange={(e) => setTimeLimit(e.target.value)}
           />
@@ -121,7 +121,7 @@ export function EditAssignmentForm({
 
       {/* Question builder */}
       <div className="space-y-2">
-        <Label>Câu hỏi</Label>
+        <Label>Questions</Label>
         <QuestionBuilder
           onSubmit={handleSubmit}
           initialQuestions={initialQuestions}
@@ -129,7 +129,7 @@ export function EditAssignmentForm({
       </div>
 
       {pending && (
-        <p className="text-sm text-zinc-500">Đang lưu…</p>
+        <p className="text-sm text-zinc-500">Saving…</p>
       )}
     </div>
   );

@@ -32,7 +32,7 @@ export function LoginForms() {
     });
     setPending(false);
     if (res?.error) {
-      setError("Tên đăng nhập hoặc mật khẩu không đúng.");
+      setError("Invalid username or password.");
       return;
     }
     window.location.href = "/teacher";
@@ -52,7 +52,7 @@ export function LoginForms() {
     });
     setPending(false);
     if (res?.error) {
-      setError("Tên đăng nhập hoặc mật khẩu không đúng.");
+      setError("Invalid username or password.");
       return;
     }
     window.location.href = "/student";
@@ -61,8 +61,8 @@ export function LoginForms() {
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
-        <CardTitle>Đăng nhập</CardTitle>
-        <CardDescription>Chọn vai trò của bạn.</CardDescription>
+        <CardTitle>Sign in</CardTitle>
+        <CardDescription>Select your role to continue.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900">
@@ -78,7 +78,7 @@ export function LoginForms() {
               setError(null);
             }}
           >
-            Giáo viên
+            Teacher
           </button>
           <button
             type="button"
@@ -92,7 +92,7 @@ export function LoginForms() {
               setError(null);
             }}
           >
-            Học sinh
+            Student
           </button>
         </div>
 
@@ -103,7 +103,7 @@ export function LoginForms() {
         {tab === "teacher" ? (
           <form className="space-y-4" onSubmit={onTeacherSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="tusername">Tên đăng nhập</Label>
+              <Label htmlFor="tusername">Username</Label>
               <Input
                 id="tusername"
                 name="username"
@@ -113,7 +113,7 @@ export function LoginForms() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tpassword">Mật khẩu</Label>
+              <Label htmlFor="tpassword">Password</Label>
               <Input
                 id="tpassword"
                 name="password"
@@ -123,13 +123,13 @@ export function LoginForms() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Đang đăng nhập…" : "Đăng nhập giáo viên"}
+              {pending ? "Signing in…" : "Sign in as Teacher"}
             </Button>
           </form>
         ) : (
           <form className="space-y-4" onSubmit={onStudentSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="susername">Tên đăng nhập</Label>
+              <Label htmlFor="susername">Username</Label>
               <Input
                 id="susername"
                 name="username"
@@ -139,7 +139,7 @@ export function LoginForms() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="spassword">Mật khẩu</Label>
+              <Label htmlFor="spassword">Password</Label>
               <Input
                 id="spassword"
                 name="password"
@@ -149,7 +149,7 @@ export function LoginForms() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Đang đăng nhập…" : "Đăng nhập học sinh"}
+              {pending ? "Signing in…" : "Sign in as Student"}
             </Button>
           </form>
         )}

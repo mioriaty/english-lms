@@ -18,9 +18,9 @@ export default async function EditAssignmentPage({ params }: PageProps) {
     <div className="space-y-6">
       <div>
         <Link href="/teacher/assignments" className="text-sm text-zinc-600 underline dark:text-zinc-400">
-          ← Danh sách bài tập
+          ← Assignments
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">Sửa bài tập</h1>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight">Edit Assignment</h1>
       </div>
       <EditAssignmentForm assignmentId={id} initialTitle={assignment.title} initialContent={contentStr} initialTimeLimitSeconds={assignment.timeLimitSeconds} />
     </div>

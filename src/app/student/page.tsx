@@ -23,14 +23,14 @@ export default async function StudentHomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Bài tập đang mở</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Chọn bài để làm; có thể nộp nhiều lần.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Open Assignments</h1>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Choose an assignment to start. You can submit multiple times.</p>
       </div>
 
       <ul className="space-y-3">
         {assignments.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-zinc-500">Hiện không có bài tập.</CardContent>
+            <CardContent className="py-8 text-center text-zinc-500">No assignments available.</CardContent>
           </Card>
         ) : (
           assignments.map((a) => {
@@ -43,11 +43,11 @@ export default async function StudentHomePage() {
                       <CardTitle className="text-lg">{a.title}</CardTitle>
                       {last ? (
                         <p className="text-sm text-zinc-500">
-                          Lần gần nhất: {last.score.toFixed(1)} điểm ·{" "}
-                          {new Date(last.submittedAt).toLocaleString("vi-VN")}
+                          Last attempt: {last.score.toFixed(1)} pts ·{" "}
+                          {new Date(last.submittedAt).toLocaleString("en-US")}
                         </p>
                       ) : (
-                        <p className="text-sm text-zinc-500">Chưa làm</p>
+                        <p className="text-sm text-zinc-500">Not attempted</p>
                       )}
                     </CardHeader>
                   </Card>

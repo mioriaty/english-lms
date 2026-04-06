@@ -11,8 +11,8 @@ export default async function StudentLayout({ children }: { children: React.Reac
   return (
     <div className="min-h-screen">
       <AppHeader
-        title="Khu vực học sinh"
-        links={[{ href: "/student", label: "Bài tập" }]}
+        title="Student Portal"
+        links={[{ href: "/student", label: "Assignments" }]}
       />
       <main className="mx-auto max-w-2xl px-4 py-8">{children}</main>
     </div>

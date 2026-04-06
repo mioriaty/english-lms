@@ -13,18 +13,18 @@ export default async function TeacherStudentsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Học sinh</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Tạo thủ công mã đăng nhập và mật khẩu.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Students</h1>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Manually create student login credentials.</p>
       </div>
 
       <CreateStudentForm />
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold">Danh sách</h2>
+        <h2 className="mb-3 text-lg font-semibold">All Students</h2>
         <ul className="space-y-2">
           {students.length === 0 ? (
             <Card>
-              <CardContent className="py-8 text-center text-zinc-500">Chưa có học sinh.</CardContent>
+              <CardContent className="py-8 text-center text-zinc-500">No students yet.</CardContent>
             </Card>
           ) : (
             students.map((s) => (
@@ -35,7 +35,7 @@ export default async function TeacherStudentsPage() {
                       <div>
                         <p className="font-medium">{s.username}</p>
                       </div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">{s._count.submissions} bài đã nộp</p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">{s._count.submissions} submission{s._count.submissions !== 1 ? "s" : ""}</p>
                     </CardContent>
                   </Card>
                 </Link>

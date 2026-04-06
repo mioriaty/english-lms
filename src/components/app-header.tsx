@@ -26,7 +26,7 @@ export function AppHeader({ title, links }: AppHeaderProps) {
           ))}
           <form action={signOutAction}>
             <Button type="submit" variant="outline" size="sm">
-              Đăng xuất
+              Sign out
             </Button>
           </form>
         </nav>

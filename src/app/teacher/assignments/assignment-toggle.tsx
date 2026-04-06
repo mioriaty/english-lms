@@ -15,7 +15,7 @@ export function AssignmentToggle({ id, isActive }: { id: string; isActive: boole
       disabled={pending}
       onClick={() => startTransition(() => setAssignmentActive(id, !isActive))}
     >
-      {pending ? "…" : isActive ? "Đang mở → Đóng" : "Đang đóng → Mở"}
+      {pending ? "…" : isActive ? "Open → Close" : "Closed → Open"}
     </Button>
   );
 }

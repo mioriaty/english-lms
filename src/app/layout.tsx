@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto_Slab, Spectral } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const robotoSlab = Roboto_Slab({
+  variable: "--font-heading",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spectral = Spectral({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "English LMS",
-  description: "Solo teacher — bài tập trắc nghiệm & điền từ",
+  description: "Solo teacher — multiple choice & fill-in-the-blank assignments",
 };
 
 export default function RootLayout({
@@ -24,8 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
-      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}>
+    <html lang="en">
+      <body
+        className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body antialiased`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>
