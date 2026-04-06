@@ -1,0 +1,50 @@
+---
+description: Form state and validation must use react-hook-form with zod
+alwaysApply: true
+---
+
+# Form Handling
+
+- **Always** use `react-hook-form` for any form state — never use `useState` to track form fields.
+- **Always** pair with `zod` schema via `zodResolver` for validation.
+- Never send extra UI-only fields (e.g. `confirmPassword`) in the server payload — strip them in the submit handler.
+
+```tsx
+// ✅ GOOD
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+// ❌ BAD
+const [form, setForm] = useState({ name: '', email: '' });
+
+const schema = z
+  .object({
+    name: z.string().min(1, 'Required'),
+    email: z.string().email('Invalid email'),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional()
+  })
+  .refine((d) => !d.password || d.password === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword']
+  });
+
+type FormValues = z.infer<typeof schema>;
+
+const {
+  register,
+  handleSubmit,
+  formState: { errors }
+} = useForm<FormValues>({
+  resolver: zodResolver(schema)
+});
+
+const onSubmit = (values: FormValues) => {
+  const { confirmPassword, ...payload } = values; // strip UI-only field
+  mutation.mutate(payload);
+};
+```
+
+- Display field errors via `errors.<field>.message` next to the corresponding input.
+- Reset form with `reset()` on dialog close or after successful mutation.
