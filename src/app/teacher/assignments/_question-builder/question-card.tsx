@@ -61,6 +61,7 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
           <button
             type="button"
             className="cursor-grab touch-none rounded p-0.5 text-zinc-400 hover:text-zinc-600 active:cursor-grabbing dark:hover:text-zinc-300"
+            suppressHydrationWarning
             {...attributes}
             {...listeners}
           >

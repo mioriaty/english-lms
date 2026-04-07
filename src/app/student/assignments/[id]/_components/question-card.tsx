@@ -39,6 +39,10 @@ export function QuestionCard({ question, index, answer, submitted, result, onTog
           {index + 1}. {question.question.text}
         </p>
 
+        {question.question.audio && (
+          <audio controls src={question.question.audio} className="w-full" />
+        )}
+
         {question.type === "MULTIPLE_CHOICE" ? (
           <fieldset className="space-y-2" disabled={submitted}>
             <legend className="sr-only">Choose all correct answers</legend>
