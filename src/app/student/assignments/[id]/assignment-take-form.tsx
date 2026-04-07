@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { ZoomIn, X } from "lucide-react";
-import type { Question, LeafQuestion } from "@/core/lms/domain/question.types";
+import type { LeafQuestion, Question } from "@/core/lms/domain/question.types";
 import { Button } from "@/libs/components/ui/button";
-import { useCountdown } from "./_hooks/use-countdown";
-import { useAssignmentForm } from "./_hooks/use-assignment-form";
+import { X, ZoomIn } from "lucide-react";
+import { useState } from "react";
 import { CountdownBadge } from "./_components/countdown-badge";
-import { QuestionCard } from "./_components/question-card";
 import { GroupQuestionCard } from "./_components/group-question-card";
-import { ResultCard } from "./_components/result-card";
+import { QuestionCard } from "./_components/question-card";
+import { useAssignmentForm } from "./_hooks/use-assignment-form";
+import { useCountdown } from "./_hooks/use-countdown";
 
 interface AssignmentTakeFormProps {
   assignmentId: string;
@@ -134,7 +133,9 @@ export function AssignmentTakeForm({
               submitted={submitted}
               result={result}
               onToggleOption={(id, opt) => toggleOption(id, opt)}
-              onChangeBlank={(id, v) => setAnswers((prev) => ({ ...prev, [id]: v }))}
+              onChangeBlank={(id, v) =>
+                setAnswers((prev) => ({ ...prev, [id]: v }))
+              }
             />
           ) : (
             <QuestionCard
@@ -145,7 +146,9 @@ export function AssignmentTakeForm({
               submitted={submitted}
               result={result}
               onToggleOption={(opt) => toggleOption(q.id, opt)}
-              onChangeBlank={(v) => setAnswers((prev) => ({ ...prev, [q.id]: v }))}
+              onChangeBlank={(v) =>
+                setAnswers((prev) => ({ ...prev, [q.id]: v }))
+              }
             />
           )
         )}
@@ -156,8 +159,6 @@ export function AssignmentTakeForm({
           </Button>
         )}
       </form>
-
-      {result && <ResultCard result={result} />}
     </div>
   );
 }

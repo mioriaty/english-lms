@@ -77,7 +77,7 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
     <div
       ref={setNodeRef}
       style={style}
-      className={`border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900 ${isDragging ? "opacity-50 shadow-lg" : ""}`}
+      className={`w-full min-w-0 border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900 ${isDragging ? "opacity-50 shadow-lg" : ""}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-4 p-4">
