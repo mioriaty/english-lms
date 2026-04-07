@@ -72,7 +72,17 @@ export function FillBlankInline({
     <div className="space-y-2">
       <p className="font-serif leading-relaxed text-zinc-700 dark:text-zinc-300">
         {segments.map((seg, i) => {
-          if (seg.kind === "text") return <span key={i}>{seg.text}</span>;
+          if (seg.kind === "text")
+            return (
+              <span key={i}>
+                {seg.text.split("\n").map((line, j, arr) => (
+                  <span key={j}>
+                    {line}
+                    {j < arr.length - 1 && <br />}
+                  </span>
+                ))}
+              </span>
+            );
 
           const result = blankResults?.[seg.idx];
           const isReview = !!result;

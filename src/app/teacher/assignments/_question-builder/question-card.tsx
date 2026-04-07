@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/libs/components/ui/select";
 import type { QuestionType } from "@/core/lms/domain/question.types";
+import { cn } from "@/libs/utils/string";
 import type { DraftQuestion, DraftLeafQuestion, DraftGroupQuestion } from "./types";
 import { newLeafDraft } from "./types";
 import { McOptionsEditor } from "./mc-options-editor";
@@ -77,7 +78,13 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
     <div
       ref={setNodeRef}
       style={style}
-      className={`w-full min-w-0 border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900 ${isDragging ? "opacity-50 shadow-lg" : ""}`}
+      className={cn(
+        "w-full min-w-0 bg-white shadow-sm dark:bg-zinc-900",
+        draft.type === "GROUP"
+          ? "border border-zinc-200 border-l-4 border-l-blue-400 dark:border-zinc-700 dark:border-l-blue-500"
+          : "border border-zinc-200 dark:border-zinc-700",
+        isDragging && "opacity-50 shadow-lg"
+      )}
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-4 p-4">
@@ -248,14 +255,15 @@ function GroupCardBody({
 
   return (
     <>
-      <div className="mb-4 space-y-2">
+      <div className="mb-3 space-y-2">
         <div className="space-y-1.5">
           <Label className="text-xs text-zinc-500">Context / Passage</Label>
           <Textarea
             value={draft.questionText}
             onChange={(e) => onChange({ ...draft, questionText: e.target.value })}
             placeholder="Exp: Read the following passage and answer the questions below…"
-            rows={4}
+            rows={2}
+            className="resize-y"
           />
         </div>
         <AudioUploader
@@ -264,45 +272,56 @@ function GroupCardBody({
         />
       </div>
 
-      <div className="mb-3 space-y-2">
-        <Label className="text-xs text-zinc-500">Sub-questions</Label>
-        {draft.subQuestions.length === 0 && (
-          <p className="text-xs italic text-zinc-400">No sub-questions yet. Add one below.</p>
-        )}
-        <div className="space-y-2">
-          {draft.subQuestions.map((sub, idx) => (
-            <SubQuestionCard
-              key={sub.id}
-              draft={sub}
-              index={idx}
-              onChange={(d) => updateSubQuestion(idx, d)}
-              onDelete={() => deleteSubQuestion(idx)}
-            />
-          ))}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs text-zinc-500">
+            Sub-questions
+            {draft.subQuestions.length > 0 && (
+              <span className="ml-1.5 rounded-full bg-zinc-100 px-1.5 py-0.5 text-zinc-500 dark:bg-zinc-800">
+                {draft.subQuestions.length}
+              </span>
+            )}
+          </Label>
+          <div className="flex gap-1.5">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={() => addSubQuestion("MULTIPLE_CHOICE")}
+            >
+              <Plus className="mr-0.5 h-3 w-3" />
+              MC
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={() => addSubQuestion("FILL_IN_THE_BLANK")}
+            >
+              <Plus className="mr-0.5 h-3 w-3" />
+              Fill Blank
+            </Button>
+          </div>
         </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs"
-          onClick={() => addSubQuestion("MULTIPLE_CHOICE")}
-        >
-          <Plus className="mr-1 h-3 w-3" />
-          Add MC
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs"
-          onClick={() => addSubQuestion("FILL_IN_THE_BLANK")}
-        >
-          <Plus className="mr-1 h-3 w-3" />
-          Add Fill Blank
-        </Button>
+        {draft.subQuestions.length === 0 ? (
+          <p className="rounded border border-dashed border-zinc-200 py-3 text-center text-xs italic text-zinc-400 dark:border-zinc-700">
+            No sub-questions yet. Add one above.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {draft.subQuestions.map((sub, idx) => (
+              <SubQuestionCard
+                key={sub.id}
+                draft={sub}
+                index={idx}
+                onChange={(d) => updateSubQuestion(idx, d)}
+                onDelete={() => deleteSubQuestion(idx)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

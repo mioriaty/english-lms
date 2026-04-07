@@ -35,7 +35,7 @@ export function GroupQuestionCard({
             />
           )}
           {group.question.text && (
-            <p className="whitespace-pre-line leading-relaxed text-zinc-700 dark:text-zinc-300">
+            <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
               {group.question.text}
             </p>
           )}

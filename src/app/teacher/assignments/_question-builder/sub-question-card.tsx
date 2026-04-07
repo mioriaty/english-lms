@@ -26,7 +26,7 @@ interface SubQuestionCardProps {
 }
 
 export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestionCardProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => draft.questionText.trim().length > 0);
 
   const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? []).length;
 
@@ -45,7 +45,7 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
 
   return (
     <div className="w-full min-w-0 border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800/50">
-      <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <div className="flex items-center justify-between gap-3 px-3 py-2">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <button
             type="button"
@@ -93,7 +93,7 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
       </div>
 
       {!collapsed && (
-        <div className="border-t border-zinc-200 px-4 pb-4 pt-3 dark:border-zinc-700">
+        <div className="border-t border-zinc-200 px-3 pb-3 pt-2.5 dark:border-zinc-700">
           <div className="mb-4 space-y-2">
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-500">Question text</Label>
