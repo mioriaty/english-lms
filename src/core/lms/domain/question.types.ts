@@ -3,6 +3,7 @@ export type QuestionType = "MULTIPLE_CHOICE" | "FILL_IN_THE_BLANK";
 export interface QuestionText {
   text: string;
   audio: string | null;
+  description?: string;
 }
 
 export interface MultipleChoiceQuestion {

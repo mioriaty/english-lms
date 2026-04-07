@@ -25,8 +25,8 @@ export function GroupQuestionCard({
   return (
     <Card className="overflow-hidden">
       {/* Context / Passage */}
-      {(group.question.text || group.question.audio) && (
-        <div className="px-6 py-4">
+      {(group.question.text || group.question.audio || group.question.description) && (
+        <div className="-mt-4 border-b border-zinc-200 bg-zinc-50 px-6 py-4 dark:border-zinc-700 dark:bg-zinc-900/50">
           {group.question.audio && (
             <audio
               controls
@@ -35,8 +35,13 @@ export function GroupQuestionCard({
             />
           )}
           {group.question.text && (
-            <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+            <p className="font-serif leading-relaxed text-zinc-700 dark:text-zinc-300">
               {group.question.text}
+            </p>
+          )}
+          {group.question.description && (
+            <p className="mt-2 text-xl leading-relaxed text-zinc-500 dark:text-zinc-400">
+              {group.question.description}
             </p>
           )}
         </div>

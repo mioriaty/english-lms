@@ -11,7 +11,7 @@ export default function NewAssignmentPage() {
         >
           ← Assignments
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">
+        <h1 className="mt-2 text-xl font-bold tracking-tight">
           New Assignment
         </h1>
         <p className="mt-1 text-xl text-zinc-600 dark:text-zinc-400">

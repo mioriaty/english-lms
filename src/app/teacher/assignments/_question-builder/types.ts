@@ -4,6 +4,7 @@ export interface DraftLeafQuestion {
   id: string;
   type: QuestionType;
   questionText: string;
+  description: string;
   audioUrl: string | null;
   options: string[];
   correct: string[];
@@ -15,6 +16,7 @@ export interface DraftGroupQuestion {
   id: string;
   type: "GROUP";
   questionText: string;
+  description: string;
   audioUrl: string | null;
   subQuestions: DraftLeafQuestion[];
 }
@@ -26,6 +28,7 @@ export function newLeafDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQ
     id: crypto.randomUUID(),
     type,
     questionText: "",
+    description: "",
     audioUrl: null,
     options: ["", "", "", ""],
     correct: [],
@@ -39,6 +42,7 @@ export function newGroupDraft(): DraftGroupQuestion {
     id: crypto.randomUUID(),
     type: "GROUP",
     questionText: "",
+    description: "",
     audioUrl: null,
     subQuestions: [newLeafDraft()],
   };
@@ -52,7 +56,7 @@ export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQuest
 export function leafDraftToQuestion(d: DraftLeafQuestion): LeafQuestion {
   const base = {
     id: d.id,
-    question: { text: d.questionText, audio: d.audioUrl },
+    question: { text: d.questionText, audio: d.audioUrl, description: d.description || undefined },
     explain: d.explain || undefined,
   };
   if (d.type === "MULTIPLE_CHOICE") {
@@ -66,7 +70,7 @@ export function draftToQuestion(d: DraftQuestion): Question {
     return {
       id: d.id,
       type: "GROUP",
-      question: { text: d.questionText, audio: d.audioUrl },
+      question: { text: d.questionText, audio: d.audioUrl, description: d.description || undefined },
       subQuestions: d.subQuestions.map(leafDraftToQuestion),
     };
   }

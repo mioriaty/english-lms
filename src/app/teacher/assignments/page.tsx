@@ -13,7 +13,7 @@ export default async function TeacherAssignmentsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Assignments</h1>
+          <h1 className="text-xl font-bold tracking-tight">Assignments</h1>
           <p className="text-xl text-muted-foreground">
             Manage and monitor all assignments.
           </p>

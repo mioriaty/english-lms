@@ -21,7 +21,7 @@ export function ResultCard({ result }: ResultCardProps) {
     <Card style={{ borderColor: "#2F5B9440", backgroundColor: "#EDF2F940" }}>
       <CardHeader>
         <CardTitle className="text-lg">Results</CardTitle>
-        <p className="text-2xl font-bold" style={{ color: "#2F5B94" }}>
+        <p className="text-xl font-bold" style={{ color: "#2F5B94" }}>
           {result.score.toFixed(1)} pts
         </p>
       </CardHeader>

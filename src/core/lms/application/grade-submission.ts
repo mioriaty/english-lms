@@ -4,6 +4,7 @@ import type { LeafQuestion, Question } from "../domain/question.types";
 const questionTextSchema = z.object({
   text: z.string(),
   audio: z.string().nullable(),
+  description: z.string().optional(),
 });
 
 const multipleChoiceSchema = z.object({

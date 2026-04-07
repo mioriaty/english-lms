@@ -17,7 +17,7 @@ export default async function StudentLecturesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Lectures</h1>
+        <h1 className="text-xl font-bold tracking-tight">Lectures</h1>
         <p className="mt-1 text-xl text-zinc-600 dark:text-zinc-400">
           List of lectures.
         </p>

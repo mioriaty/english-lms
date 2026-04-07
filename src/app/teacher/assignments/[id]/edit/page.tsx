@@ -23,7 +23,7 @@ export default async function EditAssignmentPage({ params }: PageProps) {
         >
           ← Assignments
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">
+        <h1 className="mt-2 text-xl font-bold tracking-tight">
           Edit Assignment
         </h1>
       </div>

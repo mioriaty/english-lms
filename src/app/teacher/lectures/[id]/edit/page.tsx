@@ -23,7 +23,7 @@ export default async function EditLecturePage({ params }: Props) {
           <ChevronLeft className="h-4 w-4" />
           Back to Lectures
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight">Edit Lecture</h1>
+        <h1 className="text-xl font-bold tracking-tight">Edit Lecture</h1>
         <p className="text-xl text-muted-foreground">{lecture.title}</p>
       </div>
       <EditLectureForm

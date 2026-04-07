@@ -35,7 +35,7 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
         >
           ← Students
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">
+        <h1 className="mt-2 text-xl font-bold tracking-tight">
           {student.username}
         </h1>
       </div>

@@ -108,6 +108,12 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
                 rows={2}
                 required
               />
+              <Textarea
+                value={draft.description}
+                onChange={(e) => onChange({ ...draft, description: e.target.value })}
+                placeholder="Description (optional)"
+                rows={2}
+              />
               {draft.type === "FILL_IN_THE_BLANK" && (
                 <p className="text-xs text-zinc-400">
                   Dùng{" "}

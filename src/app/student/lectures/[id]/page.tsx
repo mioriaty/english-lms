@@ -26,7 +26,7 @@ export default async function StudentLectureDetailPage({ params }: Props) {
       </Button>
 
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{lecture.title}</h1>
+        <h1 className="text-xl font-bold tracking-tight">{lecture.title}</h1>
         <p className="mt-1 text-xl text-zinc-500">
           {new Date(lecture.createdAt).toLocaleDateString("vi-VN")}
         </p>

@@ -50,12 +50,18 @@ export function QuestionCardContent({
   return (
     <div className="space-y-5">
       {question.type === "MULTIPLE_CHOICE" ? (
-        <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+        <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
           {question.question.text}
         </p>
       ) : (
-        <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+        <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
           Fill in the blank
+        </p>
+      )}
+
+      {question.question.description && (
+        <p className="text-xl leading-relaxed text-zinc-500 dark:text-zinc-400">
+          {question.question.description}
         </p>
       )}
 

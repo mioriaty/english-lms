@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { GripVertical, Trash2, ChevronDown, ChevronUp, Plus } from "lucide-react";
+import {
+  GripVertical,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+} from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/libs/components/ui/button";
@@ -17,7 +23,11 @@ import {
 } from "@/libs/components/ui/select";
 import type { QuestionType } from "@/core/lms/domain/question.types";
 import { cn } from "@/libs/utils/string";
-import type { DraftQuestion, DraftLeafQuestion, DraftGroupQuestion } from "./types";
+import type {
+  DraftQuestion,
+  DraftLeafQuestion,
+  DraftGroupQuestion,
+} from "./types";
 import { newLeafDraft } from "./types";
 import { McOptionsEditor } from "./mc-options-editor";
 import { FillBlankEditor } from "./fill-blank-editor";
@@ -31,10 +41,22 @@ interface QuestionCardProps {
   onDelete: () => void;
 }
 
-export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardProps) {
+export function QuestionCard({
+  draft,
+  index,
+  onChange,
+  onDelete,
+}: QuestionCardProps) {
   const [collapsed, setCollapsed] = useState(false);
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: draft.id,
   });
 
@@ -46,6 +68,7 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
         id: draft.id,
         type: "GROUP",
         questionText: draft.questionText,
+        description: draft.description,
         audioUrl: draft.audioUrl,
         subQuestions: [newLeafDraft()],
       };
@@ -55,6 +78,7 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
         id: draft.id,
         type: newType,
         questionText: draft.questionText,
+        description: "",
         audioUrl: draft.audioUrl,
         options: ["", "", "", ""],
         correct: [],
@@ -103,7 +127,9 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
             onClick={() => setCollapsed((v) => !v)}
             className="flex min-w-0 flex-1 items-center gap-2 text-left"
           >
-            <span className="shrink-0 text-xl font-semibold text-zinc-500">Q{index + 1}</span>
+            <span className="shrink-0 text-xl font-semibold text-zinc-500">
+              Q{index + 1}
+            </span>
             {collapsed && draft.questionText && (
               <span className="truncate text-xl text-zinc-700 dark:text-zinc-300">
                 {draft.questionText}
@@ -112,13 +138,18 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
           </button>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <Select value={draft.type} onValueChange={(v) => handleSetType(v as QuestionType | "GROUP")}>
+          <Select
+            value={draft.type}
+            onValueChange={(v) => handleSetType(v as QuestionType | "GROUP")}
+          >
             <SelectTrigger className="h-8 w-44 text-xs">
               <SelectValue>{typeLabel}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
-              <SelectItem value="FILL_IN_THE_BLANK">Fill in the Blank</SelectItem>
+              <SelectItem value="FILL_IN_THE_BLANK">
+                Fill in the Blank
+              </SelectItem>
               <SelectItem value="GROUP">Group</SelectItem>
             </SelectContent>
           </Select>
@@ -127,7 +158,11 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
             onClick={() => setCollapsed((v) => !v)}
             className="rounded p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
           >
-            {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            {collapsed ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronUp className="h-4 w-4" />
+            )}
           </button>
           <button
             type="button"
@@ -162,7 +197,8 @@ function LeafCardBody({
   draft: DraftLeafQuestion;
   onChange: (d: DraftLeafQuestion) => void;
 }) {
-  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? []).length;
+  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? [])
+    .length;
 
   function setQuestionText(text: string) {
     const blankCount = (text.match(/\[BLANK\]/g) ?? []).length;
@@ -198,11 +234,20 @@ function LeafCardBody({
               để đánh dấu chỗ trống.
               {detectedBlankCount > 0 && (
                 <span className="ml-1 font-medium text-zinc-500">
-                  {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""} detected.
+                  {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""}{" "}
+                  detected.
                 </span>
               )}
             </p>
           )}
+          <Textarea
+            value={draft.description}
+            onChange={(e) =>
+              onChange({ ...draft, description: e.target.value })
+            }
+            placeholder="Description (optional)"
+            rows={2}
+          />
         </div>
         <AudioUploader
           audioUrl={draft.audioUrl}
@@ -246,11 +291,17 @@ function GroupCardBody({
   }
 
   function deleteSubQuestion(idx: number) {
-    onChange({ ...draft, subQuestions: draft.subQuestions.filter((_, i) => i !== idx) });
+    onChange({
+      ...draft,
+      subQuestions: draft.subQuestions.filter((_, i) => i !== idx),
+    });
   }
 
   function addSubQuestion(type: QuestionType) {
-    onChange({ ...draft, subQuestions: [...draft.subQuestions, newLeafDraft(type)] });
+    onChange({
+      ...draft,
+      subQuestions: [...draft.subQuestions, newLeafDraft(type)],
+    });
   }
 
   return (
@@ -260,10 +311,20 @@ function GroupCardBody({
           <Label className="text-xs text-zinc-500">Context / Passage</Label>
           <Textarea
             value={draft.questionText}
-            onChange={(e) => onChange({ ...draft, questionText: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...draft, questionText: e.target.value })
+            }
             placeholder="Exp: Read the following passage and answer the questions below…"
             rows={2}
             className="resize-y"
+          />
+          <Textarea
+            value={draft.description}
+            onChange={(e) =>
+              onChange({ ...draft, description: e.target.value })
+            }
+            placeholder="Description (optional)"
+            rows={2}
           />
         </div>
         <AudioUploader
