@@ -89,7 +89,10 @@ export function EditAssignmentForm({
         </p>
       ) : null}
       {ok ? (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+        <p
+          className="rounded-md px-3 py-2 text-sm"
+          style={{ backgroundColor: "#2F5B9420", color: "#2F5B94" }}
+        >
           Changes saved.
         </p>
       ) : null}
