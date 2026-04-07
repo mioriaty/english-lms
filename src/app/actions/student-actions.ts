@@ -38,3 +38,43 @@ export async function createStudent(formData: FormData) {
   }
   revalidatePath("/teacher/students");
 }
+
+export async function deleteStudent(studentId: string) {
+  await requireAdmin();
+  await prisma.user.delete({ where: { id: studentId, isAdmin: false } });
+  revalidatePath("/teacher/students");
+}
+
+export async function updateStudent(
+  studentId: string,
+  data: { username?: string; password?: string },
+) {
+  await requireAdmin();
+
+  const updateData: { username?: string; passwordHash?: string } = {};
+
+  if (data.username) {
+    updateData.username = data.username.trim();
+  }
+  if (data.password) {
+    updateData.passwordHash = await hash(data.password, 10);
+  }
+
+  if (Object.keys(updateData).length === 0) return;
+
+  try {
+    await prisma.user.update({
+      where: { id: studentId, isAdmin: false },
+      data: updateData,
+    });
+  } catch (e) {
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2002"
+    ) {
+      throw new Error("Tên đăng nhập đã tồn tại.");
+    }
+    throw e;
+  }
+  revalidatePath("/teacher/students");
+}

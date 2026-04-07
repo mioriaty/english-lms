@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/libs/components/ui/badge";
 import { Button } from "@/libs/components/ui/button";
 import { AssignmentToggle } from "./assignment-toggle";
+import { AssignmentDeleteButton } from "./assignment-delete-button";
 
 interface Assignment {
   id: string;
@@ -86,6 +87,7 @@ export function AssignmentsDataTable({
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/teacher/assignments/${a.id}/edit`}>Edit</Link>
                   </Button>
+                  <AssignmentDeleteButton id={a.id} />
                 </div>
               </TableCell>
             </TableRow>

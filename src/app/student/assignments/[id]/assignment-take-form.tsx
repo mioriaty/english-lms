@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState, startTransition } from "react";
 import { submitAssignment } from "@/app/actions/submission-actions";
 import type { Question } from "@/core/lms/domain/question.types";
-import type { GradingDetailRow } from "@/core/lms/application/grade-submission";
+import type {
+  BlankResult,
+  GradingDetailRow,
+} from "@/core/lms/application/grade-submission";
 import { Button } from "@/libs/components/ui/button";
 import {
   Card,
@@ -11,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/libs/components/ui/card";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, XCircleIcon } from "lucide-react";
 import { cn } from "@/libs/utils/string";
 
 interface AssignmentTakeFormProps {
@@ -36,7 +39,6 @@ function useCountdown(totalSeconds: number | null, onExpire: () => void) {
       setRemaining((prev) => {
         if (prev === null || prev <= 1) {
           clearInterval(id);
-          // Schedule onExpire OUTSIDE the updater to avoid setState-in-render
           if (!expiredRef.current) {
             expiredRef.current = true;
             setTimeout(() => {
@@ -96,7 +98,6 @@ function optionLabel(index: number): string {
  */
 type ReviewMode = "correct" | "missed" | "wrong" | "normal";
 
-/** Multiple choice option row */
 function OptionRow({
   label,
   text,
@@ -126,7 +127,7 @@ function OptionRow({
     reviewMode === "wrong" &&
       "border-zinc-300 bg-zinc-100 text-zinc-500 line-through",
     reviewMode === "normal" && !selected && !disabled && "",
-    disabled && "cursor-default",
+    disabled && "cursor-default"
   );
 
   const badgeClass = cn(
@@ -137,7 +138,7 @@ function OptionRow({
       "border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400",
     reviewMode === "correct" && "border-[#2F5B94] text-[#2F5B94]",
     reviewMode === "missed" && "border-[#2F5B94] text-[#2F5B94]",
-    reviewMode === "wrong" && "border-zinc-300 text-zinc-400",
+    reviewMode === "wrong" && "border-zinc-300 text-zinc-400"
   );
 
   return (
@@ -147,11 +148,8 @@ function OptionRow({
       onClick={onClick}
       className={rowClass}
     >
-      {/* Letter badge */}
       <span className={badgeClass}>{label}</span>
-      {/* Option text */}
       <span className="flex-1 px-4 py-3.5">{text}</span>
-      {/* Icons */}
       {!isReview && selected && (
         <CheckCircle2
           className="mr-3 h-5 w-5 shrink-0 text-[#2F5B94]"
@@ -161,6 +159,12 @@ function OptionRow({
       {reviewMode === "correct" && (
         <CheckCircle2
           className="mr-3 h-5 w-5 shrink-0 text-[#2F5B94]"
+          aria-hidden="true"
+        />
+      )}
+      {reviewMode === "wrong" && (
+        <XCircleIcon
+          className="mr-3 h-5 w-5 shrink-0 text-zinc-400"
           aria-hidden="true"
         />
       )}
@@ -174,26 +178,45 @@ function OptionRow({
   );
 }
 
-/** Fill-in-the-blank inline input */
+/** Fill-in-the-blank — supports multiple [BLANK] markers */
 function FillBlankInline({
   template,
-  value,
+  values,
   onChange,
   disabled,
   questionId,
+  blankResults,
 }: {
   template: string;
-  value: string;
-  onChange: (v: string) => void;
+  values: string[];
+  onChange: (values: string[]) => void;
   disabled: boolean;
   questionId: string;
+  blankResults?: BlankResult[];
 }) {
-  // Split on [BLANK] placeholder. If no placeholder, show single input below.
-  const parts = template.split(/(\[BLANK\])/);
-  const hasPlaceholder = parts.some((p) => p === "[BLANK]");
+  type Segment =
+    | { kind: "text"; text: string }
+    | { kind: "blank"; idx: number };
+
+  const segments: Segment[] = [];
+  let blankCount = 0;
+  for (const part of template.split(/(\[BLANK\])/)) {
+    if (part === "[BLANK]") {
+      segments.push({ kind: "blank", idx: blankCount++ });
+    } else if (part) {
+      segments.push({ kind: "text", text: part });
+    }
+  }
+
+  const hasPlaceholder = blankCount > 0;
+
+  function updateValue(idx: number, v: string) {
+    const next = [...values];
+    next[idx] = v;
+    onChange(next);
+  }
 
   if (!hasPlaceholder) {
-    // Fallback: sentence in italic above, input below
     return (
       <div className="space-y-3">
         <p className="font-serif italic leading-relaxed text-zinc-700 dark:text-zinc-300">
@@ -202,8 +225,8 @@ function FillBlankInline({
         <input
           id={questionId}
           type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={values[0] ?? ""}
+          onChange={(e) => updateValue(0, e.target.value)}
           disabled={disabled}
           autoComplete="off"
           placeholder="Type your answer…"
@@ -213,26 +236,71 @@ function FillBlankInline({
     );
   }
 
+  const hasWrongBlanks = blankResults?.some((r) => !r.isCorrect);
+
   return (
-    <p className="font-serif italic leading-relaxed text-zinc-700 dark:text-zinc-300">
-      {parts.map((part, i) =>
-        part === "[BLANK]" ? (
-          <input
-            key={i}
-            id={questionId}
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={disabled}
-            autoComplete="off"
-            aria-label="Fill in the blank"
-            className="mx-1 inline-block min-w-[140px] border-b border-zinc-400 bg-transparent px-1 pb-0.5 text-center not-italic focus:border-[#2F5B94] focus:outline-none dark:border-zinc-500 dark:text-zinc-100"
-          />
-        ) : (
-          <span key={i}>{part}</span>
-        ),
+    <div className="space-y-2">
+      <p className="font-serif italic leading-relaxed text-zinc-700 dark:text-zinc-300">
+        {segments.map((seg, i) => {
+          if (seg.kind === "text") return <span key={i}>{seg.text}</span>;
+
+          const result = blankResults?.[seg.idx];
+          const isReview = !!result;
+
+          return (
+            <span key={i} className="mx-1 inline-flex items-center gap-0.5">
+              <input
+                type="text"
+                id={seg.idx === 0 ? questionId : undefined}
+                value={values[seg.idx] ?? ""}
+                onChange={(e) => updateValue(seg.idx, e.target.value)}
+                disabled={disabled}
+                autoComplete="off"
+                aria-label={`Blank ${seg.idx + 1}`}
+                className={cn(
+                  "inline-block min-w-35 border-b bg-transparent px-1 pb-0.5 text-center not-italic focus:outline-none dark:text-zinc-100",
+                  !isReview &&
+                    "border-zinc-400 focus:border-[#2F5B94] dark:border-zinc-500",
+                  isReview &&
+                    result.isCorrect &&
+                    "border-[#2F5B94] text-[#2F5B94]",
+                  isReview &&
+                    !result.isCorrect &&
+                    "border-zinc-300 text-zinc-400 line-through dark:border-zinc-600"
+                )}
+              />
+              {isReview && result.isCorrect && (
+                <CheckCircle2
+                  className="h-4 w-4 shrink-0 text-[#2F5B94]"
+                  aria-hidden="true"
+                />
+              )}
+              {isReview && !result.isCorrect && (
+                <XCircleIcon
+                  className="h-4 w-4 shrink-0 text-zinc-400"
+                  aria-hidden="true"
+                />
+              )}
+            </span>
+          );
+        })}
+      </p>
+
+      {hasWrongBlanks && blankResults && (
+        <div className="space-y-0.5 pt-1">
+          {blankResults.map((r, i) =>
+            !r.isCorrect ? (
+              <p key={i} className="text-sm">
+                <span className="text-zinc-500">Blank {i + 1} — correct: </span>
+                <span className="font-semibold" style={{ color: "#2F5B94" }}>
+                  {r.correctAnswers.join(" / ")}
+                </span>
+              </p>
+            ) : null
+          )}
+        </div>
       )}
-    </p>
+    </div>
   );
 }
 
@@ -311,12 +379,10 @@ export function AssignmentTakeForm({
         {questions.map((q, idx) => (
           <Card key={q.id} className="overflow-hidden">
             <CardContent className="p-6 space-y-5">
-              {/* Question text */}
               <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-                {q.question.text}
+                {idx + 1}. {q.question.text}
               </p>
 
-              {/* Options */}
               {q.type === "MULTIPLE_CHOICE" ? (
                 <fieldset className="space-y-2" disabled={submitted}>
                   <legend className="sr-only">
@@ -328,11 +394,10 @@ export function AssignmentTakeForm({
                       ? selected.includes(opt)
                       : selected === opt;
 
-                    // Tính review mode sau khi submit
                     let reviewMode: ReviewMode = "normal";
                     if (submitted && result) {
                       const detail = result.details.find(
-                        (d) => d.questionId === q.id,
+                        (d) => d.questionId === q.id
                       );
                       const correctAnswers = detail?.correctAnswers ?? [];
                       const isCorrectOpt = correctAnswers.includes(opt);
@@ -356,46 +421,39 @@ export function AssignmentTakeForm({
                     );
                   })}
                 </fieldset>
-              ) : (() => {
-                  const fillDetail = submitted && result
-                    ? result.details.find((d) => d.questionId === q.id)
-                    : null;
+              ) : (
+                (() => {
+                  const fillDetail =
+                    submitted && result
+                      ? result.details.find((d) => d.questionId === q.id)
+                      : null;
                   const isCorrect = fillDetail?.isCorrect ?? false;
-                  const correctAnswers = fillDetail?.correctAnswers ?? [];
 
                   return (
-                    <div className="space-y-3">
-                      <div className={`rounded border p-4 ${
+                    <div
+                      className={cn(
+                        "rounded border p-4",
                         submitted
                           ? isCorrect
                             ? "border-[#2F5B94] bg-[#EDF2F9]"
                             : "border-zinc-300 bg-zinc-100"
                           : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50"
-                      }`}>
-                        <FillBlankInline
-                          template={q.question.text}
-                          value={(answers[q.id] as string) ?? ""}
-                          onChange={(v) =>
-                            setAnswers((prev) => ({ ...prev, [q.id]: v }))
-                          }
-                          disabled={submitted}
-                          questionId={q.id}
-                        />
-                      </div>
-
-                      {/* Đáp án đúng sau khi submit */}
-                      {submitted && fillDetail && (
-                        <p className="text-sm">
-                          <span className="text-zinc-500">Correct answer: </span>
-                          <span className="font-semibold" style={{ color: "#2F5B94" }}>
-                            {correctAnswers.join(" / ")}
-                          </span>
-                        </p>
                       )}
+                    >
+                      <FillBlankInline
+                        template={q.question.text}
+                        values={(answers[q.id] as string[] | undefined) ?? []}
+                        onChange={(v) =>
+                          setAnswers((prev) => ({ ...prev, [q.id]: v }))
+                        }
+                        disabled={submitted}
+                        questionId={q.id}
+                        blankResults={fillDetail?.blankResults}
+                      />
                     </div>
                   );
-                })()}
-
+                })()
+              )}
             </CardContent>
           </Card>
         ))}
@@ -446,12 +504,45 @@ export function AssignmentTakeForm({
                         <p className="mb-1 text-sm font-medium text-zinc-800 dark:text-zinc-200">
                           {d.questionText}
                         </p>
-                        <p className="mt-1">
-                          Your answer:{" "}
-                          <span className="font-medium">
-                            &quot;{d.studentAnswer || "—"}&quot;
-                          </span>
-                        </p>
+                        {d.blankResults ? (
+                          <div className="mt-1 space-y-1">
+                            {d.blankResults.map((r, i) => (
+                              <p key={i}>
+                                <span className="text-zinc-500">
+                                  Blank {i + 1}:{" "}
+                                </span>
+                                <span
+                                  className={cn(
+                                    "font-medium",
+                                    r.isCorrect && "text-[#2F5B94]"
+                                  )}
+                                >
+                                  &quot;{r.studentAnswer || "—"}&quot;
+                                </span>
+                                {!r.isCorrect && (
+                                  <>
+                                    <span className="mx-1 text-zinc-400">
+                                      →
+                                    </span>
+                                    <span
+                                      className="font-semibold"
+                                      style={{ color: "#2F5B94" }}
+                                    >
+                                      {r.correctAnswers.join(" / ")}
+                                    </span>
+                                  </>
+                                )}
+                              </p>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mt-1">
+                            Your answer:{" "}
+                            <span className="font-medium">
+                              &quot;{d.studentAnswer || "—"}&quot;
+                            </span>
+                          </p>
+                        )}
                         {d.explain && (
                           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
                             {d.explain}

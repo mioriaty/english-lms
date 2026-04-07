@@ -70,3 +70,9 @@ export async function setAssignmentActive(
   });
   revalidatePath("/teacher/assignments");
 }
+
+export async function deleteAssignment(assignmentId: string) {
+  await requireAdmin();
+  await prisma.assignment.delete({ where: { id: assignmentId } });
+  revalidatePath("/teacher/assignments");
+}

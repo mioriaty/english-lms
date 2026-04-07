@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2, GripVertical, X } from "lucide-react";
 import { Button } from "@/libs/components/ui/button";
 import { Input } from "@/libs/components/ui/input";
@@ -23,7 +23,8 @@ interface DraftQuestion {
   type: QuestionType;
   questionText: string;
   options: string[]; // MULTIPLE_CHOICE only
-  correct: string[];
+  correct: string[]; // MULTIPLE_CHOICE only: correct option values
+  fillBlanks: string[][]; // FILL_IN_THE_BLANK only: per-blank accepted answers
   explain: string;
 }
 
@@ -34,6 +35,7 @@ function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftQuestion {
     questionText: "",
     options: ["", "", "", ""],
     correct: [],
+    fillBlanks: [],
     explain: "",
   };
 }
@@ -42,17 +44,17 @@ function draftToQuestion(d: DraftQuestion): Question {
   const base = {
     id: d.id,
     question: { text: d.questionText, audio: null },
-    correct: d.correct,
-    explain: d.explain,
+    explain: d.explain || undefined,
   };
   if (d.type === "MULTIPLE_CHOICE") {
     return {
       ...base,
       type: "MULTIPLE_CHOICE",
       options: d.options.filter(Boolean),
+      correct: d.correct,
     };
   }
-  return { ...base, type: "FILL_IN_THE_BLANK" };
+  return { ...base, type: "FILL_IN_THE_BLANK", correct: d.fillBlanks };
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -77,7 +79,7 @@ function OptionRow({
       <button
         type="button"
         onClick={onToggleCorrect}
-        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
+        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
           isCorrect
             ? "border-emerald-500 bg-emerald-500 text-white"
             : "border-zinc-300 text-zinc-400 hover:border-zinc-400 dark:border-zinc-600"
@@ -95,7 +97,7 @@ function OptionRow({
       <button
         type="button"
         onClick={onDelete}
-        className="flex-shrink-0 rounded p-1 text-zinc-400 hover:text-red-500"
+        className="shrink-0 rounded p-1 text-zinc-400 hover:text-red-500"
       >
         <X className="h-4 w-4" />
       </button>
@@ -103,7 +105,7 @@ function OptionRow({
   );
 }
 
-function CorrectAnswerTag({
+function AnswerTag({
   value,
   onDelete,
 }: {
@@ -138,20 +140,39 @@ function QuestionCard({
   onChange: (d: DraftQuestion) => void;
   onDelete: () => void;
 }) {
-  const [correctInput, setCorrectInput] = useState("");
+  const [blankInputs, setBlankInputs] = useState<string[]>(() =>
+    Array(draft.fillBlanks.length).fill("")
+  );
+
+  // Sync blankInputs length when blank count changes (preserve typed values)
+  useEffect(() => {
+    setBlankInputs((prev) =>
+      Array.from(
+        { length: draft.fillBlanks.length },
+        (_, i) => prev[i] ?? ""
+      )
+    );
+  }, [draft.fillBlanks.length]);
+
+  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? [])
+    .length;
 
   function setType(type: QuestionType) {
-    onChange({ ...draft, type, correct: [] });
+    onChange({ ...draft, type, correct: [], fillBlanks: [] });
   }
 
   function setQuestionText(text: string) {
-    onChange({ ...draft, questionText: text });
+    const blankCount = (text.match(/\[BLANK\]/g) ?? []).length;
+    const newFillBlanks = Array.from(
+      { length: blankCount },
+      (_, i) => draft.fillBlanks[i] ?? []
+    );
+    onChange({ ...draft, questionText: text, fillBlanks: newFillBlanks });
   }
 
   function setOption(i: number, value: string) {
     const options = [...draft.options];
     options[i] = value;
-    // Remove from correct if option text changed
     const correct = draft.correct.filter((c) => options.includes(c));
     onChange({ ...draft, options, correct });
   }
@@ -174,15 +195,25 @@ function QuestionCard({
     onChange({ ...draft, correct });
   }
 
-  function addCorrectAnswer() {
-    const trimmed = correctInput.trim();
-    if (!trimmed || draft.correct.includes(trimmed)) return;
-    onChange({ ...draft, correct: [...draft.correct, trimmed] });
-    setCorrectInput("");
+  function addBlankAnswer(blankIdx: number) {
+    const trimmed = (blankInputs[blankIdx] ?? "").trim();
+    if (!trimmed || draft.fillBlanks[blankIdx]?.includes(trimmed)) return;
+    const newFillBlanks = draft.fillBlanks.map((accepted, i) =>
+      i === blankIdx ? [...accepted, trimmed] : accepted
+    );
+    onChange({ ...draft, fillBlanks: newFillBlanks });
+    setBlankInputs((prev) => {
+      const next = [...prev];
+      next[blankIdx] = "";
+      return next;
+    });
   }
 
-  function removeCorrectAnswer(val: string) {
-    onChange({ ...draft, correct: draft.correct.filter((c) => c !== val) });
+  function removeBlankAnswer(blankIdx: number, val: string) {
+    const newFillBlanks = draft.fillBlanks.map((accepted, i) =>
+      i === blankIdx ? accepted.filter((a) => a !== val) : accepted
+    );
+    onChange({ ...draft, fillBlanks: newFillBlanks });
   }
 
   return (
@@ -228,12 +259,27 @@ function QuestionCard({
           onChange={(e) => setQuestionText(e.target.value)}
           placeholder={
             draft.type === "FILL_IN_THE_BLANK"
-              ? "VD: I ___ (be) a teacher."
+              ? "VD: Tiến huy ăn [BLANK] ngoài cút ra TH còn ăn [BLANK]"
               : "VD: What is the capital of France?"
           }
           rows={2}
           required
         />
+        {draft.type === "FILL_IN_THE_BLANK" && (
+          <p className="text-xs text-zinc-400">
+            Dùng{" "}
+            <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono dark:bg-zinc-800">
+              [BLANK]
+            </code>{" "}
+            để đánh dấu chỗ trống.
+            {detectedBlankCount > 0 && (
+              <span className="ml-1 font-medium text-zinc-500">
+                {detectedBlankCount} blank
+                {detectedBlankCount > 1 ? "s" : ""} detected.
+              </span>
+            )}
+          </p>
+        )}
       </div>
 
       {/* Options — MULTIPLE_CHOICE only */}
@@ -271,45 +317,61 @@ function QuestionCard({
         </div>
       )}
 
-      {/* Correct answers — FILL_IN_THE_BLANK */}
+      {/* Per-blank answers — FILL_IN_THE_BLANK */}
       {draft.type === "FILL_IN_THE_BLANK" && (
-        <div className="mb-4 space-y-1.5">
-          <Label className="text-xs text-zinc-500">
-            Correct answers{" "}
-            <span className="text-zinc-400">(multiple accepted)</span>
-          </Label>
-          <div className="flex flex-wrap gap-1.5">
-            {draft.correct.map((val) => (
-              <CorrectAnswerTag
-                key={val}
-                value={val}
-                onDelete={() => removeCorrectAnswer(val)}
-              />
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <Input
-              value={correctInput}
-              onChange={(e) => setCorrectInput(e.target.value)}
-              placeholder="VD: am"
-              className="h-8 text-sm"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addCorrectAnswer();
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8 shrink-0"
-              onClick={addCorrectAnswer}
-            >
-              Add
-            </Button>
-          </div>
+        <div className="mb-4 space-y-4">
+          {draft.fillBlanks.length === 0 ? (
+            <p className="text-xs italic text-zinc-400">
+              Thêm{" "}
+              <code className="font-mono">[BLANK]</code> vào câu hỏi để cấu
+              hình đáp án cho từng blank.
+            </p>
+          ) : (
+            draft.fillBlanks.map((accepted, blankIdx) => (
+              <div key={blankIdx} className="space-y-1.5">
+                <Label className="text-xs text-zinc-500">
+                  Blank {blankIdx + 1} — accepted answers
+                  <span className="ml-1 text-zinc-400">(nhiều variant OK)</span>
+                </Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {accepted.map((val) => (
+                    <AnswerTag
+                      key={val}
+                      value={val}
+                      onDelete={() => removeBlankAnswer(blankIdx, val)}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={blankInputs[blankIdx] ?? ""}
+                    onChange={(e) => {
+                      const next = [...blankInputs];
+                      next[blankIdx] = e.target.value;
+                      setBlankInputs(next);
+                    }}
+                    placeholder="VD: cút"
+                    className="h-8 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addBlankAnswer(blankIdx);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 shrink-0"
+                    onClick={() => addBlankAnswer(blankIdx)}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
@@ -330,9 +392,7 @@ function QuestionCard({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface QuestionBuilderProps {
-  /** Gọi khi submit — trả về mảng Question đã validated */
   onSubmit: (questions: Question[]) => void;
-  /** Dữ liệu ban đầu nếu edit */
   initialQuestions?: Question[];
 }
 
@@ -347,7 +407,8 @@ export function QuestionBuilder({
         type: q.type,
         questionText: q.question.text,
         options: q.type === "MULTIPLE_CHOICE" ? q.options : [],
-        correct: q.correct,
+        correct: q.type === "MULTIPLE_CHOICE" ? q.correct : [],
+        fillBlanks: q.type === "FILL_IN_THE_BLANK" ? q.correct : [],
         explain: q.explain ?? "",
       }));
     }
@@ -383,7 +444,6 @@ export function QuestionBuilder({
         />
       ))}
 
-      {/* Add question buttons */}
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"

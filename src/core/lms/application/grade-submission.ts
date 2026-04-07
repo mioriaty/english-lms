@@ -19,7 +19,7 @@ const fillBlankSchema = z.object({
   id: z.string(),
   type: z.literal("FILL_IN_THE_BLANK"),
   question: questionTextSchema,
-  correct: z.array(z.string()),
+  correct: z.array(z.array(z.string())),
   explain: z.string().optional(),
 });
 
@@ -45,9 +45,10 @@ function isMultiSelectCorrect(selected: string[], accepted: string[]): boolean {
   return normalize(selected) === normalize(accepted);
 }
 
-function isFillCorrect(student: string, accepted: string[]): boolean {
-  const n = normalizeAnswer(student);
-  return accepted.some((a) => normalizeAnswer(a) === n);
+export interface BlankResult {
+  isCorrect: boolean;
+  studentAnswer: string;
+  correctAnswers: string[];
 }
 
 export interface GradingDetailRow {
@@ -56,6 +57,7 @@ export interface GradingDetailRow {
   isCorrect: boolean;
   studentAnswer: string;
   correctAnswers: string[];
+  blankResults?: BlankResult[];
   explain?: string;
 }
 
@@ -71,15 +73,25 @@ export function gradeSubmission(
     const raw = answers[q.id];
     let ok = false;
     let studentAnswer = "";
+    let blankResults: BlankResult[] | undefined;
 
     if (q.type === "MULTIPLE_CHOICE") {
       const selected = Array.isArray(raw) ? raw : raw ? [raw] : [];
       ok = isMultiSelectCorrect(selected, q.correct);
       studentAnswer = selected.join(", ");
     } else {
-      const str = Array.isArray(raw) ? raw[0] ?? "" : raw ?? "";
-      ok = isFillCorrect(str, q.correct);
-      studentAnswer = str;
+      const studentAnswers = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
+      blankResults = q.correct.map((accepted, i) => {
+        const ans = studentAnswers[i] ?? "";
+        const isBlankCorrect = accepted.some(
+          (a) => normalizeAnswer(a) === normalizeAnswer(ans),
+        );
+        return { isCorrect: isBlankCorrect, studentAnswer: ans, correctAnswers: accepted };
+      });
+
+      ok = blankResults.every((r) => r.isCorrect);
+      studentAnswer = studentAnswers.join(", ");
     }
 
     if (ok) correctCount += 1;
@@ -88,7 +100,8 @@ export function gradeSubmission(
       questionText: q.question.text,
       isCorrect: ok,
       studentAnswer,
-      correctAnswers: q.correct,
+      correctAnswers: q.type === "MULTIPLE_CHOICE" ? q.correct : q.correct.flat(),
+      blankResults,
       ...(!ok && { explain: q.explain }),
     });
   }

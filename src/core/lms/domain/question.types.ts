@@ -18,7 +18,8 @@ export interface FillInTheBlankQuestion {
   id: string;
   type: "FILL_IN_THE_BLANK";
   question: QuestionText;
-  correct: string[];
+  /** correct[i] = accepted variants for blank i */
+  correct: string[][];
   explain?: string;
 }
 
