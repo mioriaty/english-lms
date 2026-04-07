@@ -17,6 +17,7 @@ import type { DraftLeafQuestion } from "./types";
 import { McOptionsEditor } from "./mc-options-editor";
 import { FillBlankEditor } from "./fill-blank-editor";
 import { AudioUploader } from "./audio-uploader";
+import { ImageUploader } from "../_components/image-uploader";
 
 interface SubQuestionCardProps {
   draft: DraftLeafQuestion;
@@ -132,6 +133,11 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
             <AudioUploader
               audioUrl={draft.audioUrl}
               onChange={(url) => onChange({ ...draft, audioUrl: url })}
+            />
+            <ImageUploader
+              imageUrl={draft.imageUrl}
+              onChange={(url) => onChange({ ...draft, imageUrl: url })}
+              label="Question image"
             />
           </div>
 

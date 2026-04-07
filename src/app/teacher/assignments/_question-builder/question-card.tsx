@@ -32,6 +32,7 @@ import { newLeafDraft } from "./types";
 import { McOptionsEditor } from "./mc-options-editor";
 import { FillBlankEditor } from "./fill-blank-editor";
 import { AudioUploader } from "./audio-uploader";
+import { ImageUploader } from "../_components/image-uploader";
 import { SubQuestionCard } from "./sub-question-card";
 
 interface QuestionCardProps {
@@ -70,6 +71,7 @@ export function QuestionCard({
         questionText: draft.questionText,
         description: draft.description,
         audioUrl: draft.audioUrl,
+        imageUrl: draft.imageUrl,
         subQuestions: [newLeafDraft()],
       };
       onChange(next);
@@ -80,6 +82,7 @@ export function QuestionCard({
         questionText: draft.questionText,
         description: "",
         audioUrl: draft.audioUrl,
+        imageUrl: draft.imageUrl,
         options: ["", "", "", ""],
         correct: [],
         fillBlanks: [],
@@ -253,6 +256,11 @@ function LeafCardBody({
           audioUrl={draft.audioUrl}
           onChange={(url) => onChange({ ...draft, audioUrl: url })}
         />
+        <ImageUploader
+          imageUrl={draft.imageUrl}
+          onChange={(url) => onChange({ ...draft, imageUrl: url })}
+          label="Question image"
+        />
       </div>
 
       {draft.type === "MULTIPLE_CHOICE" ? (
@@ -330,6 +338,11 @@ function GroupCardBody({
         <AudioUploader
           audioUrl={draft.audioUrl}
           onChange={(url) => onChange({ ...draft, audioUrl: url })}
+        />
+        <ImageUploader
+          imageUrl={draft.imageUrl}
+          onChange={(url) => onChange({ ...draft, imageUrl: url })}
+          label="Question image"
         />
       </div>
 

@@ -6,6 +6,7 @@ export interface DraftLeafQuestion {
   questionText: string;
   description: string;
   audioUrl: string | null;
+  imageUrl: string | null;
   options: string[];
   correct: string[];
   fillBlanks: string[][];
@@ -18,6 +19,7 @@ export interface DraftGroupQuestion {
   questionText: string;
   description: string;
   audioUrl: string | null;
+  imageUrl: string | null;
   subQuestions: DraftLeafQuestion[];
 }
 
@@ -30,6 +32,7 @@ export function newLeafDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQ
     questionText: "",
     description: "",
     audioUrl: null,
+    imageUrl: null,
     options: ["", "", "", ""],
     correct: [],
     fillBlanks: [],
@@ -44,6 +47,7 @@ export function newGroupDraft(): DraftGroupQuestion {
     questionText: "",
     description: "",
     audioUrl: null,
+    imageUrl: null,
     subQuestions: [newLeafDraft()],
   };
 }
@@ -56,7 +60,12 @@ export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQuest
 export function leafDraftToQuestion(d: DraftLeafQuestion): LeafQuestion {
   const base = {
     id: d.id,
-    question: { text: d.questionText, audio: d.audioUrl, description: d.description || undefined },
+    question: {
+      text: d.questionText,
+      audio: d.audioUrl,
+      image: d.imageUrl ?? undefined,
+      description: d.description || undefined,
+    },
     explain: d.explain || undefined,
   };
   if (d.type === "MULTIPLE_CHOICE") {
@@ -70,7 +79,12 @@ export function draftToQuestion(d: DraftQuestion): Question {
     return {
       id: d.id,
       type: "GROUP",
-      question: { text: d.questionText, audio: d.audioUrl, description: d.description || undefined },
+      question: {
+        text: d.questionText,
+        audio: d.audioUrl,
+        image: d.imageUrl ?? undefined,
+        description: d.description || undefined,
+      },
       subQuestions: d.subQuestions.map(leafDraftToQuestion),
     };
   }

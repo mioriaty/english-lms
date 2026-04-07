@@ -8,6 +8,7 @@ import { Label } from "@/libs/components/ui/label";
 interface ImageUploaderProps {
   imageUrl: string | null;
   onChange: (url: string | null) => void;
+  label?: string;
 }
 
 async function uploadImage(file: File): Promise<string> {
@@ -30,7 +31,7 @@ async function deleteImage(url: string): Promise<void> {
   });
 }
 
-export function ImageUploader({ imageUrl, onChange }: ImageUploaderProps) {
+export function ImageUploader({ imageUrl, onChange, label = "Assignment's image" }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +63,7 @@ export function ImageUploader({ imageUrl, onChange }: ImageUploaderProps) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-zinc-500">
-        Assignment&apos;s image{" "}
+        {label}{" "}
         <span className="text-zinc-400">
           (JPG, PNG, WebP, maximum 5MB, optional)
         </span>

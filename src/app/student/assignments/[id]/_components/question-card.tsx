@@ -4,6 +4,7 @@ import type { LeafQuestion } from "@/core/lms/domain/question.types";
 import type { GradingDetailRow } from "@/core/lms/application/grade-submission";
 import { OptionRow, optionLabel, type ReviewMode } from "./option-row";
 import { FillBlankInline } from "./fill-blank-inline";
+import { ImageZoom } from "./image-zoom";
 
 interface QuestionCardProps {
   question: LeafQuestion;
@@ -67,6 +68,13 @@ export function QuestionCardContent({
 
       {question.question.audio && (
         <audio controls src={question.question.audio} className="w-full" />
+      )}
+
+      {question.question.image && (
+        <ImageZoom
+          src={question.question.image}
+          className="max-h-72 w-auto rounded-md border border-zinc-200 object-contain dark:border-zinc-700"
+        />
       )}
 
       {question.type === "MULTIPLE_CHOICE" ? (
