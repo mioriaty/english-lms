@@ -50,7 +50,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
         </AlertDialogHeader>
         {children}
         <AlertDialogFooter>
-          <AlertDialogCancel variant={""} size="sm" disabled={isLoading}>
+          <AlertDialogCancel variant="outline" size="sm" disabled={isLoading}>
             {cancelBtnText ?? "Cancel"}
           </AlertDialogCancel>
           <Button
