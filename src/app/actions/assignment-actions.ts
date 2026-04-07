@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { parseAssignmentQuestions } from "@/core/lms/application/grade-submission";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 
 async function requireAdmin() {
   const session = await auth();
@@ -34,7 +34,10 @@ export async function createAssignment(formData: FormData) {
   return { ok: true as const, id: assignment.id };
 }
 
-export async function updateAssignment(assignmentId: string, formData: FormData) {
+export async function updateAssignment(
+  assignmentId: string,
+  formData: FormData,
+) {
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const contentRaw = String(formData.get("content") ?? "");
@@ -56,7 +59,10 @@ export async function updateAssignment(assignmentId: string, formData: FormData)
   revalidatePath(`/teacher/assignments/${assignmentId}/edit`);
 }
 
-export async function setAssignmentActive(assignmentId: string, isActive: boolean) {
+export async function setAssignmentActive(
+  assignmentId: string,
+  isActive: boolean,
+) {
   await requireAdmin();
   await prisma.assignment.update({
     where: { id: assignmentId },

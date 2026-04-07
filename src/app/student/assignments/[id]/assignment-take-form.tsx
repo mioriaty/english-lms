@@ -5,6 +5,7 @@ import { submitAssignment } from "@/app/actions/submission-actions";
 import type { Question } from "@/core/lms/domain/question.types";
 import type { GradingDetailRow } from "@/core/lms/application/grade-submission";
 import { Button } from "@/libs/components/ui/button";
+import { Checkbox } from "@/libs/components/ui/checkbox";
 import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/libs/components/ui/card";
@@ -78,14 +79,25 @@ export function AssignmentTakeForm({
   questions,
   timeLimitSeconds,
 }: AssignmentTakeFormProps) {
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [result, setResult] = useState<{ score: number; details: GradingDetailRow[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  async function doSubmit(currentAnswers: Record<string, string>) {
+  function toggleCheckbox(questionId: string, option: string) {
+    setAnswers((prev) => {
+      const current = prev[questionId];
+      const selected = Array.isArray(current) ? current : current ? [current] : [];
+      const next = selected.includes(option)
+        ? selected.filter((o) => o !== option)
+        : [...selected, option];
+      return { ...prev, [questionId]: next };
+    });
+  }
+
+  async function doSubmit(currentAnswers: Record<string, string | string[]>) {
     if (submitted) return;
     setSubmitted(true);
     setError(null);
@@ -104,9 +116,8 @@ export function AssignmentTakeForm({
   const remaining = useCountdown(
     submitted ? null : timeLimitSeconds,
     () => {
-      // Auto submit khi hết giờ
       doSubmit(answers);
-    }
+    },
   );
 
   async function onSubmit(e: React.FormEvent) {
@@ -143,29 +154,35 @@ export function AssignmentTakeForm({
             <CardContent className="space-y-3">
               <p className="text-zinc-800 dark:text-zinc-200">{q.question.text}</p>
               {q.type === "MULTIPLE_CHOICE" ? (
-                <fieldset className="space-y-2">
-                  <legend className="sr-only">Choose an answer</legend>
-                  {q.options.map((opt) => (
-                    <label key={opt} className="flex cursor-pointer items-center gap-2 text-sm">
-                      <input
-                        type="radio"
-                        name={q.id}
-                        value={opt}
-                        checked={answers[q.id] === opt}
-                        onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: opt }))}
-                        className="size-4"
-                        disabled={submitted}
-                      />
-                      <span>{opt}</span>
-                    </label>
-                  ))}
+                <fieldset className="space-y-2" disabled={submitted}>
+                  <legend className="sr-only">Choose all correct answers</legend>
+                  {q.options.map((opt) => {
+                    const selected = answers[q.id];
+                    const isChecked = Array.isArray(selected)
+                      ? selected.includes(opt)
+                      : selected === opt;
+                    return (
+                      <label
+                        key={opt}
+                        className="flex cursor-pointer items-center gap-2.5 text-sm select-none"
+                      >
+                        <Checkbox
+                          id={`${q.id}-${opt}`}
+                          checked={isChecked}
+                          onCheckedChange={() => toggleCheckbox(q.id, opt)}
+                          disabled={submitted}
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    );
+                  })}
                 </fieldset>
               ) : (
                 <div className="space-y-2">
                   <Label htmlFor={q.id}>Fill in your answer</Label>
                   <Input
                     id={q.id}
-                    value={answers[q.id] ?? ""}
+                    value={(answers[q.id] as string) ?? ""}
                     onChange={(e) =>
                       setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
                     }

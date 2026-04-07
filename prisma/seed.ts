@@ -4,8 +4,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const username = process.env.SEED_TEACHER_USERNAME ?? "teacher";
-  const password = process.env.SEED_TEACHER_PASSWORD ?? "teacher123";
+  const username = process.env.SEED_TEACHER_USERNAME ?? "skyelar";
+  const password = process.env.SEED_TEACHER_PASSWORD ?? "@maidng29";
 
   const existing = await prisma.user.findUnique({ where: { username } });
   if (existing) {

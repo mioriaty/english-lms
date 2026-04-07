@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { z } from "zod";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 
 const credentialsSchema = z.object({
   username: z.string().min(1),

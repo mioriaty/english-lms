@@ -6,9 +6,12 @@ import {
   gradeSubmission,
   parseAssignmentQuestions,
 } from "@/core/lms/application/grade-submission";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 
-export async function submitAssignment(assignmentId: string, answers: Record<string, string>) {
+export async function submitAssignment(
+  assignmentId: string,
+  answers: Record<string, string | string[]>,
+) {
   const session = await auth();
   if (!session?.user || session.user.isAdmin) {
     throw new Error("Unauthorized");

@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { LoginForms } from "./login-forms";
 
 export default async function LoginPage() {
@@ -13,12 +12,6 @@ export default async function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-6">
       <LoginForms />
-      <Link
-        href="/"
-        className="text-sm text-zinc-600 underline dark:text-zinc-400"
-      >
-        Home
-      </Link>
     </div>
   );
 }

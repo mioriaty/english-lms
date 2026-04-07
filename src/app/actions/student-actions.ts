@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 
 async function requireAdmin() {
   const session = await auth();

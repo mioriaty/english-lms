@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 import { EditAssignmentForm } from "./edit-assignment-form";
 
 interface PageProps {
@@ -17,12 +17,22 @@ export default async function EditAssignmentPage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/teacher/assignments" className="text-sm text-zinc-600 underline dark:text-zinc-400">
+        <Link
+          href="/teacher/assignments"
+          className="text-sm text-zinc-600 underline dark:text-zinc-400"
+        >
           ← Assignments
         </Link>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">Edit Assignment</h1>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight">
+          Edit Assignment
+        </h1>
       </div>
-      <EditAssignmentForm assignmentId={id} initialTitle={assignment.title} initialContent={contentStr} initialTimeLimitSeconds={assignment.timeLimitSeconds} />
+      <EditAssignmentForm
+        assignmentId={id}
+        initialTitle={assignment.title}
+        initialContent={contentStr}
+        initialTimeLimitSeconds={assignment.timeLimitSeconds}
+      />
     </div>
   );
 }

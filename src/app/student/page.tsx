@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
-import { Card, CardContent, CardHeader, CardTitle } from "@/libs/components/ui/card";
+import { prisma } from "@/libs/utils/db";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/libs/components/ui/card";
 
 export default async function StudentHomePage() {
   const session = await auth();
@@ -24,13 +29,17 @@ export default async function StudentHomePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Open Assignments</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Choose an assignment to start. You can submit multiple times.</p>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Choose an assignment to start. You can submit multiple times.
+        </p>
       </div>
 
       <ul className="space-y-3">
         {assignments.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-zinc-500">No assignments available.</CardContent>
+            <CardContent className="py-8 text-center text-zinc-500">
+              No assignments available.
+            </CardContent>
           </Card>
         ) : (
           assignments.map((a) => {

@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 import { Button } from "@/libs/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/libs/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/libs/components/ui/card";
 
 export default async function TeacherHomePage() {
   const [assignmentCount, studentCount, submissionCount] = await Promise.all([
@@ -14,7 +20,9 @@ export default async function TeacherHomePage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
-        <p className="mt-1 text-zinc-600 dark:text-zinc-400">Manage assignments and students.</p>
+        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+          Manage assignments and students.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

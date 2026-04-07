@@ -1,7 +1,12 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 import { Button } from "@/libs/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/libs/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/libs/components/ui/card";
 import { AssignmentToggle } from "./assignment-toggle";
 
 export default async function TeacherAssignmentsPage() {
@@ -15,7 +20,9 @@ export default async function TeacherAssignmentsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Assignments</h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Question content is stored as JSON.</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            Question content is stored as JSON.
+          </p>
         </div>
         <Button asChild>
           <Link href="/teacher/assignments/new">New</Link>
@@ -25,7 +32,9 @@ export default async function TeacherAssignmentsPage() {
       <ul className="space-y-3">
         {assignments.length === 0 ? (
           <Card>
-            <CardContent className="py-8 text-center text-zinc-500">No assignments yet.</CardContent>
+            <CardContent className="py-8 text-center text-zinc-500">
+              No assignments yet.
+            </CardContent>
           </Card>
         ) : (
           assignments.map((a) => (
@@ -35,13 +44,17 @@ export default async function TeacherAssignmentsPage() {
                   <div>
                     <CardTitle className="text-lg">{a.title}</CardTitle>
                     <p className="mt-1 text-sm text-zinc-500">
-                      {a._count.submissions} submission{a._count.submissions !== 1 ? "s" : ""} · {a.isActive ? "Open" : "Closed"}
+                      {a._count.submissions} submission
+                      {a._count.submissions !== 1 ? "s" : ""} ·{" "}
+                      {a.isActive ? "Open" : "Closed"}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <AssignmentToggle id={a.id} isActive={a.isActive} />
                     <Button variant="secondary" size="sm" asChild>
-                      <Link href={`/teacher/assignments/${a.id}/edit`}>Edit</Link>
+                      <Link href={`/teacher/assignments/${a.id}/edit`}>
+                        Edit
+                      </Link>
                     </Button>
                   </div>
                 </CardHeader>

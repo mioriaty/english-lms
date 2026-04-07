@@ -14,145 +14,76 @@ import {
 } from "@/libs/components/ui/card";
 
 export function LoginForms() {
-  const [tab, setTab] = useState<"teacher" | "student">("teacher");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function onTeacherSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setPending(true);
     const fd = new FormData(e.currentTarget);
     const username = String(fd.get("username") ?? "");
     const password = String(fd.get("password") ?? "");
-    const res = await signIn("credentials", {
-      username,
-      password,
-      redirect: false,
-    });
-    setPending(false);
-    if (res?.error) {
-      setError("Invalid username or password.");
-      return;
-    }
-    window.location.href = "/teacher";
-  }
 
-  async function onStudentSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setPending(true);
-    const fd = new FormData(e.currentTarget);
-    const username = String(fd.get("username") ?? "");
-    const password = String(fd.get("password") ?? "");
     const res = await signIn("credentials", {
       username,
       password,
       redirect: false,
     });
+
     setPending(false);
+
     if (res?.error) {
       setError("Invalid username or password.");
       return;
     }
-    window.location.href = "/student";
+
+    // Fetch session to know the role, then redirect
+    const { getSession } = await import("next-auth/react");
+    const session = await getSession();
+    window.location.href = session?.user?.isAdmin ? "/teacher" : "/student";
   }
 
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
-        <CardDescription>Select your role to continue.</CardDescription>
+        <CardDescription>Enter your credentials to continue.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900">
-          <button
-            type="button"
-            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              tab === "teacher"
-                ? "bg-white shadow dark:bg-zinc-950"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400"
-            }`}
-            onClick={() => {
-              setTab("teacher");
-              setError(null);
-            }}
-          >
-            Teacher
-          </button>
-          <button
-            type="button"
-            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              tab === "student"
-                ? "bg-white shadow dark:bg-zinc-950"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400"
-            }`}
-            onClick={() => {
-              setTab("student");
-              setError(null);
-            }}
-          >
-            Student
-          </button>
-        </div>
+      <CardContent>
+        <form className="space-y-4" onSubmit={onSubmit}>
+          {error ? (
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
+              {error}
+            </p>
+          ) : null}
 
-        {error ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        ) : null}
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+            />
+          </div>
 
-        {tab === "teacher" ? (
-          <form className="space-y-4" onSubmit={onTeacherSubmit}>
-            <div className="space-y-2">
-              <Label htmlFor="tusername">Username</Label>
-              <Input
-                id="tusername"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tpassword">Password</Label>
-              <Input
-                id="tpassword"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Signing in…" : "Sign in as Teacher"}
-            </Button>
-          </form>
-        ) : (
-          <form className="space-y-4" onSubmit={onStudentSubmit}>
-            <div className="space-y-2">
-              <Label htmlFor="susername">Username</Label>
-              <Input
-                id="susername"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="spassword">Password</Label>
-              <Input
-                id="spassword"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Signing in…" : "Sign in as Student"}
-            </Button>
-          </form>
-        )}
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={pending}>
+            {pending ? "Signing in…" : "Sign in"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );

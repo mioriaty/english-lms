@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/libs/utils/db";
 import { Card, CardContent } from "@/libs/components/ui/card";
 import { CreateStudentForm } from "./create-student-form";
 
@@ -14,7 +14,9 @@ export default async function TeacherStudentsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Students</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Manually create student login credentials.</p>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Manually create student login credentials.
+        </p>
       </div>
 
       <CreateStudentForm />
@@ -24,7 +26,9 @@ export default async function TeacherStudentsPage() {
         <ul className="space-y-2">
           {students.length === 0 ? (
             <Card>
-              <CardContent className="py-8 text-center text-zinc-500">No students yet.</CardContent>
+              <CardContent className="py-8 text-center text-zinc-500">
+                No students yet.
+              </CardContent>
             </Card>
           ) : (
             students.map((s) => (
@@ -35,7 +39,10 @@ export default async function TeacherStudentsPage() {
                       <div>
                         <p className="font-medium">{s.username}</p>
                       </div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">{s._count.submissions} submission{s._count.submissions !== 1 ? "s" : ""}</p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {s._count.submissions} submission
+                        {s._count.submissions !== 1 ? "s" : ""}
+                      </p>
                     </CardContent>
                   </Card>
                 </Link>
