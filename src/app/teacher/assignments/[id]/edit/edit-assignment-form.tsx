@@ -23,7 +23,9 @@ export function EditAssignmentForm({
 }: EditAssignmentFormProps) {
   const [title, setTitle] = useState(initialTitle);
   const [timeLimit, setTimeLimit] = useState<string>(
-    initialTimeLimitSeconds ? String(Math.round(initialTimeLimitSeconds / 60)) : ""
+    initialTimeLimitSeconds
+      ? String(Math.round(initialTimeLimitSeconds / 60))
+      : "",
   );
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
@@ -71,7 +73,9 @@ export function EditAssignmentForm({
       await updateAssignment(assignmentId, fd);
       setOk(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update assignment.");
+      setError(
+        err instanceof Error ? err.message : "Failed to update assignment.",
+      );
     } finally {
       setPending(false);
     }
@@ -91,7 +95,7 @@ export function EditAssignmentForm({
       ) : null}
 
       {/* Title + Time limit */}
-      <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+      <div className="grid gap-4 sm:grid-cols-[1fr_300px]">
         <div className="space-y-2">
           <Label htmlFor="title">Title</Label>
           <Input
@@ -105,7 +109,9 @@ export function EditAssignmentForm({
         <div className="space-y-2">
           <Label htmlFor="timeLimit">
             Time limit{" "}
-            <span className="font-normal text-zinc-400">(minutes, optional)</span>
+            <span className="font-normal text-zinc-400">
+              (minutes, optional)
+            </span>
           </Label>
           <Input
             id="timeLimit"
@@ -128,9 +134,7 @@ export function EditAssignmentForm({
         />
       </div>
 
-      {pending && (
-        <p className="text-sm text-zinc-500">Saving…</p>
-      )}
+      {pending && <p className="text-sm text-zinc-500">Saving…</p>}
     </div>
   );
 }

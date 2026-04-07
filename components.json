@@ -13,10 +13,9 @@
   "iconLibrary": "phosphor",
   "rtl": false,
   "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
+    "components": "@/libs/components",
+    "utils": "@/libs/utils/string",
+    "ui": "@/libs/components/ui",
     "hooks": "@/hooks"
   },
   "menuColor": "default",

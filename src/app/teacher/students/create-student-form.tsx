@@ -22,7 +22,9 @@ export function CreateStudentForm() {
       (e.target as HTMLFormElement).reset();
       setOk(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create student.");
+      setError(
+        err instanceof Error ? err.message : "Failed to create student.",
+      );
     } finally {
       setPending(false);
     }
@@ -30,7 +32,7 @@ export function CreateStudentForm() {
 
   return (
     <form
-      className="space-y-4 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800"
+      className="space-y-4 border border-zinc-200 p-4 dark:border-zinc-800"
       onSubmit={onSubmit}
     >
       <h2 className="text-lg font-semibold">Add Student</h2>

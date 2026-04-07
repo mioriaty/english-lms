@@ -111,7 +111,10 @@ function CorrectAnswerTag({
   onDelete: () => void;
 }) {
   return (
-    <Badge variant="secondary" className="flex items-center gap-1 py-1 pl-2 pr-1">
+    <Badge
+      variant="secondary"
+      className="flex items-center gap-1 py-1 pl-2 pr-1"
+    >
       {value}
       <button
         type="button"
@@ -183,7 +186,7 @@ function QuestionCard({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -193,13 +196,18 @@ function QuestionCard({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={draft.type} onValueChange={(v) => setType(v as QuestionType)}>
+          <Select
+            value={draft.type}
+            onValueChange={(v) => setType(v as QuestionType)}
+          >
             <SelectTrigger className="h-8 w-44 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
-              <SelectItem value="FILL_IN_THE_BLANK">Fill in the Blank</SelectItem>
+              <SelectItem value="FILL_IN_THE_BLANK">
+                Fill in the Blank
+              </SelectItem>
             </SelectContent>
           </Select>
           <button
@@ -220,8 +228,8 @@ function QuestionCard({
           onChange={(e) => setQuestionText(e.target.value)}
           placeholder={
             draft.type === "FILL_IN_THE_BLANK"
-              ? 'VD: I ___ (be) a teacher.'
-              : 'VD: What is the capital of France?'
+              ? "VD: I ___ (be) a teacher."
+              : "VD: What is the capital of France?"
           }
           rows={2}
           required
@@ -233,7 +241,9 @@ function QuestionCard({
         <div className="mb-4 space-y-1.5">
           <Label className="text-xs text-zinc-500">
             Options{" "}
-            <span className="text-zinc-400">(click the letter to mark correct)</span>
+            <span className="text-zinc-400">
+              (click the letter to mark correct)
+            </span>
           </Label>
           <div className="space-y-2">
             {draft.options.map((opt, i) => (
@@ -281,7 +291,7 @@ function QuestionCard({
             <Input
               value={correctInput}
               onChange={(e) => setCorrectInput(e.target.value)}
-              placeholder='VD: am'
+              placeholder="VD: am"
               className="h-8 text-sm"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -326,7 +336,10 @@ interface QuestionBuilderProps {
   initialQuestions?: Question[];
 }
 
-export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderProps) {
+export function QuestionBuilder({
+  onSubmit,
+  initialQuestions,
+}: QuestionBuilderProps) {
   const [drafts, setDrafts] = useState<DraftQuestion[]>(() => {
     if (initialQuestions && initialQuestions.length > 0) {
       return initialQuestions.map((q) => ({
@@ -393,7 +406,11 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
       </div>
 
       <div className="pt-2">
-        <Button type="button" onClick={handleSubmit} className="w-full sm:w-auto">
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          className="w-full sm:w-auto"
+        >
           Save Questions
         </Button>
       </div>

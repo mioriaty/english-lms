@@ -50,7 +50,9 @@ export function NewAssignmentForm() {
       const res = await createAssignment(fd);
       if (res?.ok) router.push(`/teacher/assignments/${res.id}/edit`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create assignment.");
+      setError(
+        err instanceof Error ? err.message : "Failed to create assignment.",
+      );
     } finally {
       setPending(false);
     }
@@ -65,7 +67,7 @@ export function NewAssignmentForm() {
       ) : null}
 
       {/* Tiêu đề + Thời gian */}
-      <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+      <div className="grid gap-4 sm:grid-cols-[1fr_300px]">
         <div className="space-y-2">
           <Label htmlFor="title">Title</Label>
           <Input
@@ -80,7 +82,9 @@ export function NewAssignmentForm() {
         <div className="space-y-2">
           <Label htmlFor="timeLimit">
             Time limit{" "}
-            <span className="font-normal text-zinc-400">(minutes, optional)</span>
+            <span className="font-normal text-zinc-400">
+              (minutes, optional)
+            </span>
           </Label>
           <Input
             id="timeLimit"

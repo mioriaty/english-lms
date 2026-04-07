@@ -5,7 +5,10 @@ import "./globals.css";
 import { cn } from "@/libs/utils/string";
 import { Toaster } from "@/libs/components/ui/sonner";
 
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 const robotoSlab = Roboto_Slab({
   variable: "--font-heading",
@@ -33,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-mono", jetbrainsMono.variable)}>
       <body
-        className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body antialiased`}
+        className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body text-sm antialiased`}
       >
         <Providers>{children}</Providers>
         <Toaster />
