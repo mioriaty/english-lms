@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 import { PencilSimple } from "@phosphor-icons/react";
 import {
   Sheet,
@@ -31,7 +32,6 @@ interface EditStudentSheetProps {
 
 export function EditStudentSheet({ student }: EditStudentSheetProps) {
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -44,16 +44,16 @@ export function EditStudentSheet({ student }: EditStudentSheetProps) {
   });
 
   async function onSubmit(values: FormValues) {
-    setError(null);
     try {
       await updateStudent(student.id, {
         username: values.username !== student.username ? values.username : undefined,
         password: values.password || undefined,
       });
+      toast.success("Student updated successfully.");
       setOpen(false);
       reset({ username: values.username, password: "" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update student.");
+      toast.error(err instanceof Error ? err.message : "Failed to update student.");
     }
   }
 
@@ -62,10 +62,7 @@ export function EditStudentSheet({ student }: EditStudentSheetProps) {
       open={open}
       onOpenChange={(v) => {
         setOpen(v);
-        if (!v) {
-          reset({ username: student.username, password: "" });
-          setError(null);
-        }
+        if (!v) reset({ username: student.username, password: "" });
       }}
     >
       <SheetTrigger asChild>
@@ -79,7 +76,6 @@ export function EditStudentSheet({ student }: EditStudentSheetProps) {
           <SheetTitle>Edit Student</SheetTitle>
         </SheetHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 p-4">
-          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
           <div className="space-y-2">
             <Label htmlFor="edit-username">Username</Label>
             <Input

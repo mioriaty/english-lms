@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LucideIcon,
   Users,
+  NotebookText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -52,6 +53,7 @@ const SIDEBAR_CONFIGS: Record<"teacher" | "student", SidebarConfig> = {
         icon: LayoutDashboard,
         exact: true,
       },
+      { label: "Lectures", href: "/teacher/lectures", icon: NotebookText },
       { label: "Assignments", href: "/teacher/assignments", icon: BookOpen },
       { label: "Students", href: "/teacher/students", icon: Users },
     ],
@@ -61,6 +63,7 @@ const SIDEBAR_CONFIGS: Record<"teacher" | "student", SidebarConfig> = {
     subtitle: "Learning Dashboard",
     role: "Student",
     navItems: [
+      { label: "Lectures", href: "/student/lectures", icon: NotebookText },
       { label: "Assignments", href: "/student", icon: BookOpen, exact: true },
     ],
   },

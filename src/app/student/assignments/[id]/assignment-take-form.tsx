@@ -25,7 +25,6 @@ export function AssignmentTakeForm({
     answers,
     setAnswers,
     result,
-    error,
     pending,
     submitted,
     toggleOption,
@@ -66,10 +65,6 @@ export function AssignmentTakeForm({
             }
           />
         ))}
-
-        {error && (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        )}
 
         {!submitted && (
           <Button type="submit" disabled={pending} className="w-full sm:w-auto">

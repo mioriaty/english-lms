@@ -39,7 +39,7 @@ export default function RootLayout({
         className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body text-sm antialiased`}
       >
         <Providers>{children}</Providers>
-        <Toaster />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

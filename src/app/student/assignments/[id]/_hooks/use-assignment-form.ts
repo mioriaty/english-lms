@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { submitAssignment } from "@/app/actions/submission-actions";
 import type { GradingDetailRow } from "@/core/lms/application/grade-submission";
 
@@ -10,7 +11,6 @@ interface SubmissionResult {
 export function useAssignmentForm(assignmentId: string) {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [result, setResult] = useState<SubmissionResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -28,13 +28,12 @@ export function useAssignmentForm(assignmentId: string) {
   async function doSubmit(currentAnswers: Record<string, string | string[]>) {
     if (submitted) return;
     setSubmitted(true);
-    setError(null);
     setPending(true);
     try {
       const res = await submitAssignment(assignmentId, currentAnswers);
       setResult(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit.");
+      toast.error(err instanceof Error ? err.message : "Failed to submit.");
       setSubmitted(false);
     } finally {
       setPending(false);
@@ -46,5 +45,5 @@ export function useAssignmentForm(assignmentId: string) {
     doSubmit(answers);
   }
 
-  return { answers, setAnswers, result, error, pending, submitted, toggleOption, doSubmit, onSubmit };
+  return { answers, setAnswers, result, pending, submitted, toggleOption, doSubmit, onSubmit };
 }

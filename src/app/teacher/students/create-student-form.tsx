@@ -1,30 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { createStudent } from "@/app/actions/student-actions";
 import { Button } from "@/libs/components/ui/button";
 import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
 
 export function CreateStudentForm() {
-  const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState(false);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
-    setOk(false);
     setPending(true);
     const fd = new FormData(e.currentTarget);
     try {
       await createStudent(fd);
       (e.target as HTMLFormElement).reset();
-      setOk(true);
+      toast.success("Student created successfully.");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create student.",
-      );
+      toast.error(err instanceof Error ? err.message : "Failed to create student.");
     } finally {
       setPending(false);
     }
@@ -36,14 +31,6 @@ export function CreateStudentForm() {
       onSubmit={onSubmit}
     >
       <h2 className="text-lg font-semibold">Add Student</h2>
-      {error ? (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-      ) : null}
-      {ok ? (
-        <p className="text-sm text-emerald-600 dark:text-emerald-400">
-          Student created successfully.
-        </p>
-      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="username">Username</Label>
