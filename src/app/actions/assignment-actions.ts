@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { parseAssignmentQuestions } from "@/core/lms/application/grade-submission";
 import { prisma } from "@/libs/utils/db";
+import { deleteAudioFile, extractAudioUrls } from "@/libs/utils/file-storage";
+import type { Question } from "@/core/lms/domain/question.types";
 
 async function requireAdmin() {
   const session = await auth();
@@ -51,6 +53,14 @@ export async function updateAssignment(
     throw new Error("JSON không hợp lệ");
   }
   const content = parseAssignmentQuestions(parsed);
+
+  const existing = await prisma.assignment.findUnique({ where: { id: assignmentId } });
+  if (existing) {
+    const oldUrls = extractAudioUrls(existing.content as unknown as Question[]);
+    const newUrls = new Set(extractAudioUrls(content));
+    await Promise.all(oldUrls.filter((u) => !newUrls.has(u)).map(deleteAudioFile));
+  }
+
   await prisma.assignment.update({
     where: { id: assignmentId },
     data: { title, content: content as object, timeLimitSeconds },
@@ -73,6 +83,11 @@ export async function setAssignmentActive(
 
 export async function deleteAssignment(assignmentId: string) {
   await requireAdmin();
+  const existing = await prisma.assignment.findUnique({ where: { id: assignmentId } });
+  if (existing) {
+    const audioUrls = extractAudioUrls(existing.content as unknown as Question[]);
+    await Promise.all(audioUrls.map(deleteAudioFile));
+  }
   await prisma.assignment.delete({ where: { id: assignmentId } });
   revalidatePath("/teacher/assignments");
 }

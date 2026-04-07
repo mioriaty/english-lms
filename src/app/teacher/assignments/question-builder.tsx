@@ -28,6 +28,7 @@ function initDrafts(initialQuestions?: Question[]): DraftQuestion[] {
       id: q.id,
       type: q.type,
       questionText: q.question.text,
+      audioUrl: q.question.audio,
       options: q.type === "MULTIPLE_CHOICE" ? q.options : [],
       correct: q.type === "MULTIPLE_CHOICE" ? q.correct : [],
       fillBlanks: q.type === "FILL_IN_THE_BLANK" ? q.correct : [],

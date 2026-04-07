@@ -4,6 +4,7 @@ export interface DraftQuestion {
   id: string;
   type: QuestionType;
   questionText: string;
+  audioUrl: string | null;
   options: string[];
   correct: string[];
   fillBlanks: string[][];
@@ -15,6 +16,7 @@ export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftQuestion 
     id: crypto.randomUUID(),
     type,
     questionText: "",
+    audioUrl: null,
     options: ["", "", "", ""],
     correct: [],
     fillBlanks: [],
@@ -25,7 +27,7 @@ export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftQuestion 
 export function draftToQuestion(d: DraftQuestion): Question {
   const base = {
     id: d.id,
-    question: { text: d.questionText, audio: null },
+    question: { text: d.questionText, audio: d.audioUrl },
     explain: d.explain || undefined,
   };
   if (d.type === "MULTIPLE_CHOICE") {

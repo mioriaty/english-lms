@@ -18,6 +18,7 @@ import type { QuestionType } from "@/core/lms/domain/question.types";
 import type { DraftQuestion } from "./types";
 import { McOptionsEditor } from "./mc-options-editor";
 import { FillBlankEditor } from "./fill-blank-editor";
+import { AudioUploader } from "./audio-uploader";
 
 interface QuestionCardProps {
   draft: DraftQuestion;
@@ -107,31 +108,37 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
 
       {!collapsed && (
         <div className="border-t border-zinc-200 p-5 pt-4 dark:border-zinc-700">
-          <div className="mb-4 space-y-1.5">
-            <Label className="text-xs text-zinc-500">Question text</Label>
-            <Textarea
-              value={draft.questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              placeholder={
-                draft.type === "FILL_IN_THE_BLANK"
-                  ? "VD: Tiến huy ăn [BLANK] ngoài cút ra TH còn ăn [BLANK]"
-                  : "VD: What is the capital of France?"
-              }
-              rows={2}
-              required
+          <div className="mb-4 space-y-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-500">Question text</Label>
+              <Textarea
+                value={draft.questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+                placeholder={
+                  draft.type === "FILL_IN_THE_BLANK"
+                    ? "VD: Tiến huy ăn [BLANK] ngoài cút ra TH còn ăn [BLANK]"
+                    : "VD: What is the capital of France?"
+                }
+                rows={2}
+                required
+              />
+              {draft.type === "FILL_IN_THE_BLANK" && (
+                <p className="text-xs text-zinc-400">
+                  Dùng{" "}
+                  <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono dark:bg-zinc-800">[BLANK]</code>{" "}
+                  để đánh dấu chỗ trống.
+                  {detectedBlankCount > 0 && (
+                    <span className="ml-1 font-medium text-zinc-500">
+                      {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""} detected.
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
+            <AudioUploader
+              audioUrl={draft.audioUrl}
+              onChange={(url) => onChange({ ...draft, audioUrl: url })}
             />
-            {draft.type === "FILL_IN_THE_BLANK" && (
-              <p className="text-xs text-zinc-400">
-                Dùng{" "}
-                <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono dark:bg-zinc-800">[BLANK]</code>{" "}
-                để đánh dấu chỗ trống.
-                {detectedBlankCount > 0 && (
-                  <span className="ml-1 font-medium text-zinc-500">
-                    {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""} detected.
-                  </span>
-                )}
-              </p>
-            )}
           </div>
 
           {draft.type === "MULTIPLE_CHOICE" ? (
