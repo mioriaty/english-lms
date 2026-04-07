@@ -5,11 +5,11 @@ import { Button } from "@/libs/components/ui/button";
 import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
 import { AnswerTag } from "./answer-tag";
-import type { DraftQuestion } from "./types";
+import type { DraftLeafQuestion } from "./types";
 
 interface FillBlankEditorProps {
-  draft: DraftQuestion;
-  onChange: (d: DraftQuestion) => void;
+  draft: DraftLeafQuestion;
+  onChange: (d: DraftLeafQuestion) => void;
 }
 
 export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {

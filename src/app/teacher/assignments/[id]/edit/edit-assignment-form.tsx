@@ -55,13 +55,32 @@ export function EditAssignmentForm({
       return;
     }
     for (let i = 0; i < questions.length; i++) {
-      if (questions[i].correct.length === 0) {
-        toast.error(`Question ${i + 1} has no correct answer.`);
-        return;
-      }
-      if (!questions[i].question.text.trim()) {
+      const q = questions[i];
+      if (!q.question.text.trim() && q.type !== "GROUP") {
         toast.error(`Question ${i + 1} has no question text.`);
         return;
+      }
+      if (q.type === "GROUP") {
+        if (q.subQuestions.length === 0) {
+          toast.error(`Group ${i + 1} has no sub-questions.`);
+          return;
+        }
+        for (let j = 0; j < q.subQuestions.length; j++) {
+          const sub = q.subQuestions[j];
+          if (!sub.question.text.trim()) {
+            toast.error(`Question ${i + 1}.${j + 1} has no question text.`);
+            return;
+          }
+          if (sub.correct.length === 0) {
+            toast.error(`Question ${i + 1}.${j + 1} has no correct answer.`);
+            return;
+          }
+        }
+      } else {
+        if (q.correct.length === 0) {
+          toast.error(`Question ${i + 1} has no correct answer.`);
+          return;
+        }
       }
     }
 

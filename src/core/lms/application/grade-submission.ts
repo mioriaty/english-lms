@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Question } from "../domain/question.types";
+import type { LeafQuestion, Question } from "../domain/question.types";
 
 const questionTextSchema = z.object({
   text: z.string(),
@@ -23,15 +23,41 @@ const fillBlankSchema = z.object({
   explain: z.string().optional(),
 });
 
+const leafQuestionSchema = z.discriminatedUnion("type", [
+  multipleChoiceSchema,
+  fillBlankSchema,
+]);
+
+const groupSchema = z.object({
+  id: z.string(),
+  type: z.literal("GROUP"),
+  question: questionTextSchema,
+  subQuestions: z.array(leafQuestionSchema),
+});
+
 const questionSchema = z.discriminatedUnion("type", [
   multipleChoiceSchema,
   fillBlankSchema,
+  groupSchema,
 ]);
 
 const questionsArraySchema = z.array(questionSchema);
 
 export function parseAssignmentQuestions(content: unknown): Question[] {
-  return questionsArraySchema.parse(content);
+  return questionsArraySchema.parse(content) as Question[];
+}
+
+/** Flattens top-level questions + GROUP sub-questions into a single leaf list */
+function flattenLeafQuestions(questions: Question[]): LeafQuestion[] {
+  const result: LeafQuestion[] = [];
+  for (const q of questions) {
+    if (q.type === "GROUP") {
+      result.push(...q.subQuestions);
+    } else {
+      result.push(q);
+    }
+  }
+  return result;
 }
 
 export function normalizeAnswer(value: string): string {
@@ -65,11 +91,12 @@ export function gradeSubmission(
   questions: Question[],
   answers: Record<string, string | string[]>,
 ): { score: number; details: GradingDetailRow[] } {
-  const total = questions.length;
+  const leafQuestions = flattenLeafQuestions(questions);
+  const total = leafQuestions.length;
   let correctCount = 0;
   const details: GradingDetailRow[] = [];
 
-  for (const q of questions) {
+  for (const q of leafQuestions) {
     const raw = answers[q.id];
     let ok = false;
     let studentAnswer = "";
@@ -90,7 +117,7 @@ export function gradeSubmission(
         return { isCorrect: isBlankCorrect, studentAnswer: ans, correctAnswers: accepted };
       });
 
-      ok = blankResults.every((r) => r.isCorrect);
+      ok = blankResults.length > 0 && blankResults.every((r) => r.isCorrect);
       studentAnswer = studentAnswers.join(", ");
     }
 
@@ -102,7 +129,7 @@ export function gradeSubmission(
       studentAnswer,
       correctAnswers: q.type === "MULTIPLE_CHOICE" ? q.correct : q.correct.flat(),
       blankResults,
-      ...(!ok && { explain: q.explain }),
+      ...(!ok && q.explain ? { explain: q.explain } : {}),
     });
   }
 

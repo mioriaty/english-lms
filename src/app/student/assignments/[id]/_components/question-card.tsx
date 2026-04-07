@@ -1,12 +1,12 @@
 import { Card, CardContent } from "@/libs/components/ui/card";
 import { cn } from "@/libs/utils/string";
-import type { Question } from "@/core/lms/domain/question.types";
+import type { LeafQuestion } from "@/core/lms/domain/question.types";
 import type { GradingDetailRow } from "@/core/lms/application/grade-submission";
 import { OptionRow, optionLabel, type ReviewMode } from "./option-row";
 import { FillBlankInline } from "./fill-blank-inline";
 
 interface QuestionCardProps {
-  question: Question;
+  question: LeafQuestion;
   index: number;
   answer: string | string[] | undefined;
   submitted: boolean;

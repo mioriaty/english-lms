@@ -14,7 +14,12 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { SortableContext, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Button } from "@/libs/components/ui/button";
 import type { Question, QuestionType } from "@/core/lms/domain/question.types";
-import { newDraft, draftToQuestion, type DraftQuestion } from "./_question-builder/types";
+import {
+  newLeafDraft,
+  newGroupDraft,
+  draftToQuestion,
+  type DraftQuestion,
+} from "./_question-builder/types";
 import { QuestionCard } from "./_question-builder/question-card";
 
 interface QuestionBuilderProps {
@@ -23,8 +28,28 @@ interface QuestionBuilderProps {
 }
 
 function initDrafts(initialQuestions?: Question[]): DraftQuestion[] {
-  if (initialQuestions && initialQuestions.length > 0) {
-    return initialQuestions.map((q) => ({
+  if (!initialQuestions || initialQuestions.length === 0) return [newLeafDraft()];
+
+  return initialQuestions.map((q): DraftQuestion => {
+    if (q.type === "GROUP") {
+      return {
+        id: q.id,
+        type: "GROUP",
+        questionText: q.question.text,
+        audioUrl: q.question.audio,
+        subQuestions: q.subQuestions.map((sub) => ({
+          id: sub.id,
+          type: sub.type,
+          questionText: sub.question.text,
+          audioUrl: sub.question.audio,
+          options: sub.type === "MULTIPLE_CHOICE" ? sub.options : [],
+          correct: sub.type === "MULTIPLE_CHOICE" ? sub.correct : [],
+          fillBlanks: sub.type === "FILL_IN_THE_BLANK" ? sub.correct : [],
+          explain: sub.explain ?? "",
+        })),
+      };
+    }
+    return {
       id: q.id,
       type: q.type,
       questionText: q.question.text,
@@ -33,9 +58,8 @@ function initDrafts(initialQuestions?: Question[]): DraftQuestion[] {
       correct: q.type === "MULTIPLE_CHOICE" ? q.correct : [],
       fillBlanks: q.type === "FILL_IN_THE_BLANK" ? q.correct : [],
       explain: q.explain ?? "",
-    }));
-  }
-  return [newDraft()];
+    };
+  });
 }
 
 export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderProps) {
@@ -54,7 +78,11 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
   }
 
   function addQuestion(type: QuestionType) {
-    setDrafts((prev) => [...prev, newDraft(type)]);
+    setDrafts((prev) => [...prev, newLeafDraft(type)]);
+  }
+
+  function addGroup() {
+    setDrafts((prev) => [...prev, newGroupDraft()]);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -99,6 +127,10 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
         <Button type="button" variant="outline" size="sm" onClick={() => addQuestion("FILL_IN_THE_BLANK")}>
           <Plus className="mr-1.5 h-4 w-4" />
           Add Fill in the Blank
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={addGroup}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Add Group
         </Button>
       </div>
 

@@ -23,4 +23,12 @@ export interface FillInTheBlankQuestion {
   explain?: string;
 }
 
-export type Question = MultipleChoiceQuestion | FillInTheBlankQuestion;
+export interface GroupQuestion {
+  id: string;
+  type: "GROUP";
+  question: QuestionText;
+  subQuestions: (MultipleChoiceQuestion | FillInTheBlankQuestion)[];
+}
+
+export type LeafQuestion = MultipleChoiceQuestion | FillInTheBlankQuestion;
+export type Question = LeafQuestion | GroupQuestion;

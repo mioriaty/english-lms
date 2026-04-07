@@ -2,11 +2,11 @@ import { Plus } from "lucide-react";
 import { Button } from "@/libs/components/ui/button";
 import { Label } from "@/libs/components/ui/label";
 import { OptionRow } from "./option-row";
-import type { DraftQuestion } from "./types";
+import type { DraftLeafQuestion } from "./types";
 
 interface McOptionsEditorProps {
-  draft: DraftQuestion;
-  onChange: (d: DraftQuestion) => void;
+  draft: DraftLeafQuestion;
+  onChange: (d: DraftLeafQuestion) => void;
 }
 
 export function McOptionsEditor({ draft, onChange }: McOptionsEditorProps) {

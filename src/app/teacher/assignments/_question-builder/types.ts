@@ -1,6 +1,6 @@
-import type { Question, QuestionType } from "@/core/lms/domain/question.types";
+import type { LeafQuestion, Question, QuestionType } from "@/core/lms/domain/question.types";
 
-export interface DraftQuestion {
+export interface DraftLeafQuestion {
   id: string;
   type: QuestionType;
   questionText: string;
@@ -11,7 +11,17 @@ export interface DraftQuestion {
   explain: string;
 }
 
-export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftQuestion {
+export interface DraftGroupQuestion {
+  id: string;
+  type: "GROUP";
+  questionText: string;
+  audioUrl: string | null;
+  subQuestions: DraftLeafQuestion[];
+}
+
+export type DraftQuestion = DraftLeafQuestion | DraftGroupQuestion;
+
+export function newLeafDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQuestion {
   return {
     id: crypto.randomUUID(),
     type,
@@ -24,7 +34,22 @@ export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftQuestion 
   };
 }
 
-export function draftToQuestion(d: DraftQuestion): Question {
+export function newGroupDraft(): DraftGroupQuestion {
+  return {
+    id: crypto.randomUUID(),
+    type: "GROUP",
+    questionText: "",
+    audioUrl: null,
+    subQuestions: [newLeafDraft()],
+  };
+}
+
+/** Kept for backward compat — creates a leaf draft */
+export function newDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQuestion {
+  return newLeafDraft(type);
+}
+
+export function leafDraftToQuestion(d: DraftLeafQuestion): LeafQuestion {
   const base = {
     id: d.id,
     question: { text: d.questionText, audio: d.audioUrl },
@@ -34,4 +59,16 @@ export function draftToQuestion(d: DraftQuestion): Question {
     return { ...base, type: "MULTIPLE_CHOICE", options: d.options.filter(Boolean), correct: d.correct };
   }
   return { ...base, type: "FILL_IN_THE_BLANK", correct: d.fillBlanks };
+}
+
+export function draftToQuestion(d: DraftQuestion): Question {
+  if (d.type === "GROUP") {
+    return {
+      id: d.id,
+      type: "GROUP",
+      question: { text: d.questionText, audio: d.audioUrl },
+      subQuestions: d.subQuestions.map(leafDraftToQuestion),
+    };
+  }
+  return leafDraftToQuestion(d);
 }

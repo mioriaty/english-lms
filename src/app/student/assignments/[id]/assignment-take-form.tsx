@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { ZoomIn, X } from "lucide-react";
-import type { Question } from "@/core/lms/domain/question.types";
+import type { Question, LeafQuestion } from "@/core/lms/domain/question.types";
 import { Button } from "@/libs/components/ui/button";
 import { useCountdown } from "./_hooks/use-countdown";
 import { useAssignmentForm } from "./_hooks/use-assignment-form";
 import { CountdownBadge } from "./_components/countdown-badge";
 import { QuestionCard } from "./_components/question-card";
+import { GroupQuestionCard } from "./_components/group-question-card";
 import { ResultCard } from "./_components/result-card";
 
 interface AssignmentTakeFormProps {
@@ -44,13 +45,25 @@ export function AssignmentTakeForm({
     doSubmit(answers)
   );
 
+  const totalQuestions = questions.reduce(
+    (acc, q) => acc + (q.type === "GROUP" ? q.subQuestions.length : 1),
+    0
+  );
+
+  let runningIndex = 0;
+  const renderItems = questions.map((q) => {
+    const startIndex = runningIndex;
+    runningIndex += q.type === "GROUP" ? q.subQuestions.length : 1;
+    return { q, startIndex };
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
           <p className="mt-1 text-zinc-500">
-            {questions.length} question{questions.length !== 1 ? "s" : ""}
+            {totalQuestions} question{totalQuestions !== 1 ? "s" : ""}
           </p>
         </div>
         {remaining !== null && !submitted && (
@@ -111,20 +124,31 @@ export function AssignmentTakeForm({
       )}
 
       <form className="space-y-6" onSubmit={onSubmit}>
-        {questions.map((q, idx) => (
-          <QuestionCard
-            key={q.id}
-            question={q}
-            index={idx}
-            answer={answers[q.id]}
-            submitted={submitted}
-            result={result}
-            onToggleOption={(opt) => toggleOption(q.id, opt)}
-            onChangeBlank={(v) =>
-              setAnswers((prev) => ({ ...prev, [q.id]: v }))
-            }
-          />
-        ))}
+        {renderItems.map(({ q, startIndex }) =>
+          q.type === "GROUP" ? (
+            <GroupQuestionCard
+              key={q.id}
+              group={q}
+              startIndex={startIndex}
+              answers={answers}
+              submitted={submitted}
+              result={result}
+              onToggleOption={(id, opt) => toggleOption(id, opt)}
+              onChangeBlank={(id, v) => setAnswers((prev) => ({ ...prev, [id]: v }))}
+            />
+          ) : (
+            <QuestionCard
+              key={q.id}
+              question={q as LeafQuestion}
+              index={startIndex}
+              answer={answers[q.id]}
+              submitted={submitted}
+              result={result}
+              onToggleOption={(opt) => toggleOption(q.id, opt)}
+              onChangeBlank={(v) => setAnswers((prev) => ({ ...prev, [q.id]: v }))}
+            />
+          )
+        )}
 
         {!submitted && (
           <Button type="submit" disabled={pending} className="w-full sm:w-auto">
