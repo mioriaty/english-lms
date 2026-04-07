@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { prisma } from "@/libs/utils/db";
 import { EditLectureForm } from "./edit-lecture-form";
 
@@ -14,6 +16,13 @@ export default async function EditLecturePage({ params }: Props) {
   return (
     <div className="space-y-6">
       <div>
+        <Link
+          href="/teacher/lectures"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to Lectures
+        </Link>
         <h1 className="text-2xl font-bold tracking-tight">Edit Lecture</h1>
         <p className="text-sm text-muted-foreground">{lecture.title}</p>
       </div>
