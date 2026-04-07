@@ -1,8 +1,10 @@
 "use client";
 
 import { createAssignment } from "@/app/actions/assignment-actions";
+import { ImageUploader } from "@/app/teacher/assignments/_components/image-uploader";
 import { QuestionBuilder } from "@/app/teacher/assignments/question-builder";
 import type { Question } from "@/core/lms/domain/question.types";
+import { RichTextEditor } from "@/libs/components/rich-text-editor";
 import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
 import { useRouter } from "next/navigation";
@@ -12,6 +14,8 @@ import { toast } from "sonner";
 export function NewAssignmentForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<string | null>(null);
   const [timeLimit, setTimeLimit] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -40,6 +44,8 @@ export function NewAssignmentForm() {
     try {
       const fd = new FormData();
       fd.append("title", title.trim());
+      if (description.trim()) fd.append("description", description.trim());
+      if (image) fd.append("image", image);
       fd.append("content", JSON.stringify(questions));
       const timeLimitMinutes = timeLimit.trim() ? Number(timeLimit) : null;
       if (timeLimitMinutes !== null)
@@ -89,11 +95,25 @@ export function NewAssignmentForm() {
       </div>
 
       <div className="space-y-2">
+        <Label>
+          Description{" "}
+          <span className="font-normal text-zinc-400">(optional)</span>
+        </Label>
+        <RichTextEditor
+          value={description}
+          onChange={setDescription}
+          placeholder="Mô tả bài tập, hướng dẫn…"
+        />
+      </div>
+
+      <ImageUploader imageUrl={image} onChange={setImage} />
+
+      <div className="space-y-2">
         <Label>Questions</Label>
         <QuestionBuilder onSubmit={handleSubmit} />
       </div>
 
-      {pending && <p className="text-sm text-zinc-500">Saving…</p>}
+      {pending && <p className="text-xl text-zinc-500">Saving…</p>}
     </div>
   );
 }

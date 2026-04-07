@@ -5,31 +5,44 @@ import type { Question } from "@/core/lms/domain/question.types";
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "public/uploads");
 const UPLOAD_BASE_URL = process.env.UPLOAD_BASE_URL ?? "/uploads";
 
-export async function saveAudioFile(file: File): Promise<string> {
-  const ext = path.extname(file.name).toLowerCase() || ".mp3";
+async function saveFile(file: File, subDir: string, fallbackExt: string): Promise<string> {
+  const ext = path.extname(file.name).toLowerCase() || fallbackExt;
   const filename = `${crypto.randomUUID()}${ext}`;
-  const audioDir = path.join(UPLOAD_DIR, "audio");
+  const dir = path.join(UPLOAD_DIR, subDir);
 
-  await fs.mkdir(audioDir, { recursive: true });
+  await fs.mkdir(dir, { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(audioDir, filename), buffer);
+  await fs.writeFile(path.join(dir, filename), buffer);
 
-  return `${UPLOAD_BASE_URL}/audio/${filename}`;
+  return `${UPLOAD_BASE_URL}/${subDir}/${filename}`;
 }
 
-export async function deleteAudioFile(url: string): Promise<void> {
+async function deleteFile(url: string, subDir: string): Promise<void> {
   try {
-    const baseUrl = UPLOAD_BASE_URL.endsWith("/") ? UPLOAD_BASE_URL.slice(0, -1) : UPLOAD_BASE_URL;
-    if (!url.includes("/audio/")) return;
-
-    const filename = url.split("/audio/").at(-1);
+    const segment = `/${subDir}/`;
+    if (!url.includes(segment)) return;
+    const filename = url.split(segment).at(-1);
     if (!filename) return;
-
-    const filePath = path.join(UPLOAD_DIR, "audio", filename);
-    await fs.unlink(filePath);
+    await fs.unlink(path.join(UPLOAD_DIR, subDir, filename));
   } catch {
     // File không tồn tại hoặc đã bị xóa — bỏ qua
   }
+}
+
+export function saveAudioFile(file: File): Promise<string> {
+  return saveFile(file, "audio", ".mp3");
+}
+
+export function deleteAudioFile(url: string): Promise<void> {
+  return deleteFile(url, "audio");
+}
+
+export function saveImageFile(file: File): Promise<string> {
+  return saveFile(file, "images", ".jpg");
+}
+
+export function deleteImageFile(url: string): Promise<void> {
+  return deleteFile(url, "images");
 }
 
 export function extractAudioUrls(questions: Question[]): string[] {

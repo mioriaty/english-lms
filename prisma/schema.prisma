@@ -20,6 +20,8 @@ model User {
 model Assignment {
   id               String       @id @default(cuid())
   title            String
+  description      String?
+  image            String?
   content          Json
   isActive         Boolean      @default(true)
   timeLimitSeconds Int?

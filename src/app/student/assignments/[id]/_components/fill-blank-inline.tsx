@@ -4,7 +4,10 @@ import type { BlankResult } from "@/core/lms/application/grade-submission";
 
 type Segment = { kind: "text"; text: string } | { kind: "blank"; idx: number };
 
-function parseSegments(template: string): { segments: Segment[]; blankCount: number } {
+function parseSegments(template: string): {
+  segments: Segment[];
+  blankCount: number;
+} {
   const segments: Segment[] = [];
   let blankCount = 0;
   for (const part of template.split(/(\[BLANK\])/)) {
@@ -26,7 +29,14 @@ interface FillBlankInlineProps {
   blankResults?: BlankResult[];
 }
 
-export function FillBlankInline({ template, values, onChange, disabled, questionId, blankResults }: FillBlankInlineProps) {
+export function FillBlankInline({
+  template,
+  values,
+  onChange,
+  disabled,
+  questionId,
+  blankResults,
+}: FillBlankInlineProps) {
   const { segments, blankCount } = parseSegments(template);
   const hasPlaceholder = blankCount > 0;
 
@@ -39,7 +49,9 @@ export function FillBlankInline({ template, values, onChange, disabled, question
   if (!hasPlaceholder) {
     return (
       <div className="space-y-3">
-        <p className="font-serif italic leading-relaxed text-zinc-700 dark:text-zinc-300">{template}</p>
+        <p className="font-serif leading-relaxed text-zinc-700 dark:text-zinc-300">
+          {template}
+        </p>
         <input
           id={questionId}
           type="text"
@@ -48,7 +60,7 @@ export function FillBlankInline({ template, values, onChange, disabled, question
           disabled={disabled}
           autoComplete="off"
           placeholder="Type your answer…"
-          className="border-b border-zinc-400 bg-transparent px-1 pb-0.5 text-sm focus:border-[#2F5B94] focus:outline-none dark:border-zinc-500 dark:text-zinc-100"
+          className="border-b border-zinc-400 bg-transparent px-1 pb-0.5 text-xl focus:border-[#2F5B94] focus:outline-none dark:border-zinc-500 dark:text-zinc-100"
         />
       </div>
     );
@@ -58,7 +70,7 @@ export function FillBlankInline({ template, values, onChange, disabled, question
 
   return (
     <div className="space-y-2">
-      <p className="font-serif italic leading-relaxed text-zinc-700 dark:text-zinc-300">
+      <p className="font-serif leading-relaxed text-zinc-700 dark:text-zinc-300">
         {segments.map((seg, i) => {
           if (seg.kind === "text") return <span key={i}>{seg.text}</span>;
 
@@ -77,16 +89,27 @@ export function FillBlankInline({ template, values, onChange, disabled, question
                 aria-label={`Blank ${seg.idx + 1}`}
                 className={cn(
                   "inline-block min-w-35 border-b bg-transparent px-1 pb-0.5 text-center not-italic focus:outline-none dark:text-zinc-100",
-                  !isReview && "border-zinc-400 focus:border-[#2F5B94] dark:border-zinc-500",
-                  isReview && result.isCorrect && "border-[#2F5B94] text-[#2F5B94]",
-                  isReview && !result.isCorrect && "border-zinc-300 text-zinc-400 line-through dark:border-zinc-600"
+                  !isReview &&
+                    "border-zinc-400 focus:border-[#2F5B94] dark:border-zinc-500",
+                  isReview &&
+                    result.isCorrect &&
+                    "border-[#2F5B94] text-[#2F5B94]",
+                  isReview &&
+                    !result.isCorrect &&
+                    "border-zinc-300 text-zinc-400 line-through dark:border-zinc-600"
                 )}
               />
               {isReview && result.isCorrect && (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#2F5B94]" aria-hidden="true" />
+                <CheckCircle2
+                  className="h-4 w-4 shrink-0 text-[#2F5B94]"
+                  aria-hidden="true"
+                />
               )}
               {isReview && !result.isCorrect && (
-                <XCircleIcon className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
+                <XCircleIcon
+                  className="h-4 w-4 shrink-0 text-zinc-400"
+                  aria-hidden="true"
+                />
               )}
             </span>
           );
@@ -97,7 +120,7 @@ export function FillBlankInline({ template, values, onChange, disabled, question
         <div className="space-y-0.5 pt-1">
           {blankResults.map((r, i) =>
             !r.isCorrect ? (
-              <p key={i} className="text-sm">
+              <p key={i} className="text-xl">
                 <span className="text-zinc-500">Blank {i + 1} — correct: </span>
                 <span className="font-semibold" style={{ color: "#2F5B94" }}>
                   {r.correctAnswers.join(" / ")}

@@ -29,15 +29,29 @@ function getOptionReviewMode(
   return "normal";
 }
 
-export function QuestionCard({ question, index, answer, submitted, result, onToggleOption, onChangeBlank }: QuestionCardProps) {
+export function QuestionCard({
+  question,
+  index,
+  answer,
+  submitted,
+  result,
+  onToggleOption,
+  onChangeBlank,
+}: QuestionCardProps) {
   const detail = result?.details.find((d) => d.questionId === question.id);
 
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6 space-y-5">
-        <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-          {index + 1}. {question.question.text}
-        </p>
+        {question.type === "MULTIPLE_CHOICE" ? (
+          <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+            {index + 1}. {question.question.text}
+          </p>
+        ) : (
+          <p className="text-2xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+            {index + 1}. Fill in the blank
+          </p>
+        )}
 
         {question.question.audio && (
           <audio controls src={question.question.audio} className="w-full" />
@@ -47,8 +61,12 @@ export function QuestionCard({ question, index, answer, submitted, result, onTog
           <fieldset className="space-y-2" disabled={submitted}>
             <legend className="sr-only">Choose all correct answers</legend>
             {question.options.map((opt, optIdx) => {
-              const isChecked = Array.isArray(answer) ? answer.includes(opt) : answer === opt;
-              const reviewMode = submitted ? getOptionReviewMode(opt, isChecked, detail) : "normal";
+              const isChecked = Array.isArray(answer)
+                ? answer.includes(opt)
+                : answer === opt;
+              const reviewMode = submitted
+                ? getOptionReviewMode(opt, isChecked, detail)
+                : "normal";
 
               return (
                 <OptionRow
@@ -70,7 +88,7 @@ export function QuestionCard({ question, index, answer, submitted, result, onTog
               submitted
                 ? detail?.isCorrect
                   ? "border-[#2F5B94] bg-[#EDF2F9]"
-                  : "border-zinc-300 bg-zinc-100"
+                  : "border-zinc-300"
                 : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50"
             )}
           >
@@ -82,6 +100,13 @@ export function QuestionCard({ question, index, answer, submitted, result, onTog
               questionId={question.id}
               blankResults={detail?.blankResults}
             />
+          </div>
+        )}
+
+        {submitted && question.explain && (
+          <div className="rounded-md border border-b-blue-200 bg-blue-50 px-4 py-3 text-xl text-blue-800 dark:border-b-blue-800/40 dark:bg-blue-900/20 dark:text-blue-300">
+            <span className="font-semibold">Explain: </span>
+            {question.explain}
           </div>
         )}
       </CardContent>

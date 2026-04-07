@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateAssignment } from "@/app/actions/assignment-actions";
-import { Button } from "@/libs/components/ui/button";
+import { ImageUploader } from "@/app/teacher/assignments/_components/image-uploader";
 import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
+import { RichTextEditor } from "@/libs/components/rich-text-editor";
 import { QuestionBuilder } from "@/app/teacher/assignments/question-builder";
 import type { Question } from "@/core/lms/domain/question.types";
 
 interface EditAssignmentFormProps {
   assignmentId: string;
   initialTitle: string;
+  initialDescription: string | null;
+  initialImage: string | null;
   initialContent: string;
   initialTimeLimitSeconds: number | null;
 }
@@ -19,12 +22,18 @@ interface EditAssignmentFormProps {
 export function EditAssignmentForm({
   assignmentId,
   initialTitle,
+  initialDescription,
+  initialImage,
   initialContent,
   initialTimeLimitSeconds,
 }: EditAssignmentFormProps) {
   const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription ?? "");
+  const [image, setImage] = useState<string | null>(initialImage);
   const [timeLimit, setTimeLimit] = useState<string>(
-    initialTimeLimitSeconds ? String(Math.round(initialTimeLimitSeconds / 60)) : "",
+    initialTimeLimitSeconds
+      ? String(Math.round(initialTimeLimitSeconds / 60))
+      : ""
   );
   const [pending, setPending] = useState(false);
 
@@ -60,6 +69,8 @@ export function EditAssignmentForm({
     try {
       const fd = new FormData();
       fd.append("title", title.trim());
+      if (description.trim()) fd.append("description", description.trim());
+      if (image) fd.append("image", image);
       fd.append("content", JSON.stringify(questions));
       const timeLimitMinutes = timeLimit.trim() ? Number(timeLimit) : null;
       if (timeLimitMinutes !== null)
@@ -67,7 +78,9 @@ export function EditAssignmentForm({
       await updateAssignment(assignmentId, fd);
       toast.success("Changes saved.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update assignment.");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update assignment."
+      );
     } finally {
       setPending(false);
     }
@@ -89,7 +102,9 @@ export function EditAssignmentForm({
         <div className="space-y-2">
           <Label htmlFor="timeLimit">
             Time limit{" "}
-            <span className="font-normal text-zinc-400">(minutes, optional)</span>
+            <span className="font-normal text-zinc-400">
+              (minutes, optional)
+            </span>
           </Label>
           <Input
             id="timeLimit"
@@ -104,11 +119,28 @@ export function EditAssignmentForm({
       </div>
 
       <div className="space-y-2">
-        <Label>Questions</Label>
-        <QuestionBuilder onSubmit={handleSubmit} initialQuestions={initialQuestions} />
+        <Label>
+          Description{" "}
+          <span className="font-normal text-zinc-400">(optional)</span>
+        </Label>
+        <RichTextEditor
+          value={description}
+          onChange={setDescription}
+          placeholder="Mô tả bài tập, hướng dẫn…"
+        />
       </div>
 
-      {pending && <p className="text-sm text-zinc-500">Saving…</p>}
+      <ImageUploader imageUrl={image} onChange={setImage} />
+
+      <div className="space-y-2">
+        <Label>Questions</Label>
+        <QuestionBuilder
+          onSubmit={handleSubmit}
+          initialQuestions={initialQuestions}
+        />
+      </div>
+
+      {pending && <p className="text-xl text-zinc-500">Saving…</p>}
     </div>
   );
 }

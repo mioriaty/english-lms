@@ -13,7 +13,7 @@ export default async function TeacherStudentsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Students</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-xl text-muted-foreground">
           Manually create student login credentials.
         </p>
       </div>

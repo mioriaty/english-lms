@@ -31,7 +31,7 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
       <div>
         <Link
           href="/teacher/students"
-          className="text-sm text-zinc-600 underline dark:text-zinc-400"
+          className="text-xl text-zinc-600 underline dark:text-zinc-400"
         >
           ← Students
         </Link>
@@ -58,10 +58,10 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
               <li key={sub.id}>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">
+                    <CardTitle className="text-xl">
                       {sub.assignment.title}
                     </CardTitle>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
+                    <div className="flex flex-wrap items-center gap-3 text-xl text-zinc-500">
                       <span>
                         Score:{" "}
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
@@ -78,7 +78,7 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
 
                   <CardContent className="space-y-3">
                     {allCorrect ? (
-                      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      <p className="text-xl font-medium text-emerald-600 dark:text-emerald-400">
                         ✓ All correct!
                       </p>
                     ) : null}
@@ -87,7 +87,7 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
                       {details.map((d, idx) => (
                         <li
                           key={d.questionId}
-                          className={`rounded-lg border p-3 text-sm ${
+                          className={`rounded-lg border p-3 text-xl ${
                             d.isCorrect
                               ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/50 dark:bg-emerald-950/20"
                               : "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20"

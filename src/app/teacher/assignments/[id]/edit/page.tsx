@@ -19,7 +19,7 @@ export default async function EditAssignmentPage({ params }: PageProps) {
       <div>
         <Link
           href="/teacher/assignments"
-          className="text-sm text-zinc-600 underline dark:text-zinc-400"
+          className="text-xl text-zinc-600 underline dark:text-zinc-400"
         >
           ← Assignments
         </Link>
@@ -30,6 +30,8 @@ export default async function EditAssignmentPage({ params }: PageProps) {
       <EditAssignmentForm
         assignmentId={id}
         initialTitle={assignment.title}
+        initialDescription={assignment.description}
+        initialImage={assignment.image}
         initialContent={contentStr}
         initialTimeLimitSeconds={assignment.timeLimitSeconds}
       />

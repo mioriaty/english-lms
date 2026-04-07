@@ -6,7 +6,7 @@ export function CountdownBadge({ seconds }: { seconds: number }) {
 
   return (
     <div
-      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-mono font-semibold tabular-nums transition-colors ${
+      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xl font-mono font-semibold tabular-nums transition-colors ${
         isCritical
           ? "animate-pulse bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
           : isWarning

@@ -86,7 +86,7 @@ export function AppSidebar({ variant, username }: AppSidebarProps) {
             <GraduationCap className="size-4" />
           </div>
           <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
-            <span className="font-semibold text-sm">{config.title}</span>
+            <span className="font-semibold text-xl">{config.title}</span>
             <span className="text-xs text-muted-foreground">
               {config.subtitle}
             </span>
@@ -96,9 +96,8 @@ export function AppSidebar({ variant, username }: AppSidebarProps) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2">
               {config.navItems.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href

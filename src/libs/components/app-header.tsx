@@ -14,7 +14,7 @@ export function AppHeader({ title, links }: AppHeaderProps) {
         <Link href="/" className="text-lg font-semibold tracking-tight">
           {title}
         </Link>
-        <nav className="flex flex-wrap items-center gap-3 text-sm">
+        <nav className="flex flex-wrap items-center gap-3 text-xl">
           {links.map((l) => (
             <Link
               key={l.href}

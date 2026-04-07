@@ -29,7 +29,7 @@ export default async function StudentHomePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Open Assignments</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-1 text-xl text-zinc-600 dark:text-zinc-400">
           Choose an assignment to start. You can submit multiple times.
         </p>
       </div>
@@ -51,12 +51,12 @@ export default async function StudentHomePage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">{a.title}</CardTitle>
                       {last ? (
-                        <p className="text-sm text-zinc-500">
+                        <p className="text-xl text-zinc-500">
                           Last attempt: {last.score.toFixed(1)} pts ·{" "}
                           {new Date(last.submittedAt).toLocaleString("en-US")}
                         </p>
                       ) : (
-                        <p className="text-sm text-zinc-500">Not attempted</p>
+                        <p className="text-xl text-zinc-500">Not attempted</p>
                       )}
                     </CardHeader>
                   </Card>

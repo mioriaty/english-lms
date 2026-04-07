@@ -16,7 +16,7 @@ export default async function TeacherLecturesPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Lectures</h1>
-          <p className="text-sm text-muted-foreground">Manage all lectures.</p>
+          <p className="text-xl text-muted-foreground">Manage all lectures.</p>
         </div>
         <Button asChild>
           <Link href="/teacher/lectures/new">New Lecture</Link>
@@ -24,12 +24,12 @@ export default async function TeacherLecturesPage() {
       </div>
 
       {lectures.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-10 text-center text-sm text-zinc-500">
+        <p className="rounded-md border border-dashed px-4 py-10 text-center text-xl text-zinc-500">
           No lectures found.
         </p>
       ) : (
         <div className="overflow-hidden rounded-md border">
-          <table className="w-full text-sm">
+          <table className="w-full text-xl">
             <thead className="border-b bg-muted/50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Title</th>

@@ -18,7 +18,7 @@ export default async function StudentLecturesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Lectures</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-1 text-xl text-zinc-600 dark:text-zinc-400">
           List of lectures.
         </p>
       </div>
@@ -37,7 +37,7 @@ export default async function StudentLecturesPage() {
                 <Card className="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg">{l.title}</CardTitle>
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-xl text-zinc-500">
                       {new Date(l.createdAt).toLocaleDateString("vi-VN")}
                     </p>
                   </CardHeader>

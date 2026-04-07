@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { saveAudioFile, deleteAudioFile } from "@/libs/utils/file-storage";
+import {
+  saveAudioFile,
+  deleteAudioFile,
+  saveImageFile,
+  deleteImageFile,
+} from "@/libs/utils/file-storage";
 
-const MAX_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
+const MAX_AUDIO_BYTES = 20 * 1024 * 1024; // 20 MB
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;  // 5 MB
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 async function requireAdmin() {
   const session = await auth();
@@ -22,15 +29,24 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "File không hợp lệ" }, { status: 400 });
   }
-  if (file.type !== "audio/mpeg" && !file.name.toLowerCase().endsWith(".mp3")) {
-    return NextResponse.json({ error: "Chỉ chấp nhận file MP3" }, { status: 400 });
-  }
-  if (file.size > MAX_SIZE_BYTES) {
-    return NextResponse.json({ error: "File vượt quá giới hạn 20MB" }, { status: 400 });
+
+  if (ALLOWED_IMAGE_TYPES.has(file.type)) {
+    if (file.size > MAX_IMAGE_BYTES) {
+      return NextResponse.json({ error: "Ảnh vượt quá giới hạn 5MB" }, { status: 400 });
+    }
+    const url = await saveImageFile(file);
+    return NextResponse.json({ url });
   }
 
-  const url = await saveAudioFile(file);
-  return NextResponse.json({ url });
+  if (file.type === "audio/mpeg" || file.name.toLowerCase().endsWith(".mp3")) {
+    if (file.size > MAX_AUDIO_BYTES) {
+      return NextResponse.json({ error: "File vượt quá giới hạn 20MB" }, { status: 400 });
+    }
+    const url = await saveAudioFile(file);
+    return NextResponse.json({ url });
+  }
+
+  return NextResponse.json({ error: "Định dạng file không được hỗ trợ" }, { status: 400 });
 }
 
 export async function DELETE(req: NextRequest) {
@@ -43,5 +59,6 @@ export async function DELETE(req: NextRequest) {
   }
 
   await deleteAudioFile(url);
+  await deleteImageFile(url);
   return NextResponse.json({ ok: true });
 }

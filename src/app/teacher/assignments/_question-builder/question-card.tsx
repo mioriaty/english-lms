@@ -27,11 +27,24 @@ interface QuestionCardProps {
   onDelete: () => void;
 }
 
-export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardProps) {
+export function QuestionCard({
+  draft,
+  index,
+  onChange,
+  onDelete,
+}: QuestionCardProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? []).length;
+  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? [])
+    .length;
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: draft.id,
   });
 
@@ -46,7 +59,10 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
 
   function setQuestionText(text: string) {
     const blankCount = (text.match(/\[BLANK\]/g) ?? []).length;
-    const newFillBlanks = Array.from({ length: blankCount }, (_, i) => draft.fillBlanks[i] ?? []);
+    const newFillBlanks = Array.from(
+      { length: blankCount },
+      (_, i) => draft.fillBlanks[i] ?? []
+    );
     onChange({ ...draft, questionText: text, fillBlanks: newFillBlanks });
   }
 
@@ -72,22 +88,29 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
             onClick={() => setCollapsed((v) => !v)}
             className="flex min-w-0 flex-1 items-center gap-2 text-left"
           >
-            <span className="shrink-0 text-sm font-semibold text-zinc-500">Q{index + 1}</span>
+            <span className="shrink-0 text-xl font-semibold text-zinc-500">
+              Q{index + 1}
+            </span>
             {collapsed && draft.questionText && (
-              <span className="truncate text-sm text-zinc-700 dark:text-zinc-300">
+              <span className="truncate text-xl text-zinc-700 dark:text-zinc-300">
                 {draft.questionText}
               </span>
             )}
           </button>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <Select value={draft.type} onValueChange={(v) => setType(v as QuestionType)}>
+          <Select
+            value={draft.type}
+            onValueChange={(v) => setType(v as QuestionType)}
+          >
             <SelectTrigger className="h-8 w-44 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
-              <SelectItem value="FILL_IN_THE_BLANK">Fill in the Blank</SelectItem>
+              <SelectItem value="FILL_IN_THE_BLANK">
+                Fill in the Blank
+              </SelectItem>
             </SelectContent>
           </Select>
           <button
@@ -95,7 +118,11 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
             onClick={() => setCollapsed((v) => !v)}
             className="rounded p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
           >
-            {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            {collapsed ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronUp className="h-4 w-4" />
+            )}
           </button>
           <button
             type="button"
@@ -117,8 +144,8 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
                 onChange={(e) => setQuestionText(e.target.value)}
                 placeholder={
                   draft.type === "FILL_IN_THE_BLANK"
-                    ? "VD: Tiến huy ăn [BLANK] ngoài cút ra TH còn ăn [BLANK]"
-                    : "VD: What is the capital of France?"
+                    ? "Exp: A child born in late July to parents who defied Voldemort [BLANK] times, destined to be his equal and the only one able to defeat him"
+                    : "Exp: What is the capital of France?"
                 }
                 rows={2}
                 required
@@ -126,11 +153,14 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
               {draft.type === "FILL_IN_THE_BLANK" && (
                 <p className="text-xs text-zinc-400">
                   Dùng{" "}
-                  <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono dark:bg-zinc-800">[BLANK]</code>{" "}
+                  <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono dark:bg-zinc-800">
+                    [BLANK]
+                  </code>{" "}
                   để đánh dấu chỗ trống.
                   {detectedBlankCount > 0 && (
                     <span className="ml-1 font-medium text-zinc-500">
-                      {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""} detected.
+                      {detectedBlankCount} blank
+                      {detectedBlankCount > 1 ? "s" : ""} detected.
                     </span>
                   )}
                 </p>
@@ -149,12 +179,14 @@ export function QuestionCard({ draft, index, onChange, onDelete }: QuestionCardP
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-xs text-zinc-500">Explanation (optional)</Label>
+            <Label className="text-xs text-zinc-500">
+              Explanation (optional)
+            </Label>
             <Input
               value={draft.explain}
               onChange={(e) => onChange({ ...draft, explain: e.target.value })}
-              placeholder="VD: Paris is the capital of France."
-              className="text-sm"
+              placeholder="Exp: Paris is the capital of France."
+              className="text-xl"
             />
           </div>
         </div>

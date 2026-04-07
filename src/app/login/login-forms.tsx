@@ -53,7 +53,7 @@ export function LoginForms() {
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           {error ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
+            <p className="rounded-md bg-red-50 px-3 py-2 text-xl text-red-600 dark:bg-red-950/30 dark:text-red-400">
               {error}
             </p>
           ) : null}

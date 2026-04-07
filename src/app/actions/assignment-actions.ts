@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { parseAssignmentQuestions } from "@/core/lms/application/grade-submission";
 import { prisma } from "@/libs/utils/db";
-import { deleteAudioFile, extractAudioUrls } from "@/libs/utils/file-storage";
+import { deleteAudioFile, deleteImageFile, extractAudioUrls } from "@/libs/utils/file-storage";
 import type { Question } from "@/core/lms/domain/question.types";
 
 async function requireAdmin() {
@@ -18,6 +18,8 @@ async function requireAdmin() {
 export async function createAssignment(formData: FormData) {
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim() || null;
+  const image = String(formData.get("image") ?? "").trim() || null;
   const contentRaw = String(formData.get("content") ?? "");
   const timeLimitRaw = formData.get("timeLimitSeconds");
   const timeLimitSeconds = timeLimitRaw ? Number(timeLimitRaw) : null;
@@ -30,7 +32,7 @@ export async function createAssignment(formData: FormData) {
   }
   const content = parseAssignmentQuestions(parsed);
   const assignment = await prisma.assignment.create({
-    data: { title, content: content as object, timeLimitSeconds },
+    data: { title, description, image, content: content as object, timeLimitSeconds },
   });
   revalidatePath("/teacher/assignments");
   return { ok: true as const, id: assignment.id };
@@ -42,6 +44,8 @@ export async function updateAssignment(
 ) {
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim() || null;
+  const image = String(formData.get("image") ?? "").trim() || null;
   const contentRaw = String(formData.get("content") ?? "");
   const timeLimitRaw = formData.get("timeLimitSeconds");
   const timeLimitSeconds = timeLimitRaw ? Number(timeLimitRaw) : null;
@@ -59,11 +63,15 @@ export async function updateAssignment(
     const oldUrls = extractAudioUrls(existing.content as unknown as Question[]);
     const newUrls = new Set(extractAudioUrls(content));
     await Promise.all(oldUrls.filter((u) => !newUrls.has(u)).map(deleteAudioFile));
+
+    if (existing.image && existing.image !== image) {
+      await deleteImageFile(existing.image);
+    }
   }
 
   await prisma.assignment.update({
     where: { id: assignmentId },
-    data: { title, content: content as object, timeLimitSeconds },
+    data: { title, description, image, content: content as object, timeLimitSeconds },
   });
   revalidatePath("/teacher/assignments");
   revalidatePath(`/teacher/assignments/${assignmentId}/edit`);
@@ -87,6 +95,7 @@ export async function deleteAssignment(assignmentId: string) {
   if (existing) {
     const audioUrls = extractAudioUrls(existing.content as unknown as Question[]);
     await Promise.all(audioUrls.map(deleteAudioFile));
+    if (existing.image) await deleteImageFile(existing.image);
   }
   await prisma.assignment.delete({ where: { id: assignmentId } });
   revalidatePath("/teacher/assignments");

@@ -47,7 +47,8 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
   if (draft.fillBlanks.length === 0) {
     return (
       <p className="mb-4 text-xs italic text-zinc-400">
-        Thêm <code className="font-mono">[BLANK]</code> vào câu hỏi để cấu hình đáp án cho từng blank.
+        Thêm <code className="font-mono">[BLANK]</code> vào câu hỏi để cấu hình
+        đáp án cho từng blank.
       </p>
     );
   }
@@ -62,7 +63,11 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
           </Label>
           <div className="flex flex-wrap gap-1.5">
             {accepted.map((val) => (
-              <AnswerTag key={val} value={val} onDelete={() => removeBlankAnswer(blankIdx, val)} />
+              <AnswerTag
+                key={val}
+                value={val}
+                onDelete={() => removeBlankAnswer(blankIdx, val)}
+              />
             ))}
           </div>
           <div className="flex gap-2">
@@ -73,8 +78,8 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
                 next[blankIdx] = e.target.value;
                 setBlankInputs(next);
               }}
-              placeholder="VD: cút"
-              className="h-8 text-sm"
+              placeholder="Exp: three"
+              className="h-8 text-xl"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();

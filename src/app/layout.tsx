@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-mono", jetbrainsMono.variable)}>
       <body
-        className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body text-sm antialiased`}
+        className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body text-xl antialiased`}
       >
         <Providers>{children}</Providers>
         <Toaster position="top-right" />

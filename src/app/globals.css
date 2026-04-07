@@ -142,7 +142,7 @@ h6 {
   }
 
   body {
-    @apply bg-background text-foreground text-sm;
+    @apply bg-background text-foreground text-xl;
   }
 
   html {
@@ -150,6 +150,6 @@ h6 {
   }
 
   p {
-    @apply text-sm;
+    @apply text-xl;
   }
 }

@@ -46,7 +46,7 @@ export function NewLectureForm() {
         <Input
           id="title"
           required
-          placeholder="VD: Unit 1 — Vocabulary"
+          placeholder="Exp: Unit 1 — Vocabulary"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
