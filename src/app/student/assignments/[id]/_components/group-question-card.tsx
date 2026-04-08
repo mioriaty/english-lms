@@ -34,12 +34,18 @@ export function GroupQuestionCard({
   const showPassage = hasPassage(group);
 
   return (
-    <Card className="overflow-hidden">
-      <div className={showPassage ? "flex flex-col md:flex-row md:items-stretch md:divide-x md:divide-zinc-200 dark:md:divide-zinc-700" : undefined}>
-        {/* ── Left: Passage (sticky) ── */}
+    <Card className="overflow-clip">
+      <div
+        className={
+          showPassage
+            ? "flex flex-col md:flex-row md:items-stretch md:divide-x md:divide-zinc-200 dark:md:divide-zinc-700"
+            : undefined
+        }
+      >
+        {/* ── Left: Passage ── */}
         {showPassage && (
-          <div className="w-full border-b border-zinc-200 dark:border-zinc-700 md:sticky md:top-4 md:w-[60%] md:self-start md:border-b-0">
-            <div className="overflow-y-auto px-6 py-6 md:max-h-[calc(100vh-6rem)]">
+          <div className="w-full border-b border-zinc-200 dark:border-zinc-700 md:w-[60%] md:border-b-0">
+            <div className="px-6 py-6 md:sticky md:top-4 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
               {group.question.audio && (
                 <audio
                   controls
@@ -59,7 +65,7 @@ export function GroupQuestionCard({
                 </p>
               )}
               {group.question.description && (
-                <p className="whitespace-pre-wrap text-xl leading-relaxed ">
+                <p className="whitespace-pre-wrap text-xl leading-relaxed text-zinc-700 dark:text-zinc-300">
                   {group.question.description}
                 </p>
               )}
@@ -68,7 +74,11 @@ export function GroupQuestionCard({
         )}
 
         {/* ── Right: Sub-questions ── */}
-        <div className={showPassage ? "min-w-0 w-full overflow-hidden md:w-[40%]" : "w-full"}>
+        <div
+          className={
+            showPassage ? "min-w-0 w-full overflow-hidden md:w-[40%]" : "w-full"
+          }
+        >
           {group.subQuestions.map((sub, idx) => {
             const detail = result?.details.find((d) => d.questionId === sub.id);
             const isLast = idx === group.subQuestions.length - 1;
