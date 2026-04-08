@@ -113,6 +113,15 @@ export function SubQuestionCard({
         <div className="border-t border-zinc-200 px-3 pb-3 pt-2.5 dark:border-zinc-700">
           <div className="mb-4 space-y-2">
             <div className="space-y-1.5">
+              <Textarea
+                value={draft.description}
+                onChange={(e) =>
+                  onChange({ ...draft, description: e.target.value })
+                }
+                placeholder="Description (optional)"
+                rows={2}
+              />
+
               <Label className="text-xs text-zinc-500">Question text</Label>
               <Textarea
                 value={draft.questionText}
@@ -125,14 +134,7 @@ export function SubQuestionCard({
                 rows={2}
                 required
               />
-              <Textarea
-                value={draft.description}
-                onChange={(e) =>
-                  onChange({ ...draft, description: e.target.value })
-                }
-                placeholder="Description (optional)"
-                rows={2}
-              />
+
               {draft.type === "FILL_IN_THE_BLANK" && (
                 <p className="text-xs text-zinc-400">
                   Dùng{" "}

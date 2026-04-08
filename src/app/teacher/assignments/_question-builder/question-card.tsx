@@ -218,6 +218,15 @@ function LeafCardBody({
     <>
       <div className="mb-4 space-y-2">
         <div className="space-y-1.5">
+          <Textarea
+            value={draft.description}
+            onChange={(e) =>
+              onChange({ ...draft, description: e.target.value })
+            }
+            placeholder="Description (optional)"
+            rows={2}
+          />
+
           <Label className="text-xs text-zinc-500">Question text</Label>
           <Textarea
             value={draft.questionText}
@@ -245,14 +254,6 @@ function LeafCardBody({
               )}
             </p>
           )}
-          <Textarea
-            value={draft.description}
-            onChange={(e) =>
-              onChange({ ...draft, description: e.target.value })
-            }
-            placeholder="Description (optional)"
-            rows={2}
-          />
         </div>
         <AudioUploader
           audioUrl={draft.audioUrl}
@@ -320,6 +321,14 @@ function GroupCardBody({
         <div className="space-y-1.5">
           <Label className="text-xs text-zinc-500">Context / Passage</Label>
           <Textarea
+            value={draft.description}
+            onChange={(e) =>
+              onChange({ ...draft, description: e.target.value })
+            }
+            placeholder="Description (optional)"
+            rows={2}
+          />
+          <Textarea
             value={draft.questionText}
             onChange={(e) =>
               onChange({ ...draft, questionText: e.target.value })
@@ -327,14 +336,6 @@ function GroupCardBody({
             placeholder="Exp: Read the following passage and answer the questions below…"
             rows={2}
             className="resize-y"
-          />
-          <Textarea
-            value={draft.description}
-            onChange={(e) =>
-              onChange({ ...draft, description: e.target.value })
-            }
-            placeholder="Description (optional)"
-            rows={2}
           />
         </div>
         <AudioUploader
