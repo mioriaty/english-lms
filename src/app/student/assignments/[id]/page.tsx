@@ -25,7 +25,7 @@ export default async function StudentAssignmentPage({ params }: PageProps) {
         href="/student"
         className="text-xl text-zinc-600 underline dark:text-zinc-400"
       >
-        ← Danh sách bài tập
+        ← List of Assignments
       </Link>
       <AssignmentTakeForm
         assignmentId={id}

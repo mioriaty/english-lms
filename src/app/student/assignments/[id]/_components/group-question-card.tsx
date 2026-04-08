@@ -92,9 +92,6 @@ export function GroupQuestionCard({
                 }
               >
                 <CardContent className="p-6">
-                  <div className="mb-1 text-xs font-medium text-zinc-400 dark:text-zinc-500">
-                    Question {startIndex + idx + 1}
-                  </div>
                   <QuestionCardContent
                     question={sub}
                     index={startIndex + idx}

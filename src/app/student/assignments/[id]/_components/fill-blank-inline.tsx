@@ -49,7 +49,7 @@ export function FillBlankInline({
   if (!hasPlaceholder) {
     return (
       <div className="space-y-3">
-        <p className="font-serif leading-relaxed text-zinc-700 dark:text-zinc-300">
+        <p className="whitespace-pre-wrap text-xl leading-relaxed text-zinc-700 dark:text-zinc-300">
           {template}
         </p>
         <input
@@ -70,7 +70,7 @@ export function FillBlankInline({
 
   return (
     <div className="space-y-2">
-      <p className="font-serif leading-relaxed text-zinc-700 dark:text-zinc-300">
+      <p className="whitespace-pre-wrap text-xl leading-relaxed text-zinc-700 dark:text-zinc-300">
         {segments.map((seg, i) => {
           if (seg.kind === "text")
             return (

@@ -319,15 +319,6 @@ function GroupCardBody({
     <>
       <div className="mb-3 space-y-2">
         <div className="space-y-1.5">
-          <Label className="text-xs text-zinc-500">Context / Passage</Label>
-          <Textarea
-            value={draft.description}
-            onChange={(e) =>
-              onChange({ ...draft, description: e.target.value })
-            }
-            placeholder="Description (optional)"
-            rows={2}
-          />
           <Textarea
             value={draft.questionText}
             onChange={(e) =>
@@ -336,6 +327,16 @@ function GroupCardBody({
             placeholder="Exp: Read the following passage and answer the questions below…"
             rows={2}
             className="resize-y"
+          />
+
+          <Label className="text-xs text-zinc-500">Context / Passage</Label>
+          <Textarea
+            value={draft.description}
+            onChange={(e) =>
+              onChange({ ...draft, description: e.target.value })
+            }
+            placeholder="Description (optional)"
+            rows={2}
           />
         </div>
         <AudioUploader

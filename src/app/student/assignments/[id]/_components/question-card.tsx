@@ -50,6 +50,13 @@ export function QuestionCardContent({
 }: QuestionCardContentProps) {
   return (
     <div className="space-y-5">
+      {question.question.image && (
+        <ImageZoom
+          src={question.question.image}
+          className="max-h-72 w-auto rounded-md border border-zinc-200 object-contain dark:border-zinc-700"
+        />
+      )}
+
       {question.type === "MULTIPLE_CHOICE" ? (
         <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
           {question.question.text}
@@ -68,13 +75,6 @@ export function QuestionCardContent({
 
       {question.question.audio && (
         <audio controls src={question.question.audio} className="w-full" />
-      )}
-
-      {question.question.image && (
-        <ImageZoom
-          src={question.question.image}
-          className="max-h-72 w-auto rounded-md border border-zinc-200 object-contain dark:border-zinc-700"
-        />
       )}
 
       {question.type === "MULTIPLE_CHOICE" ? (
