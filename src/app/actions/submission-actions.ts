@@ -41,3 +41,30 @@ export async function submitAssignment(
 
   return { score, details };
 }
+
+export async function upsertSubmissionFeedback(
+  submissionId: string,
+  feedback: string,
+) {
+  const session = await auth();
+  if (!session?.user?.isAdmin) {
+    throw new Error("Unauthorized");
+  }
+
+  const submission = await prisma.submission.findUnique({
+    where: { id: submissionId },
+    select: { id: true, studentId: true, assignmentId: true },
+  });
+  if (!submission) throw new Error("Submission not found");
+
+  await prisma.submission.update({
+    where: { id: submissionId },
+    data: {
+      feedback: feedback.trim() || null,
+      feedbackAt: feedback.trim() ? new Date() : null,
+    },
+  });
+
+  revalidatePath(`/teacher/students/${submission.studentId}`);
+  revalidatePath(`/student/submissions/${submissionId}`);
+}

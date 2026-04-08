@@ -43,6 +43,8 @@ model Submission {
   score        Float
   details      Json
   submittedAt  DateTime   @default(now())
+  feedback     String?
+  feedbackAt   DateTime?
   studentId    String
   student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   assignmentId String

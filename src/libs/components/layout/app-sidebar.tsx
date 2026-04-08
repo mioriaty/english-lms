@@ -9,6 +9,7 @@ import {
   LucideIcon,
   Users,
   NotebookText,
+  ClipboardList,
 } from "lucide-react";
 import {
   Sidebar,
@@ -65,6 +66,7 @@ const SIDEBAR_CONFIGS: Record<"teacher" | "student", SidebarConfig> = {
     navItems: [
       { label: "Lectures", href: "/student/lectures", icon: NotebookText },
       { label: "Assignments", href: "/student", icon: BookOpen, exact: true },
+      { label: "Submissions", href: "/student/submissions", icon: ClipboardList },
     ],
   },
 };

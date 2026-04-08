@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/libs/components/ui/card";
 import type { GradingDetailRow } from "@/core/lms/application/grade-submission";
+import { FeedbackForm } from "./feedback-form";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -145,6 +146,12 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
                         </li>
                       ))}
                     </ul>
+
+                    <FeedbackForm
+                      submissionId={sub.id}
+                      initialFeedback={sub.feedback ?? null}
+                      feedbackAt={sub.feedbackAt ?? null}
+                    />
                   </CardContent>
                 </Card>
               </li>
