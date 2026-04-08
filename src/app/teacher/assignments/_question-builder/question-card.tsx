@@ -128,14 +128,16 @@ export function QuestionCard({
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
-            className="flex min-w-0 flex-1 items-center gap-2 text-left"
+            className="flex flex-1 items-center gap-2 text-left"
           >
             <span className="shrink-0 text-xl font-semibold text-zinc-500">
               Q{index + 1}
             </span>
             {collapsed && draft.questionText && (
               <span className="truncate text-xl text-zinc-700 dark:text-zinc-300">
-                {draft.questionText}
+                {draft.questionText.length > 50
+                  ? draft.questionText.slice(0, 50) + "..."
+                  : draft.questionText}
               </span>
             )}
           </button>

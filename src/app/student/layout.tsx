@@ -33,7 +33,7 @@ export default async function StudentLayout({
               Student Portal
             </span>
           </header>
-          <main className="flex-1 p-6">{children}</main>
+          <div className="flex-1 p-6">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

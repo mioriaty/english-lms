@@ -15,10 +15,10 @@ async function uploadAudio(file: File): Promise<string> {
   fd.append("file", file);
   const res = await fetch("/api/upload", { method: "POST", body: fd });
   if (!res.ok) {
-    const data = await res.json() as { error?: string };
+    const data = (await res.json()) as { error?: string };
     throw new Error(data.error ?? "Upload thất bại");
   }
-  const { url } = await res.json() as { url: string };
+  const { url } = (await res.json()) as { url: string };
   return url;
 }
 
@@ -64,7 +64,8 @@ export function AudioUploader({ audioUrl, onChange }: AudioUploaderProps) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-zinc-500">
-        Audio <span className="text-zinc-400">(MP3, tối đa 20MB, optional)</span>
+        Audio{" "}
+        <span className="text-zinc-400">(MP3, tối đa 20MB, optional)</span>
       </Label>
 
       {audioUrl ? (

@@ -33,7 +33,7 @@ export default async function TeacherLayout({
               Teacher Portal
             </span>
           </header>
-          <main className="min-w-0 flex-1 p-6">{children}</main>
+          <div className="flex-1 p-6">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

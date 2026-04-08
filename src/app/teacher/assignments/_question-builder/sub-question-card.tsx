@@ -26,10 +26,18 @@ interface SubQuestionCardProps {
   onDelete: () => void;
 }
 
-export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestionCardProps) {
-  const [collapsed, setCollapsed] = useState(() => draft.questionText.trim().length > 0);
+export function SubQuestionCard({
+  draft,
+  index,
+  onChange,
+  onDelete,
+}: SubQuestionCardProps) {
+  const [collapsed, setCollapsed] = useState(
+    () => draft.questionText.trim().length > 0
+  );
 
-  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? []).length;
+  const detectedBlankCount = (draft.questionText.match(/\[BLANK\]/g) ?? [])
+    .length;
 
   function setType(type: QuestionType) {
     onChange({ ...draft, type, correct: [], fillBlanks: [] });
@@ -47,7 +55,7 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
   return (
     <div className="w-full min-w-0 border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800/50">
       <div className="flex items-center justify-between gap-3 px-3 py-2">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="flex flex-1 items-center gap-2">
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
@@ -58,7 +66,9 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
             </span>
             {collapsed && draft.questionText && (
               <span className="truncate text-sm text-zinc-700 dark:text-zinc-300">
-                {draft.questionText}
+                {draft.questionText.length > 50
+                  ? draft.questionText.slice(0, 50) + "..."
+                  : draft.questionText}
               </span>
             )}
           </button>
@@ -73,7 +83,9 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
-              <SelectItem value="FILL_IN_THE_BLANK">Fill in the Blank</SelectItem>
+              <SelectItem value="FILL_IN_THE_BLANK">
+                Fill in the Blank
+              </SelectItem>
             </SelectContent>
           </Select>
           <button
@@ -81,7 +93,11 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
             onClick={() => setCollapsed((v) => !v)}
             className="rounded p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
           >
-            {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            {collapsed ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronUp className="h-4 w-4" />
+            )}
           </button>
           <button
             type="button"
@@ -111,7 +127,9 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
               />
               <Textarea
                 value={draft.description}
-                onChange={(e) => onChange({ ...draft, description: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...draft, description: e.target.value })
+                }
                 placeholder="Description (optional)"
                 rows={2}
               />
@@ -124,7 +142,8 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
                   để đánh dấu chỗ trống.
                   {detectedBlankCount > 0 && (
                     <span className="ml-1 font-medium text-zinc-500">
-                      {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""} detected.
+                      {detectedBlankCount} blank
+                      {detectedBlankCount > 1 ? "s" : ""} detected.
                     </span>
                   )}
                 </p>
@@ -148,7 +167,9 @@ export function SubQuestionCard({ draft, index, onChange, onDelete }: SubQuestio
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-xs text-zinc-500">Explanation (optional)</Label>
+            <Label className="text-xs text-zinc-500">
+              Explanation (optional)
+            </Label>
             <Input
               value={draft.explain}
               onChange={(e) => onChange({ ...draft, explain: e.target.value })}

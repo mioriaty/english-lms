@@ -143,6 +143,115 @@ export function QuestionCard({
   onChangeBlank,
 }: QuestionCardProps) {
   const detail = result?.details.find((d) => d.questionId === question.id);
+  const hasStimulus = !!(
+    question.question.description ||
+    question.question.audio ||
+    question.question.image
+  );
+
+  if (hasStimulus) {
+    return (
+      <Card className="overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-stretch md:divide-x md:divide-zinc-200 dark:md:divide-zinc-700">
+          {/* ── Left: Stimulus (sticky) ── */}
+          <div className="w-full border-b border-zinc-200 dark:border-zinc-700 md:sticky md:top-4 md:w-[60%] md:self-start md:border-b-0">
+            <div className="overflow-y-auto px-6 py-6 md:max-h-[calc(100vh-6rem)]">
+              {question.question.audio && (
+                <audio
+                  controls
+                  src={question.question.audio}
+                  className="mb-4 w-full"
+                />
+              )}
+              {question.question.image && (
+                <ImageZoom
+                  src={question.question.image}
+                  className="mb-4 max-h-72 w-auto rounded-md border border-zinc-200 object-contain dark:border-zinc-700"
+                />
+              )}
+              {question.question.description && (
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                  {question.question.description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* ── Right: Question + Answers ── */}
+          <div className="min-w-0 w-full overflow-hidden md:w-[40%]">
+            <CardContent className="p-6">
+              <div className="mb-1 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+                Question {index + 1}
+              </div>
+              <div className="space-y-5">
+                {question.type === "MULTIPLE_CHOICE" ? (
+                  <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+                    {question.question.text}
+                  </p>
+                ) : (
+                  <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+                    Fill in the blank
+                  </p>
+                )}
+
+                {question.type === "MULTIPLE_CHOICE" ? (
+                  <fieldset className="space-y-2" disabled={submitted}>
+                    <legend className="sr-only">Choose all correct answers</legend>
+                    {question.options.map((opt, optIdx) => {
+                      const isChecked = Array.isArray(answer)
+                        ? answer.includes(opt)
+                        : answer === opt;
+                      const reviewMode = submitted
+                        ? getOptionReviewMode(opt, isChecked, detail)
+                        : "normal";
+                      return (
+                        <OptionRow
+                          key={opt}
+                          label={optionLabel(optIdx)}
+                          text={opt}
+                          selected={isChecked}
+                          disabled={submitted}
+                          onClick={() => onToggleOption(opt)}
+                          reviewMode={reviewMode}
+                        />
+                      );
+                    })}
+                  </fieldset>
+                ) : (
+                  <div
+                    className={cn(
+                      "rounded border p-4",
+                      submitted
+                        ? detail?.isCorrect
+                          ? "border-[#2F5B94] bg-[#EDF2F9]"
+                          : "border-zinc-300"
+                        : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50"
+                    )}
+                  >
+                    <FillBlankInline
+                      template={question.question.text}
+                      values={(answer as string[] | undefined) ?? []}
+                      onChange={onChangeBlank}
+                      disabled={submitted}
+                      questionId={question.id}
+                      blankResults={detail?.blankResults}
+                    />
+                  </div>
+                )}
+
+                {submitted && question.explain && (
+                  <div className="rounded-md border border-b-blue-200 bg-blue-50 px-4 py-3 text-xl text-blue-800 dark:border-b-blue-800/40 dark:bg-blue-900/20 dark:text-blue-300">
+                    <span className="font-semibold">Explain: </span>
+                    {question.explain}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="overflow-hidden">
