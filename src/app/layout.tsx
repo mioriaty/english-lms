@@ -24,7 +24,7 @@ const spectral = Spectral({
 });
 
 export const metadata: Metadata = {
-  title: "English LMS",
+  title: "English",
   description: "Solo teacher — multiple choice & fill-in-the-blank assignments",
 };
 
