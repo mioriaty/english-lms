@@ -11,7 +11,11 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { SortableContext, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Button } from "@/libs/components/ui/button";
 import type { Question, QuestionType } from "@/core/lms/domain/question.types";
 import {
@@ -23,12 +27,13 @@ import {
 import { QuestionCard } from "./_question-builder/question-card";
 
 interface QuestionBuilderProps {
-  onSubmit: (questions: Question[]) => void;
+  onQuestionsChange: (questions: Question[]) => void;
   initialQuestions?: Question[];
 }
 
 function initDrafts(initialQuestions?: Question[]): DraftQuestion[] {
-  if (!initialQuestions || initialQuestions.length === 0) return [newLeafDraft()];
+  if (!initialQuestions || initialQuestions.length === 0)
+    return [newLeafDraft()];
 
   return initialQuestions.map((q): DraftQuestion => {
     if (q.type === "GROUP") {
@@ -68,33 +73,50 @@ function initDrafts(initialQuestions?: Question[]): DraftQuestion[] {
   });
 }
 
-export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderProps) {
-  const [drafts, setDrafts] = useState<DraftQuestion[]>(() => initDrafts(initialQuestions));
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+export function QuestionBuilder({
+  onQuestionsChange,
+  initialQuestions,
+}: QuestionBuilderProps) {
+  const [drafts, setDrafts] = useState<DraftQuestion[]>(() =>
+    initDrafts(initialQuestions)
   );
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  function setDraftsAndNotify(
+    updater: (prev: DraftQuestion[]) => DraftQuestion[]
+  ) {
+    setDrafts((prev) => {
+      const next = updater(prev);
+      onQuestionsChange(next.map(draftToQuestion));
+      return next;
+    });
+  }
+
   function updateDraft(index: number, d: DraftQuestion) {
-    setDrafts((prev) => prev.map((item, i) => (i === index ? d : item)));
+    setDraftsAndNotify((prev) =>
+      prev.map((item, i) => (i === index ? d : item))
+    );
   }
 
   function deleteDraft(index: number) {
-    setDrafts((prev) => prev.filter((_, i) => i !== index));
+    setDraftsAndNotify((prev) => prev.filter((_, i) => i !== index));
   }
 
   function addQuestion(type: QuestionType) {
-    setDrafts((prev) => [...prev, newLeafDraft(type)]);
+    setDraftsAndNotify((prev) => [...prev, newLeafDraft(type)]);
   }
 
   function addGroup() {
-    setDrafts((prev) => [...prev, newGroupDraft()]);
+    setDraftsAndNotify((prev) => [...prev, newGroupDraft()]);
   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      setDrafts((prev) => {
+      setDraftsAndNotify((prev) => {
         const oldIndex = prev.findIndex((d) => d.id === active.id);
         const newIndex = prev.findIndex((d) => d.id === over.id);
         return arrayMove(prev, oldIndex, newIndex);
@@ -103,14 +125,17 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
   }
 
   return (
-    <div className="min-w-0 space-y-4 overflow-x-hidden">
+    <div className="min-w-0 space-y-4">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis]}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={drafts.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={drafts.map((d) => d.id)}
+          strategy={verticalListSortingStrategy}
+        >
           <div className="space-y-3">
             {drafts.map((draft, i) => (
               <QuestionCard
@@ -126,23 +151,27 @@ export function QuestionBuilder({ onSubmit, initialQuestions }: QuestionBuilderP
       </DndContext>
 
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={() => addQuestion("MULTIPLE_CHOICE")}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => addQuestion("MULTIPLE_CHOICE")}
+        >
           <Plus className="mr-1.5 h-4 w-4" />
           Add Multiple Choice
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={() => addQuestion("FILL_IN_THE_BLANK")}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => addQuestion("FILL_IN_THE_BLANK")}
+        >
           <Plus className="mr-1.5 h-4 w-4" />
           Add Fill in the Blank
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={addGroup}>
           <Plus className="mr-1.5 h-4 w-4" />
           Add Group
-        </Button>
-      </div>
-
-      <div className="pt-2">
-        <Button type="button" onClick={() => onSubmit(drafts.map(draftToQuestion))} className="w-full sm:w-auto">
-          Save Questions
         </Button>
       </div>
     </div>

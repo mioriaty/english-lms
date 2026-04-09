@@ -44,18 +44,19 @@ export function FeedbackForm({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Write feedback for this submission…"
-          className="min-h-[80px] text-sm"
+          className="min-h-20 text-sm"
           autoFocus
         />
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={isPending}
-          >
+          <Button size="sm" onClick={handleSave} disabled={isPending}>
             {isPending ? "Saving…" : "Save"}
           </Button>
-          <Button size="sm" variant="ghost" onClick={handleCancel} disabled={isPending}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleCancel}
+            disabled={isPending}
+          >
             Cancel
           </Button>
         </div>
@@ -68,7 +69,9 @@ export function FeedbackForm({
       {saved ? (
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-zinc-500">Teacher Feedback</p>
+            <p className="text-xs font-medium text-zinc-500">
+              Teacher Feedback
+            </p>
             <button
               onClick={() => setIsEditing(true)}
               className="text-xs text-zinc-400 underline hover:text-zinc-600"
