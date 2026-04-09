@@ -12,7 +12,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/libs/components/ui/button";
 import { Input } from "@/libs/components/ui/input";
-import { Label } from "@/libs/components/ui/label";
+import { FormItem, FormLabel } from "@/libs/components/ui/form";
 import { Textarea } from "@/libs/components/ui/textarea";
 import {
   Select,
@@ -116,31 +116,31 @@ export function QuestionCard({
       {/* Header */}
       <div className="flex items-center justify-between gap-4 p-4">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <button
+          <Button
             type="button"
-            className="cursor-grab touch-none rounded p-0.5 text-zinc-400 hover:text-zinc-600 active:cursor-grabbing dark:hover:text-zinc-300"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 shrink-0 cursor-grab touch-none text-zinc-400 active:cursor-grabbing"
             suppressHydrationWarning
             {...attributes}
             {...listeners}
           >
-            <GripVertical className="h-4 w-4 shrink-0" />
-          </button>
-          <button
+            <GripVertical className="h-4 w-4" />
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => setCollapsed((v) => !v)}
-            className="flex flex-1 items-center gap-2 text-left"
+            className="h-auto flex-1 justify-start truncate px-1 py-0 font-normal"
           >
-            <span className="shrink-0 text-xl font-semibold text-zinc-500">
-              Q{index + 1}
-            </span>
-            {collapsed && draft.questionText && (
-              <span className="truncate text-xl text-zinc-700 dark:text-zinc-300">
+            {draft.questionText && (
+              <span className="truncate text-base text-zinc-700 dark:text-zinc-300">
                 {draft.questionText.length > 50
                   ? draft.questionText.slice(0, 50) + "..."
                   : draft.questionText}
               </span>
             )}
-          </button>
+          </Button>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <Select
@@ -158,24 +158,28 @@ export function QuestionCard({
               <SelectItem value="GROUP">Group</SelectItem>
             </SelectContent>
           </Select>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-zinc-400"
             onClick={() => setCollapsed((v) => !v)}
-            className="rounded p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
           >
             {collapsed ? (
               <ChevronDown className="h-4 w-4" />
             ) : (
               <ChevronUp className="h-4 w-4" />
             )}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-zinc-400 hover:text-red-500"
             onClick={onDelete}
-            className="rounded p-1 text-zinc-400 hover:text-red-500"
           >
             <Trash2 className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -216,8 +220,8 @@ function LeafCardBody({
 
   return (
     <>
-      <div className="mb-4 space-y-2">
-        <div className="space-y-1.5">
+      <div className="mb-4 space-y-3">
+        <FormItem>
           <Textarea
             value={draft.description}
             onChange={(e) =>
@@ -226,8 +230,10 @@ function LeafCardBody({
             placeholder="Description (optional)"
             rows={2}
           />
+        </FormItem>
 
-          <Label className="text-xs text-zinc-500">Question text</Label>
+        <FormItem>
+          <FormLabel>Question text</FormLabel>
           <Textarea
             value={draft.questionText}
             onChange={(e) => setQuestionText(e.target.value)}
@@ -241,11 +247,11 @@ function LeafCardBody({
           />
           {draft.type === "FILL_IN_THE_BLANK" && (
             <p className="text-xs text-zinc-400">
-              Dùng{" "}
+              Use{" "}
               <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono dark:bg-zinc-800">
                 [BLANK]
               </code>{" "}
-              để đánh dấu chỗ trống.
+              to mark the blank.
               {detectedBlankCount > 0 && (
                 <span className="ml-1 font-medium text-zinc-500">
                   {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""}{" "}
@@ -254,16 +260,22 @@ function LeafCardBody({
               )}
             </p>
           )}
-        </div>
-        <AudioUploader
-          audioUrl={draft.audioUrl}
-          onChange={(url) => onChange({ ...draft, audioUrl: url })}
-        />
-        <ImageUploader
-          imageUrl={draft.imageUrl}
-          onChange={(url) => onChange({ ...draft, imageUrl: url })}
-          label="Question image"
-        />
+        </FormItem>
+
+        <FormItem>
+          <AudioUploader
+            audioUrl={draft.audioUrl}
+            onChange={(url) => onChange({ ...draft, audioUrl: url })}
+          />
+        </FormItem>
+
+        <FormItem>
+          <ImageUploader
+            imageUrl={draft.imageUrl}
+            onChange={(url) => onChange({ ...draft, imageUrl: url })}
+            label="Question image"
+          />
+        </FormItem>
       </div>
 
       {draft.type === "MULTIPLE_CHOICE" ? (
@@ -272,15 +284,14 @@ function LeafCardBody({
         <FillBlankEditor draft={draft} onChange={onChange} />
       )}
 
-      <div className="space-y-1.5">
-        <Label className="text-xs text-zinc-500">Explanation (optional)</Label>
+      <FormItem>
+        <FormLabel>Explanation (optional)</FormLabel>
         <Input
           value={draft.explain}
           onChange={(e) => onChange({ ...draft, explain: e.target.value })}
           placeholder="Exp: Paris is the capital of France."
-          className="text-xl"
         />
-      </div>
+      </FormItem>
     </>
   );
 }
@@ -317,8 +328,9 @@ function GroupCardBody({
 
   return (
     <>
-      <div className="mb-3 space-y-2">
-        <div className="space-y-1.5">
+      <div className="mb-3 space-y-3">
+        <FormItem>
+          <FormLabel>Question text</FormLabel>
           <Textarea
             value={draft.questionText}
             onChange={(e) =>
@@ -327,9 +339,12 @@ function GroupCardBody({
             placeholder="Exp: Read the following passage and answer the questions below…"
             rows={2}
             className="resize-y"
+            required
           />
+        </FormItem>
 
-          <Label className="text-xs text-zinc-500">Context / Passage</Label>
+        <FormItem>
+          <FormLabel>Context / Passage</FormLabel>
           <Textarea
             value={draft.description}
             onChange={(e) =>
@@ -338,28 +353,34 @@ function GroupCardBody({
             placeholder="Description (optional)"
             rows={2}
           />
-        </div>
-        <AudioUploader
-          audioUrl={draft.audioUrl}
-          onChange={(url) => onChange({ ...draft, audioUrl: url })}
-        />
-        <ImageUploader
-          imageUrl={draft.imageUrl}
-          onChange={(url) => onChange({ ...draft, imageUrl: url })}
-          label="Question image"
-        />
+        </FormItem>
+
+        <FormItem>
+          <AudioUploader
+            audioUrl={draft.audioUrl}
+            onChange={(url) => onChange({ ...draft, audioUrl: url })}
+          />
+        </FormItem>
+
+        <FormItem>
+          <ImageUploader
+            imageUrl={draft.imageUrl}
+            onChange={(url) => onChange({ ...draft, imageUrl: url })}
+            label="Question image"
+          />
+        </FormItem>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label className="text-xs text-zinc-500">
+          <FormLabel>
             Sub-questions
             {draft.subQuestions.length > 0 && (
               <span className="ml-1.5 rounded-full bg-zinc-100 px-1.5 py-0.5 text-zinc-500 dark:bg-zinc-800">
                 {draft.subQuestions.length}
               </span>
             )}
-          </Label>
+          </FormLabel>
           <div className="flex gap-1.5">
             <Button
               type="button"

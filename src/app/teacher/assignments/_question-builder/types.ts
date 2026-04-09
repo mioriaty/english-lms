@@ -26,10 +26,11 @@ export interface DraftGroupQuestion {
 export type DraftQuestion = DraftLeafQuestion | DraftGroupQuestion;
 
 export function newLeafDraft(type: QuestionType = "MULTIPLE_CHOICE"): DraftLeafQuestion {
+  const label = type === "FILL_IN_THE_BLANK" ? "Fill in the Blank" : "Multiple Choice";
   return {
     id: crypto.randomUUID(),
     type,
-    questionText: "",
+    questionText: label,
     description: "",
     audioUrl: null,
     imageUrl: null,
@@ -44,7 +45,7 @@ export function newGroupDraft(): DraftGroupQuestion {
   return {
     id: crypto.randomUUID(),
     type: "GROUP",
-    questionText: "",
+    questionText: "Group",
     description: "",
     audioUrl: null,
     imageUrl: null,

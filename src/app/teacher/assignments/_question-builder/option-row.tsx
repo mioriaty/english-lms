@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { Input } from "@/libs/components/ui/input";
+import { Button } from "@/libs/components/ui/button";
 
 interface OptionRowProps {
   value: string;
@@ -10,34 +11,44 @@ interface OptionRowProps {
   onDelete: () => void;
 }
 
-export function OptionRow({ value, index, isCorrect, onChangeValue, onToggleCorrect, onDelete }: OptionRowProps) {
+export function OptionRow({
+  value,
+  index,
+  isCorrect,
+  onChangeValue,
+  onToggleCorrect,
+  onDelete,
+}: OptionRowProps) {
   return (
     <div className="flex items-center gap-2">
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={onToggleCorrect}
         title="Mark as correct answer"
-        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
+        className={`h-6 w-6 shrink-0 rounded-full border-2 p-0 text-xs font-bold transition-colors ${
           isCorrect
-            ? "border-emerald-500 bg-emerald-500 text-white"
-            : "border-zinc-300 text-zinc-400 hover:border-zinc-400 dark:border-zinc-600"
+            ? "border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-500 hover:text-white"
+            : "border-zinc-300 bg-transparent text-zinc-400 hover:border-zinc-400 hover:bg-transparent dark:border-zinc-600"
         }`}
       >
         {String.fromCharCode(65 + index)}
-      </button>
+      </Button>
       <Input
         value={value}
         onChange={(e) => onChangeValue(e.target.value)}
         placeholder={`Option ${String.fromCharCode(65 + index)}`}
         className="flex-1"
       />
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 shrink-0 text-zinc-400 hover:text-red-500"
         onClick={onDelete}
-        className="shrink-0 rounded p-1 text-zinc-400 hover:text-red-500"
       >
         <X className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   );
 }

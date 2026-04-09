@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/libs/components/ui/button";
-import { Label } from "@/libs/components/ui/label";
+import { FormItem, FormLabel } from "@/libs/components/ui/form";
 import { OptionRow } from "./option-row";
 import type { DraftLeafQuestion } from "./types";
 
@@ -36,10 +36,8 @@ export function McOptionsEditor({ draft, onChange }: McOptionsEditorProps) {
   }
 
   return (
-    <div className="mb-4 space-y-1.5">
-      <Label className="text-xs text-zinc-500">
-        Options <span className="text-zinc-400">(click the letter to mark correct)</span>
-      </Label>
+    <FormItem className="mb-4">
+      <FormLabel>Options <span className="font-normal text-zinc-400">(click the letter to mark correct)</span></FormLabel>
       <div className="space-y-2">
         {draft.options.map((opt, i) => (
           <OptionRow
@@ -57,6 +55,6 @@ export function McOptionsEditor({ draft, onChange }: McOptionsEditorProps) {
         <Plus className="mr-1 h-3 w-3" />
         Add option
       </Button>
-    </div>
+    </FormItem>
   );
 }

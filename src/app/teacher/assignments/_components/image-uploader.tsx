@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { ImageIcon, Upload, X, Loader2 } from "lucide-react";
 import { Button } from "@/libs/components/ui/button";
-import { Label } from "@/libs/components/ui/label";
+import { FormLabel } from "@/libs/components/ui/form";
 
 interface ImageUploaderProps {
   imageUrl: string | null;
@@ -66,12 +66,12 @@ export function ImageUploader({
 
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs text-zinc-500">
+      <FormLabel>
         {label}{" "}
-        <span className="text-zinc-400">
+        <span className="font-normal text-zinc-400">
           (JPG, PNG, WebP, maximum 5MB, optional)
         </span>
-      </Label>
+      </FormLabel>
 
       {imageUrl ? (
         <div className="relative inline-block">
@@ -80,14 +80,16 @@ export function ImageUploader({
             alt="Assignment cover"
             className="h-40 w-auto rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
           />
-          <button
+          <Button
             type="button"
-            onClick={handleRemove}
-            className="absolute right-1 top-1 rounded-full bg-black/50 p-0.5 text-white hover:bg-black/70"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1 h-6 w-6 rounded-full bg-black/50 text-white hover:bg-black/70 hover:text-white"
             aria-label="Remove image"
+            onClick={handleRemove}
           >
             <X className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         </div>
       ) : (
         <Button

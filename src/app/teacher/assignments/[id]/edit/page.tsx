@@ -19,9 +19,9 @@ export default async function EditAssignmentPage({ params }: PageProps) {
       <div>
         <Link
           href="/teacher/assignments"
-          className="text-xl text-zinc-600 underline dark:text-zinc-400"
+          className="text-xl text-zinc-600 dark:text-zinc-400"
         >
-          ← Assignments
+          ← List of Assignments
         </Link>
         <h1 className="mt-2 text-xl font-bold tracking-tight">
           Edit Assignment

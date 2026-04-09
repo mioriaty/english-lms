@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/libs/components/ui/button";
 import { Input } from "@/libs/components/ui/input";
-import { Label } from "@/libs/components/ui/label";
+import { FormItem, FormLabel } from "@/libs/components/ui/form";
 import { AnswerTag } from "./answer-tag";
 import type { DraftLeafQuestion } from "./types";
 
@@ -56,11 +56,13 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
   return (
     <div className="mb-4 space-y-4">
       {draft.fillBlanks.map((accepted, blankIdx) => (
-        <div key={blankIdx} className="space-y-1.5">
-          <Label className="text-xs text-zinc-500">
+        <FormItem key={blankIdx}>
+          <FormLabel>
             Blank {blankIdx + 1} — accepted answers
-            <span className="ml-1 text-zinc-400">(nhiều variant OK)</span>
-          </Label>
+            <span className="ml-1 font-normal text-zinc-400">
+              (multiple variants are allowed)
+            </span>
+          </FormLabel>
           <div className="flex flex-wrap gap-1.5">
             {accepted.map((val) => (
               <AnswerTag
@@ -97,7 +99,7 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
               Add
             </Button>
           </div>
-        </div>
+        </FormItem>
       ))}
     </div>
   );

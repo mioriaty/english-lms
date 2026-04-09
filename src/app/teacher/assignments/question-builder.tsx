@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import {
   DndContext,
@@ -80,19 +80,25 @@ export function QuestionBuilder({
   const [drafts, setDrafts] = useState<DraftQuestion[]>(() =>
     initDrafts(initialQuestions)
   );
+  const isFirstRender = useRef(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onQuestionsChange(drafts.map(draftToQuestion));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drafts]);
+
   function setDraftsAndNotify(
     updater: (prev: DraftQuestion[]) => DraftQuestion[]
   ) {
-    setDrafts((prev) => {
-      const next = updater(prev);
-      onQuestionsChange(next.map(draftToQuestion));
-      return next;
-    });
+    setDrafts(updater);
   }
 
   function updateDraft(index: number, d: DraftQuestion) {

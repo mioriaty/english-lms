@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Music, Upload, X, Loader2 } from "lucide-react";
 import { Button } from "@/libs/components/ui/button";
-import { Label } from "@/libs/components/ui/label";
+import { FormLabel } from "@/libs/components/ui/form";
 
 interface AudioUploaderProps {
   audioUrl: string | null;
@@ -63,10 +63,12 @@ export function AudioUploader({ audioUrl, onChange }: AudioUploaderProps) {
 
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs text-zinc-500">
+      <FormLabel>
         Audio{" "}
-        <span className="text-zinc-400">(MP3, tối đa 20MB, optional)</span>
-      </Label>
+        <span className="font-normal text-zinc-400">
+          (MP3, maximum 20MB, optional)
+        </span>
+      </FormLabel>
 
       {audioUrl ? (
         <div className="flex items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-800/50">
@@ -75,14 +77,16 @@ export function AudioUploader({ audioUrl, onChange }: AudioUploaderProps) {
             {filename}
           </span>
           <audio src={audioUrl} controls className="h-8 max-w-55 shrink-0" />
-          <button
+          <Button
             type="button"
-            onClick={handleRemove}
-            className="shrink-0 rounded p-0.5 text-zinc-400 hover:text-red-500"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 shrink-0 text-zinc-400 hover:text-red-500"
             aria-label="Remove audio"
+            onClick={handleRemove}
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       ) : (
         <Button

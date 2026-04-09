@@ -37,7 +37,7 @@ export default async function StudentSubmissionReviewPage({
       <div>
         <Link
           href="/student"
-          className="text-xl text-zinc-600 underline dark:text-zinc-400"
+          className="text-xl text-zinc-600 dark:text-zinc-400"
         >
           ← List of Assignments
         </Link>
@@ -124,7 +124,9 @@ export default async function StudentSubmissionReviewPage({
                   )}
                 </span>
 
-                {!d.isCorrect && d.correctAnswers && d.correctAnswers.length > 0 ? (
+                {!d.isCorrect &&
+                d.correctAnswers &&
+                d.correctAnswers.length > 0 ? (
                   <span>
                     <span className="text-zinc-400">Correct: </span>
                     <span className="font-medium text-zinc-700 dark:text-zinc-300">
