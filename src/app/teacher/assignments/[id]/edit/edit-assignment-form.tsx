@@ -1,14 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "sonner";
 import { updateAssignment } from "@/app/actions/assignment-actions";
 import { ImageUploader } from "@/app/teacher/assignments/_components/image-uploader";
-import { Input } from "@/libs/components/ui/input";
-import { Label } from "@/libs/components/ui/label";
-import { RichTextEditor } from "@/libs/components/rich-text-editor";
 import { QuestionBuilder } from "@/app/teacher/assignments/question-builder";
 import type { Question } from "@/core/lms/domain/question.types";
+import { RichTextEditor } from "@/libs/components/rich-text-editor";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/libs/components/ui/form";
+import { Input } from "@/libs/components/ui/input";
+import { validateQuestions } from "@/core/lms/domain/question-validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const schema = z.object({
+  title: z.string().min(1, "Title is required."),
+  description: z.string().optional(),
+  image: z.string().nullable().optional(),
+  timeLimit: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 interface EditAssignmentFormProps {
   assignmentId: string;
@@ -27,16 +46,6 @@ export function EditAssignmentForm({
   initialContent,
   initialTimeLimitSeconds,
 }: EditAssignmentFormProps) {
-  const [title, setTitle] = useState(initialTitle);
-  const [description, setDescription] = useState(initialDescription ?? "");
-  const [image, setImage] = useState<string | null>(initialImage);
-  const [timeLimit, setTimeLimit] = useState<string>(
-    initialTimeLimitSeconds
-      ? String(Math.round(initialTimeLimitSeconds / 60))
-      : ""
-  );
-  const [pending, setPending] = useState(false);
-
   const initialQuestions: Question[] = (() => {
     try {
       return JSON.parse(initialContent) as Question[];
@@ -45,53 +54,32 @@ export function EditAssignmentForm({
     }
   })();
 
-  async function handleSubmit(questions: Question[]) {
-    if (!title.trim()) {
-      toast.error("Title is required.");
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      title: initialTitle,
+      description: initialDescription ?? "",
+      image: initialImage,
+      timeLimit: initialTimeLimitSeconds
+        ? String(Math.round(initialTimeLimitSeconds / 60))
+        : "",
+    },
+  });
+
+  async function handleSubmit(values: FormValues, questions: Question[]) {
+    const validationError = validateQuestions(questions);
+    if (validationError) {
+      toast.error(validationError.message);
       return;
-    }
-    if (questions.length === 0) {
-      toast.error("At least 1 question required.");
-      return;
-    }
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      if (!q.question.text.trim() && q.type !== "GROUP") {
-        toast.error(`Question ${i + 1} has no question text.`);
-        return;
-      }
-      if (q.type === "GROUP") {
-        if (q.subQuestions.length === 0) {
-          toast.error(`Group ${i + 1} has no sub-questions.`);
-          return;
-        }
-        for (let j = 0; j < q.subQuestions.length; j++) {
-          const sub = q.subQuestions[j];
-          if (!sub.question.text.trim()) {
-            toast.error(`Question ${i + 1}.${j + 1} has no question text.`);
-            return;
-          }
-          if (sub.correct.length === 0) {
-            toast.error(`Question ${i + 1}.${j + 1} has no correct answer.`);
-            return;
-          }
-        }
-      } else {
-        if (q.correct.length === 0) {
-          toast.error(`Question ${i + 1} has no correct answer.`);
-          return;
-        }
-      }
     }
 
-    setPending(true);
     try {
       const fd = new FormData();
-      fd.append("title", title.trim());
-      if (description.trim()) fd.append("description", description.trim());
-      if (image) fd.append("image", image);
+      fd.append("title", values.title.trim());
+      if (values.description?.trim()) fd.append("description", values.description.trim());
+      if (values.image) fd.append("image", values.image);
       fd.append("content", JSON.stringify(questions));
-      const timeLimitMinutes = timeLimit.trim() ? Number(timeLimit) : null;
+      const timeLimitMinutes = values.timeLimit?.trim() ? Number(values.timeLimit) : null;
       if (timeLimitMinutes !== null)
         fd.append("timeLimitSeconds", String(timeLimitMinutes * 60));
       await updateAssignment(assignmentId, fd);
@@ -100,66 +88,91 @@ export function EditAssignmentForm({
       toast.error(
         err instanceof Error ? err.message : "Failed to update assignment."
       );
-    } finally {
-      setPending(false);
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-[1fr_300px]">
-        <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
+    <Form {...form}>
+      <div className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-[1fr_300px]">
+          <FormField
+            control={form.control}
             name="title"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="timeLimit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Time limit{" "}
+                  <span className="font-normal text-zinc-400">(minutes, optional)</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={300}
+                    placeholder="No limit"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Description{" "}
+                <span className="font-normal text-zinc-400">(optional)</span>
+              </FormLabel>
+              <FormControl>
+                <RichTextEditor
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  placeholder="Mô tả bài tập, hướng dẫn…"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <ImageUploader imageUrl={field.value ?? null} onChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         <div className="space-y-2">
-          <Label htmlFor="timeLimit">
-            Time limit{" "}
-            <span className="font-normal text-zinc-400">
-              (minutes, optional)
-            </span>
-          </Label>
-          <Input
-            id="timeLimit"
-            type="number"
-            min={1}
-            max={300}
-            placeholder="No limit"
-            value={timeLimit}
-            onChange={(e) => setTimeLimit(e.target.value)}
+          <QuestionBuilder
+            initialQuestions={initialQuestions}
+            onSubmit={(questions) =>
+              form.handleSubmit((values) => handleSubmit(values, questions))()
+            }
           />
         </div>
       </div>
-
-      <div className="space-y-2">
-        <Label>
-          Description{" "}
-          <span className="font-normal text-zinc-400">(optional)</span>
-        </Label>
-        <RichTextEditor
-          value={description}
-          onChange={setDescription}
-          placeholder="Mô tả bài tập, hướng dẫn…"
-        />
-      </div>
-
-      <ImageUploader imageUrl={image} onChange={setImage} />
-
-      <div className="space-y-2">
-        <Label>Questions</Label>
-        <QuestionBuilder
-          onSubmit={handleSubmit}
-          initialQuestions={initialQuestions}
-        />
-      </div>
-
-      {pending && <p className="text-xl text-zinc-500">Saving…</p>}
-    </div>
+    </Form>
   );
 }

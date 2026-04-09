@@ -33,7 +33,9 @@ export function NewLectureForm() {
       const res = await createLecture(fd);
       if (res?.ok) router.push(`/teacher/lectures/${res.id}/edit`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Tạo thất bại.");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to create lecture."
+      );
     } finally {
       setPending(false);
     }

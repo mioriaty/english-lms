@@ -16,7 +16,7 @@ async function uploadAudio(file: File): Promise<string> {
   const res = await fetch("/api/upload", { method: "POST", body: fd });
   if (!res.ok) {
     const data = (await res.json()) as { error?: string };
-    throw new Error(data.error ?? "Upload thất bại");
+    throw new Error(data.error ?? "Upload failed");
   }
   const { url } = (await res.json()) as { url: string };
   return url;
@@ -47,7 +47,7 @@ export function AudioUploader({ audioUrl, onChange }: AudioUploaderProps) {
       const url = await uploadAudio(file);
       onChange(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload thất bại");
+      setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
     }

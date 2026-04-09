@@ -28,19 +28,19 @@ export function AssignmentDeleteButton({ id }: { id: string }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xóa assignment?</AlertDialogTitle>
+          <AlertDialogTitle>Delete assignment?</AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này không thể hoàn tác. Tất cả bài nộp liên quan cũng sẽ
-            bị xóa.
+            This action cannot be undone. All submissions related to this
+            assignment will also be deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={() => startTransition(() => deleteAssignment(id))}
           >
-            {pending ? "Đang xóa…" : "Xóa"}
+            {pending ? "Deleting…" : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

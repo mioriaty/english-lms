@@ -17,7 +17,7 @@ async function uploadImage(file: File): Promise<string> {
   const res = await fetch("/api/upload", { method: "POST", body: fd });
   if (!res.ok) {
     const data = (await res.json()) as { error?: string };
-    throw new Error(data.error ?? "Upload thất bại");
+    throw new Error(data.error ?? "Upload failed");
   }
   const { url } = (await res.json()) as { url: string };
   return url;
@@ -31,7 +31,11 @@ async function deleteImage(url: string): Promise<void> {
   });
 }
 
-export function ImageUploader({ imageUrl, onChange, label = "Assignment's image" }: ImageUploaderProps) {
+export function ImageUploader({
+  imageUrl,
+  onChange,
+  label = "Assignment's image",
+}: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +52,7 @@ export function ImageUploader({ imageUrl, onChange, label = "Assignment's image"
       const url = await uploadImage(file);
       onChange(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload thất bại");
+      setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -99,7 +103,7 @@ export function ImageUploader({ imageUrl, onChange, label = "Assignment's image"
           ) : (
             <ImageIcon className="h-3.5 w-3.5" />
           )}
-          {uploading ? "Đang upload…" : "Upload ảnh"}
+          {uploading ? "Uploading…" : "Upload image"}
         </Button>
       )}
 

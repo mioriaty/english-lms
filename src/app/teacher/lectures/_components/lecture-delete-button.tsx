@@ -28,18 +28,18 @@ export function LectureDeleteButton({ id }: { id: string }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xóa lecture?</AlertDialogTitle>
+          <AlertDialogTitle>Delete lecture?</AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này không thể hoàn tác.
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={() => startTransition(() => deleteLecture(id))}
           >
-            {pending ? "Đang xóa…" : "Xóa"}
+            {pending ? "Deleting…" : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
