@@ -2,6 +2,14 @@ import Link from "next/link";
 import { prisma } from "@/libs/utils/db";
 import { Button } from "@/libs/components/ui/button";
 import { Badge } from "@/libs/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/libs/components/ui/table";
 import { LectureDeleteButton } from "./_components/lecture-delete-button";
 import { LectureToggle } from "./_components/lecture-toggle";
 
@@ -16,48 +24,50 @@ export default async function TeacherLecturesPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight">Lectures</h1>
-          <p className="text-xl text-muted-foreground">Manage all lectures.</p>
+          <p className="text-muted-foreground">Manage all lectures.</p>
         </div>
         <Button asChild>
           <Link href="/teacher/lectures/new">New Lecture</Link>
         </Button>
       </div>
 
-      {lectures.length === 0 ? (
-        <p className="rounded-md border border-dashed px-4 py-10 text-center text-xl text-zinc-500">
-          No lectures found.
-        </p>
-      ) : (
-        <div className="overflow-hidden rounded-md border">
-          <table className="w-full text-xl">
-            <thead className="border-b bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">Title</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-left font-medium">Created</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {lectures.map((l) => (
-                <tr key={l.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">
-                    <Link
-                      href={`/teacher/lectures/${l.id}/edit`}
-                      className="hover:underline"
-                    >
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {lectures.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No lectures yet.
+                </TableCell>
+              </TableRow>
+            ) : (
+              lectures.map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell className="font-medium">
+                    <Link href={`/teacher/lectures/${l.id}/edit`}>
                       {l.title}
                     </Link>
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <Badge variant={l.isPublished ? "default" : "secondary"}>
                       {l.isPublished ? "Published" : "Draft"}
                     </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  </TableCell>
+                  <TableCell>
                     {new Date(l.createdAt).toLocaleDateString("vi-VN")}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <LectureToggle id={l.id} isPublished={l.isPublished} />
                       <Button asChild variant="outline" size="sm">
@@ -67,13 +77,13 @@ export default async function TeacherLecturesPage() {
                       </Button>
                       <LectureDeleteButton id={l.id} />
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
