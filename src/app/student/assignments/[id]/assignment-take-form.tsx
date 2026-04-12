@@ -122,7 +122,13 @@ export function AssignmentTakeForm({
         </div>
       )}
 
-      <form className="space-y-6" onSubmit={onSubmit}>
+      <form
+        className="space-y-6"
+        onSubmit={onSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault();
+        }}
+      >
         {renderItems.map(({ q, startIndex }) =>
           q.type === "GROUP" ? (
             <GroupQuestionCard

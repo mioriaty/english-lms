@@ -6,6 +6,15 @@ import { hash } from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/libs/utils/db";
 
+const lang = {
+  en: {
+    hello: "Hello",
+  },
+  vi: {
+    hello: "Xin chào",
+  },
+};
+
 async function requireAdmin() {
   const session = await auth();
   if (!session?.user?.isAdmin) {
@@ -47,7 +56,7 @@ export async function deleteStudent(studentId: string) {
 
 export async function updateStudent(
   studentId: string,
-  data: { username?: string; password?: string },
+  data: { username?: string; password?: string }
 ) {
   await requireAdmin();
 
