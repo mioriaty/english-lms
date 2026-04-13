@@ -10,6 +10,7 @@ import {
   Users,
   NotebookText,
   ClipboardList,
+  Music,
 } from "lucide-react";
 import {
   Sidebar,
@@ -57,6 +58,7 @@ const SIDEBAR_CONFIGS: Record<"teacher" | "student", SidebarConfig> = {
       { label: "Lectures", href: "/teacher/lectures", icon: NotebookText },
       { label: "Assignments", href: "/teacher/assignments", icon: BookOpen },
       { label: "Students", href: "/teacher/students", icon: Users },
+      { label: "Download Audio", href: "/teacher/audio-converter", icon: Music },
     ],
   },
   student: {
