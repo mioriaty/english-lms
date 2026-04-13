@@ -12,7 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/libs/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/libs/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/libs/components/ui/tabs";
 import { Label } from "@/libs/components/ui/label";
 import {
   Music,
@@ -38,14 +43,16 @@ export default function AudioConverterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobs, setJobs] = useState<JobWithPoll[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pollTimers = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
+  const pollTimers = useRef<Map<string, ReturnType<typeof setInterval>>>(
+    new Map(),
+  );
 
   // ──────────────────────────────────────────────
   // Auto-download: trigger browser Save dialog
   // ──────────────────────────────────────────────
-  const triggerDownload = useCallback((filename: string) => {
+  const triggerDownload = useCallback((jobId: string, filename: string) => {
     const a = document.createElement("a");
-    a.href = `/converted/${filename}`;
+    a.href = `/api/admin/audio-converter/${jobId}/download`;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
@@ -55,38 +62,44 @@ export default function AudioConverterPage() {
   // ──────────────────────────────────────────────
   // Polling
   // ──────────────────────────────────────────────
-  const startPolling = useCallback((jobId: string) => {
-    if (pollTimers.current.has(jobId)) return;
+  const startPolling = useCallback(
+    (jobId: string) => {
+      if (pollTimers.current.has(jobId)) return;
 
-    const timer = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/admin/audio-converter/${jobId}`);
-        if (!res.ok) return;
-        const updated: ConversionJob = await res.json();
+      const timer = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/admin/audio-converter/${jobId}`);
+          if (!res.ok) return;
+          const updated: ConversionJob = await res.json();
 
-        setJobs((prev) =>
-          prev.map((j) => (j.jobId === jobId ? { ...j, ...updated } : j))
-        );
+          setJobs((prev) =>
+            prev.map((j) => (j.jobId === jobId ? { ...j, ...updated } : j)),
+          );
 
-        if (updated.status === "completed" || updated.status === "failed") {
-          clearInterval(timer);
-          pollTimers.current.delete(jobId);
+          if (updated.status === "completed" || updated.status === "failed") {
+            clearInterval(timer);
+            pollTimers.current.delete(jobId);
 
-          if (updated.status === "completed") {
-            // Auto-open browser Save dialog
-            if (updated.outputFilename) triggerDownload(updated.outputFilename);
-            toast.success("Conversion complete! Saving file…");
-          } else {
-            toast.error(`Conversion failed: ${updated.error ?? "Unknown error"}`);
+            if (updated.status === "completed") {
+              // Auto-open browser Save dialog
+              if (updated.outputFilename)
+                triggerDownload(jobId, updated.outputFilename);
+              toast.success("Conversion complete! Saving file…");
+            } else {
+              toast.error(
+                `Conversion failed: ${updated.error ?? "Unknown error"}`,
+              );
+            }
           }
+        } catch {
+          // silent
         }
-      } catch {
-        // silent
-      }
-    }, 2000);
+      }, 2000);
 
-    pollTimers.current.set(jobId, timer);
-  }, [triggerDownload]);
+      pollTimers.current.set(jobId, timer);
+    },
+    [triggerDownload],
+  );
 
   // ──────────────────────────────────────────────
   // Submit
@@ -104,7 +117,8 @@ export default function AudioConverterPage() {
         body: JSON.stringify({ sourceUrl: url }),
       });
       const data: ConversionJob = await res.json();
-      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Failed");
+      if (!res.ok)
+        throw new Error((data as { error?: string }).error ?? "Failed");
       setJobs((prev) => [data, ...prev]);
       startPolling(data.jobId);
       setUrl("");
@@ -126,7 +140,8 @@ export default function AudioConverterPage() {
         body: formData,
       });
       const data: ConversionJob = await res.json();
-      if (!res.ok) throw new Error((data as { error?: string }).error ?? "Failed");
+      if (!res.ok)
+        throw new Error((data as { error?: string }).error ?? "Failed");
       setJobs((prev) => [data, ...prev]);
       startPolling(data.jobId);
       toast.info("Conversion started!");
@@ -148,7 +163,7 @@ export default function AudioConverterPage() {
       if (file) submitFile(file);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -182,9 +197,21 @@ export default function AudioConverterPage() {
   function StatusBadge({ status }: { status: ConversionJob["status"] }) {
     const map = {
       pending: { label: "Pending", variant: "secondary" as const, icon: Clock },
-      processing: { label: "Processing", variant: "default" as const, icon: Loader2 },
-      completed: { label: "Completed", variant: "default" as const, icon: CheckCircle2 },
-      failed: { label: "Failed", variant: "destructive" as const, icon: XCircle },
+      processing: {
+        label: "Processing",
+        variant: "default" as const,
+        icon: Loader2,
+      },
+      completed: {
+        label: "Completed",
+        variant: "default" as const,
+        icon: CheckCircle2,
+      },
+      failed: {
+        label: "Failed",
+        variant: "destructive" as const,
+        icon: XCircle,
+      },
     };
     const { label, variant, icon: Icon } = map[status];
     return (
@@ -382,7 +409,7 @@ export default function AudioConverterPage() {
                       {job.status === "completed" && job.outputFilename && (
                         <Button size="sm" variant="default" asChild>
                           <a
-                            href={`/converted/${job.outputFilename}`}
+                            href={`/api/admin/audio-converter/${job.jobId}/download`}
                             download
                             className="flex items-center gap-1.5"
                           >
