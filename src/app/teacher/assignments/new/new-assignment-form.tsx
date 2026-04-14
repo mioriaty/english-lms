@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useSidebar } from "@/libs/components/ui/sidebar";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -37,6 +38,8 @@ export function NewAssignmentForm() {
   const questionsRef = useRef<Question[]>([]);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const { isMobile, state } = useSidebar();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -77,10 +80,13 @@ export function NewAssignmentForm() {
     try {
       const fd = new FormData();
       fd.append("title", values.title.trim());
-      if (values.description?.trim()) fd.append("description", values.description.trim());
+      if (values.description?.trim())
+        fd.append("description", values.description.trim());
       if (values.image) fd.append("image", values.image);
       fd.append("content", JSON.stringify(questions));
-      const timeLimitMinutes = values.timeLimit?.trim() ? Number(values.timeLimit) : null;
+      const timeLimitMinutes = values.timeLimit?.trim()
+        ? Number(values.timeLimit)
+        : null;
       if (timeLimitMinutes !== null)
         fd.append("timeLimitSeconds", String(timeLimitMinutes * 60));
       const res = await createAssignment(fd);
@@ -90,7 +96,7 @@ export function NewAssignmentForm() {
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to create assignment."
+        err instanceof Error ? err.message : "Failed to create assignment.",
       );
     } finally {
       setIsSaving(false);
@@ -122,7 +128,9 @@ export function NewAssignmentForm() {
                 <FormItem>
                   <FormLabel>
                     Time limit{" "}
-                    <span className="font-normal text-zinc-400">(minutes, optional)</span>
+                    <span className="font-normal text-zinc-400">
+                      (minutes, optional)
+                    </span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -165,7 +173,10 @@ export function NewAssignmentForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <ImageUploader imageUrl={field.value ?? null} onChange={field.onChange} />
+                  <ImageUploader
+                    imageUrl={field.value ?? null}
+                    onChange={field.onChange}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -180,10 +191,19 @@ export function NewAssignmentForm() {
         </div>
 
         {/* Sticky save bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
+        <div
+          className="fixed bottom-0 right-0 z-50 border-t border-zinc-200 bg-white/90 backdrop-blur transition-all duration-200 ease-linear dark:border-zinc-800 dark:bg-zinc-950/90"
+          style={{
+            width: isMobile
+              ? "100%"
+              : `calc(100% - ${state === "collapsed" ? "var(--sidebar-width-icon)" : "var(--sidebar-width)"})`,
+          }}
+        >
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
             {isDirty ? (
-              <p className="text-sm text-amber-600 dark:text-amber-400">Unsaved changes</p>
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Unsaved changes
+              </p>
             ) : (
               <span />
             )}

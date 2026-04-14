@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useSidebar } from "@/libs/components/ui/sidebar";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -59,6 +60,8 @@ export function EditAssignmentForm({
   const questionsRef = useRef<Question[]>(initialQuestions);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const { isMobile, state } = useSidebar();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -203,7 +206,14 @@ export function EditAssignmentForm({
         </div>
 
         {/* Sticky save bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
+        <div
+          className="fixed bottom-0 right-0 z-50 border-t border-zinc-200 bg-white/90 backdrop-blur transition-all duration-200 ease-linear dark:border-zinc-800 dark:bg-zinc-950/90"
+          style={{
+            width: isMobile
+              ? "100%"
+              : `calc(100% - ${state === "collapsed" ? "var(--sidebar-width-icon)" : "var(--sidebar-width)"})`,
+          }}
+        >
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
             {isDirty ? (
               <p className="text-sm text-amber-600 dark:text-amber-400">Unsaved changes</p>
