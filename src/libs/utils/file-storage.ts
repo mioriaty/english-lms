@@ -7,7 +7,11 @@ const UPLOAD_BASE_URL = process.env.UPLOAD_BASE_URL ?? "/uploads";
 
 async function saveFile(file: File, subDir: string, fallbackExt: string): Promise<string> {
   const ext = path.extname(file.name).toLowerCase() || fallbackExt;
-  const filename = `${crypto.randomUUID()}${ext}`;
+  const rawBasename = path.basename(file.name, ext);
+  // Remove non-alphanumeric chars to prevent issues, taking up to 50 chars
+  const safeBasename = rawBasename.replace(/[^a-zA-Z0-9_\-]/g, "_").substring(0, 50);
+  
+  const filename = `${crypto.randomUUID()}_${safeBasename}${ext}`;
   const dir = path.join(UPLOAD_DIR, subDir);
 
   await fs.mkdir(dir, { recursive: true });
@@ -15,6 +19,29 @@ async function saveFile(file: File, subDir: string, fallbackExt: string): Promis
   await fs.writeFile(path.join(dir, filename), buffer);
 
   return `${UPLOAD_BASE_URL}/${subDir}/${filename}`;
+}
+
+async function getFilesList(subDir: "audio" | "images"): Promise<{ url: string; name: string }[]> {
+  try {
+    const dir = path.join(UPLOAD_DIR, subDir);
+    const files = await fs.readdir(dir);
+    return files.map((filename) => {
+      let displayName = filename;
+      const underscoreIdx = filename.indexOf("_");
+      // Check if it matches UUID-like format before underscore
+      if (underscoreIdx > 8) { 
+        displayName = filename.substring(underscoreIdx + 1);
+      }
+      
+      return {
+        url: `${UPLOAD_BASE_URL}/${subDir}/${filename}`,
+        name: displayName,
+      };
+    });
+  } catch {
+    // Return empty array if directory doesn't exist
+    return [];
+  }
 }
 
 async function deleteFile(url: string, subDir: string): Promise<void> {
@@ -47,4 +74,12 @@ export function deleteImageFile(url: string): Promise<void> {
 
 export function extractAudioUrls(questions: Question[]): string[] {
   return questions.flatMap((q) => (q.question.audio ? [q.question.audio] : []));
+}
+
+export function getAudioFiles() {
+  return getFilesList("audio");
+}
+
+export function getImageFiles() {
+  return getFilesList("images");
 }
