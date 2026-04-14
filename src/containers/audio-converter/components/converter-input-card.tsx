@@ -68,7 +68,7 @@ export function ConverterInputCard({
           <TabsContent value="url">
             <div className="space-y-3">
               <Label htmlFor="m3u8-url">M3U8 Stream URL</Label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <Input
                   id="m3u8-url"
                   placeholder="https://example.com/stream/playlist.m3u8"
@@ -76,7 +76,7 @@ export function ConverterInputCard({
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && submitUrl()}
                   disabled={isSubmitting}
-                  className="font-mono text-sm"
+                  className="font-mono text-sm h-9"
                 />
                 <Button
                   onClick={submitUrl}
