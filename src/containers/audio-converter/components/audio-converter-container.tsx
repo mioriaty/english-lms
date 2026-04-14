@@ -4,6 +4,7 @@ import { Music } from "lucide-react";
 import { useAudioConverter } from "../hooks/use-audio-converter";
 import { ConverterInputCard } from "./converter-input-card";
 import { JobHistoryList } from "./job-history-list";
+import { DownloadGuideDialog } from "@/containers/audio-converter/components/download-guide-dialog";
 
 export function AudioConverterContainer() {
   const {
@@ -35,6 +36,8 @@ export function AudioConverterContainer() {
           </p>
         </div>
       </div>
+
+      <DownloadGuideDialog />
 
       <ConverterInputCard
         url={url}
