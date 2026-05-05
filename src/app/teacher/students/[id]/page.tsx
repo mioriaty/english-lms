@@ -53,7 +53,19 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
           student.submissions.map((sub) => {
             const details = sub.details as unknown as GradingDetailRow[];
             const allCorrect = details.every((d) => d.isCorrect);
-            const correctCount = details.filter((d) => d.isCorrect).length;
+            const { correctUnits, totalUnits } = details.reduce(
+              (acc, d) => {
+                if (d.totalBlanks !== undefined && d.correctBlanks !== undefined) {
+                  acc.totalUnits += d.totalBlanks;
+                  acc.correctUnits += d.correctBlanks;
+                } else {
+                  acc.totalUnits += 1;
+                  if (d.isCorrect) acc.correctUnits += 1;
+                }
+                return acc;
+              },
+              { correctUnits: 0, totalUnits: 0 },
+            );
 
             return (
               <li key={sub.id}>
@@ -68,7 +80,7 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                           {sub.score.toFixed(0)}%
                         </span>{" "}
-                        ({correctCount}/{details.length} correct)
+                        ({correctUnits}/{totalUnits} correct)
                       </span>
                       <span>·</span>
                       <span>
@@ -104,37 +116,66 @@ export default async function TeacherStudentDetailPage({ params }: PageProps) {
                             )}
                           </p>
 
-                          {/* Student answer */}
-                          <div className="mt-2 flex flex-wrap items-start gap-x-6 gap-y-1 text-xs">
-                            <span>
-                              <span className="text-zinc-400">Answered: </span>
-                              <span
-                                className={`font-medium ${
-                                  d.isCorrect
-                                    ? "text-emerald-700 dark:text-emerald-300"
-                                    : "text-red-700 dark:text-red-300"
-                                }`}
-                              >
-                                &quot;{d.studentAnswer || "—"}&quot;
-                              </span>
-                              {d.isCorrect ? (
-                                <span className="ml-1 text-emerald-600">✓</span>
-                              ) : (
-                                <span className="ml-1 text-red-500">✗</span>
-                              )}
-                            </span>
-
-                            {/* Correct answer (only if wrong) */}
-                            {!d.isCorrect &&
-                            d.correctAnswers &&
-                            d.correctAnswers.length > 0 ? (
-                              <span>
-                                <span className="text-zinc-400">Correct: </span>
-                                <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                                  {d.correctAnswers.join(" / ")}
+                          <div className="mt-2 space-y-1 text-xs">
+                            {d.blankResults ? (
+                              // Fill-in-the-blank: show each blank independently
+                              d.blankResults.map((r, i) => (
+                                <div key={i} className="flex flex-wrap items-center gap-x-2">
+                                  <span className="text-zinc-400">Blank {i + 1}:</span>
+                                  <span
+                                    className={`font-medium ${
+                                      r.isCorrect
+                                        ? "text-emerald-700 dark:text-emerald-300"
+                                        : "text-red-700 dark:text-red-300"
+                                    }`}
+                                  >
+                                    &quot;{r.studentAnswer || "—"}&quot;
+                                  </span>
+                                  {r.isCorrect ? (
+                                    <span className="text-emerald-600">✓</span>
+                                  ) : (
+                                    <>
+                                      <span className="text-red-500">✗</span>
+                                      <span className="text-zinc-400">→</span>
+                                      <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                                        {r.correctAnswers.join(" / ")}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="flex flex-wrap items-start gap-x-6 gap-y-1">
+                                <span>
+                                  <span className="text-zinc-400">Answered: </span>
+                                  <span
+                                    className={`font-medium ${
+                                      d.isCorrect
+                                        ? "text-emerald-700 dark:text-emerald-300"
+                                        : "text-red-700 dark:text-red-300"
+                                    }`}
+                                  >
+                                    &quot;{d.studentAnswer || "—"}&quot;
+                                  </span>
+                                  {d.isCorrect ? (
+                                    <span className="ml-1 text-emerald-600">✓</span>
+                                  ) : (
+                                    <span className="ml-1 text-red-500">✗</span>
+                                  )}
                                 </span>
-                              </span>
-                            ) : null}
+                                {/* Correct answer (only if wrong) */}
+                                {!d.isCorrect &&
+                                d.correctAnswers &&
+                                d.correctAnswers.length > 0 ? (
+                                  <span>
+                                    <span className="text-zinc-400">Correct: </span>
+                                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                                      {d.correctAnswers.join(" / ")}
+                                    </span>
+                                  </span>
+                                ) : null}
+                              </div>
+                            )}
                           </div>
 
                           {/* Explanation */}

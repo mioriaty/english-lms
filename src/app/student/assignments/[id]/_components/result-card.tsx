@@ -16,13 +16,26 @@ interface ResultCardProps {
 
 export function ResultCard({ result }: ResultCardProps) {
   const allCorrect = result.details.every((d) => d.isCorrect);
+  const { correctUnits, totalUnits } = result.details.reduce(
+    (acc, d) => {
+      if (d.totalBlanks !== undefined && d.correctBlanks !== undefined) {
+        acc.totalUnits += d.totalBlanks;
+        acc.correctUnits += d.correctBlanks;
+      } else {
+        acc.totalUnits += 1;
+        if (d.isCorrect) acc.correctUnits += 1;
+      }
+      return acc;
+    },
+    { correctUnits: 0, totalUnits: 0 },
+  );
 
   return (
     <Card style={{ borderColor: "#2F5B9440", backgroundColor: "#EDF2F940" }}>
       <CardHeader>
         <CardTitle className="text-lg">Results</CardTitle>
         <p className="text-xl font-bold" style={{ color: "#2F5B94" }}>
-          {result.score.toFixed(1)} pts
+          {result.score.toFixed(1)} pts ({correctUnits}/{totalUnits} correct)
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -61,7 +74,9 @@ export function ResultCard({ result }: ResultCardProps) {
                             >
                               &quot;{r.studentAnswer || "—"}&quot;
                             </span>
-                            {!r.isCorrect && (
+                            {r.isCorrect ? (
+                              <span className="ml-1 text-[#2F5B94]">✓</span>
+                            ) : (
                               <>
                                 <span className="mx-1 text-zinc-400">→</span>
                                 <span

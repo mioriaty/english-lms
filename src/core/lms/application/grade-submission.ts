@@ -86,6 +86,10 @@ export interface GradingDetailRow {
   studentAnswer: string;
   correctAnswers: string[];
   blankResults?: BlankResult[];
+  /** For FILL_IN_THE_BLANK: number of correct blanks */
+  correctBlanks?: number;
+  /** For FILL_IN_THE_BLANK: total number of blanks */
+  totalBlanks?: number;
   explain?: string;
 }
 
@@ -94,20 +98,27 @@ export function gradeSubmission(
   answers: Record<string, string | string[]>,
 ): { score: number; details: GradingDetailRow[] } {
   const leafQuestions = flattenLeafQuestions(questions);
-  const total = leafQuestions.length;
-  let correctCount = 0;
   const details: GradingDetailRow[] = [];
+
+  // Track scoring units: each blank or each MC question is 1 unit
+  let totalUnits = 0;
+  let correctUnits = 0;
 
   for (const q of leafQuestions) {
     const raw = answers[q.id];
     let ok = false;
     let studentAnswer = "";
     let blankResults: BlankResult[] | undefined;
+    let correctBlanks: number | undefined;
+    let totalBlanks: number | undefined;
 
     if (q.type === "MULTIPLE_CHOICE") {
       const selected = Array.isArray(raw) ? raw : raw ? [raw] : [];
       ok = isMultiSelectCorrect(selected, q.correct);
       studentAnswer = selected.join(", ");
+      // Each MC question counts as 1 unit
+      totalUnits += 1;
+      if (ok) correctUnits += 1;
     } else {
       const studentAnswers = Array.isArray(raw) ? raw : raw ? [raw] : [];
 
@@ -119,11 +130,17 @@ export function gradeSubmission(
         return { isCorrect: isBlankCorrect, studentAnswer: ans, correctAnswers: accepted };
       });
 
-      ok = blankResults.length > 0 && blankResults.every((r) => r.isCorrect);
+      // Each blank is scored independently
+      totalBlanks = blankResults.length;
+      correctBlanks = blankResults.filter((r) => r.isCorrect).length;
+      totalUnits += totalBlanks;
+      correctUnits += correctBlanks;
+
+      // Question is "correct" only if all blanks are correct (for display purposes)
+      ok = totalBlanks > 0 && correctBlanks === totalBlanks;
       studentAnswer = studentAnswers.join(", ");
     }
 
-    if (ok) correctCount += 1;
     details.push({
       questionId: q.id,
       questionText: q.question.text,
@@ -131,10 +148,12 @@ export function gradeSubmission(
       studentAnswer,
       correctAnswers: q.type === "MULTIPLE_CHOICE" ? q.correct : q.correct.flat(),
       blankResults,
+      correctBlanks,
+      totalBlanks,
       ...(!ok && q.explain ? { explain: q.explain } : {}),
     });
   }
 
-  const score = total === 0 ? 0 : (correctCount / total) * 100;
+  const score = totalUnits === 0 ? 0 : (correctUnits / totalUnits) * 100;
   return { score, details };
 }
