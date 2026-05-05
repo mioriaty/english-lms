@@ -33,6 +33,7 @@ model Lecture {
   id          String   @id @default(cuid())
   title       String
   content     String
+  pdfUrl      String?
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

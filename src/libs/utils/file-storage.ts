@@ -21,7 +21,7 @@ async function saveFile(file: File, subDir: string, fallbackExt: string): Promis
   return `${UPLOAD_BASE_URL}/${subDir}/${filename}`;
 }
 
-async function getFilesList(subDir: "audio" | "images"): Promise<{ url: string; name: string }[]> {
+async function getFilesList(subDir: "audio" | "images" | "pdfs"): Promise<{ url: string; name: string }[]> {
   try {
     const dir = path.join(UPLOAD_DIR, subDir);
     const files = await fs.readdir(dir);
@@ -70,6 +70,18 @@ export function saveImageFile(file: File): Promise<string> {
 
 export function deleteImageFile(url: string): Promise<void> {
   return deleteFile(url, "images");
+}
+
+export function savePdfFile(file: File): Promise<string> {
+  return saveFile(file, "pdfs", ".pdf");
+}
+
+export function deletePdfFile(url: string): Promise<void> {
+  return deleteFile(url, "pdfs");
+}
+
+export function getPdfFiles() {
+  return getFilesList("pdfs");
 }
 
 export function extractAudioUrls(questions: Question[]): string[] {

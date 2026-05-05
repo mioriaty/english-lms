@@ -31,6 +31,7 @@ export default async function EditLecturePage({ params }: Props) {
         initialTitle={lecture.title}
         initialContent={lecture.content}
         initialIsPublished={lecture.isPublished}
+        initialPdfUrl={lecture.pdfUrl ?? null}
       />
     </div>
   );

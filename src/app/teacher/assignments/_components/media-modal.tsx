@@ -24,10 +24,10 @@ import {
   AlertDialogTitle,
 } from "@/libs/components/ui/alert-dialog";
 import { Button } from "@/libs/components/ui/button";
-import { Loader2, Music, ImageIcon, Upload, Trash2, Check } from "lucide-react";
+import { Loader2, Music, ImageIcon, FileText, Upload, Trash2, Check } from "lucide-react";
 import { cn } from "@/libs/utils/string";
 
-export type MediaType = "image" | "audio";
+export type MediaType = "image" | "audio" | "pdf";
 
 interface MediaFile {
   url: string;
@@ -133,6 +133,30 @@ export function MediaModal({
     }
   };
 
+  function getAccept(t: MediaType) {
+    if (t === "image") return "image/jpeg,image/png,image/webp,image/gif";
+    if (t === "audio") return ".mp3,audio/mpeg";
+    return "application/pdf,.pdf";
+  }
+
+  function getHint(t: MediaType) {
+    if (t === "image") return "Select an image or upload a new one.";
+    if (t === "audio") return "Select an audio file or upload a new one.";
+    return "Select a PDF document or upload a new one.";
+  }
+
+  function getEmptyIcon(t: MediaType) {
+    if (t === "image") return <ImageIcon className="h-12 w-12 mb-2" />;
+    if (t === "audio") return <Music className="h-12 w-12 mb-2" />;
+    return <FileText className="h-12 w-12 mb-2" />;
+  }
+
+  function getEmptyLabel(t: MediaType) {
+    if (t === "image") return "No images found.";
+    if (t === "audio") return "No audio files found.";
+    return "No PDF files found.";
+  }
+
   return (
     <Dialog modal open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
@@ -145,17 +169,14 @@ export function MediaModal({
           onValueChange={handleTabChange}
           className="flex-1 flex flex-col min-h-0"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="image">Images</TabsTrigger>
             <TabsTrigger value="audio">Audio</TabsTrigger>
+            <TabsTrigger value="pdf">PDF</TabsTrigger>
           </TabsList>
 
           <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-zinc-500">
-              {tab === "image"
-                ? "Select an image or upload a new one."
-                : "Select an audio file or upload a new one."}
-            </p>
+            <p className="text-sm text-zinc-500">{getHint(tab)}</p>
             <Button
               type="button"
               variant="outline"
@@ -173,11 +194,7 @@ export function MediaModal({
             <input
               ref={inputRef}
               type="file"
-              accept={
-                tab === "image"
-                  ? "image/jpeg,image/png,image/webp,image/gif"
-                  : ".mp3,audio/mpeg"
-              }
+              accept={getAccept(tab)}
               className="hidden"
               onChange={handleFileChange}
             />
@@ -192,14 +209,51 @@ export function MediaModal({
               </div>
             ) : files.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-zinc-400">
-                {tab === "image" ? (
-                  <ImageIcon className="h-12 w-12 mb-2" />
-                ) : (
-                  <Music className="h-12 w-12 mb-2" />
-                )}
-                <p>No {tab === "image" ? "images" : "audio files"} found.</p>
+                {getEmptyIcon(tab)}
+                <p>{getEmptyLabel(tab)}</p>
+              </div>
+            ) : tab === "pdf" ? (
+              // PDF list view
+              <div className="flex flex-col gap-2 pb-4">
+                {files.map((file) => {
+                  const isSelected = selectedUrl === file.url;
+                  return (
+                    <div
+                      key={file.url}
+                      className={cn(
+                        "group flex items-center gap-3 rounded-md border px-3 py-2.5 cursor-pointer hover:border-primary/50 transition-colors bg-zinc-50 dark:bg-zinc-900/50",
+                        isSelected
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-zinc-200 dark:border-zinc-800",
+                      )}
+                      onClick={() => {
+                        onSelect(file.url);
+                        onOpenChange(false);
+                      }}
+                    >
+                      <FileText className="h-5 w-5 shrink-0 text-zinc-500" />
+                      <span className="flex-1 truncate text-sm">{file.name}</span>
+                      {isSelected && (
+                        <div className="bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm shrink-0">
+                          <Check className="h-3 w-3" />
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="opacity-0 group-hover:opacity-100 bg-red-500/80 text-white rounded-full p-1 hover:bg-red-600 transition-all shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFileToDelete(file.url);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
+              // Image / Audio grid view
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 pb-4">
                 {files.map((file) => {
                   const isSelected = selectedUrl === file.url;

@@ -9,12 +9,14 @@ import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
 import { Switch } from "@/libs/components/ui/switch";
 import { RichTextEditor } from "@/libs/components/rich-text-editor";
+import { PdfUploader } from "@/app/teacher/lectures/_components/pdf-uploader";
 
 export function NewLectureForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPublished, setIsPublished] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -30,6 +32,7 @@ export function NewLectureForm() {
       fd.append("title", title.trim());
       fd.append("content", content);
       fd.append("isPublished", String(isPublished));
+      if (pdfUrl) fd.append("pdfUrl", pdfUrl);
       const res = await createLecture(fd);
       if (res?.ok) router.push(`/teacher/lectures/${res.id}/edit`);
     } catch (err) {
@@ -62,6 +65,8 @@ export function NewLectureForm() {
           placeholder="Enter lecture content…"
         />
       </div>
+
+      <PdfUploader pdfUrl={pdfUrl} onChange={setPdfUrl} />
 
       <div className="flex items-center gap-3">
         <Switch

@@ -8,12 +8,14 @@ import { Input } from "@/libs/components/ui/input";
 import { Label } from "@/libs/components/ui/label";
 import { Switch } from "@/libs/components/ui/switch";
 import { RichTextEditor } from "@/libs/components/rich-text-editor";
+import { PdfUploader } from "@/app/teacher/lectures/_components/pdf-uploader";
 
 interface EditLectureFormProps {
   lectureId: string;
   initialTitle: string;
   initialContent: string;
   initialIsPublished: boolean;
+  initialPdfUrl: string | null;
 }
 
 export function EditLectureForm({
@@ -21,10 +23,12 @@ export function EditLectureForm({
   initialTitle,
   initialContent,
   initialIsPublished,
+  initialPdfUrl,
 }: EditLectureFormProps) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [isPublished, setIsPublished] = useState(initialIsPublished);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(initialPdfUrl);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,6 +44,7 @@ export function EditLectureForm({
       fd.append("title", title.trim());
       fd.append("content", content);
       fd.append("isPublished", String(isPublished));
+      if (pdfUrl) fd.append("pdfUrl", pdfUrl);
       await updateLecture(lectureId, fd);
       toast.success("Changes saved.");
     } catch (err) {
@@ -65,6 +70,8 @@ export function EditLectureForm({
         <Label>Content</Label>
         <RichTextEditor value={content} onChange={setContent} />
       </div>
+
+      <PdfUploader pdfUrl={pdfUrl} onChange={setPdfUrl} />
 
       <div className="flex items-center gap-3">
         <Switch

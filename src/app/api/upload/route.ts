@@ -5,12 +5,16 @@ import {
   deleteAudioFile,
   saveImageFile,
   deleteImageFile,
+  savePdfFile,
+  deletePdfFile,
   getAudioFiles,
   getImageFiles,
+  getPdfFiles,
 } from "@/libs/utils/file-storage";
 
 const MAX_AUDIO_BYTES = 20 * 1024 * 1024; // 20 MB
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_PDF_BYTES = 20 * 1024 * 1024; // 20 MB
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -34,7 +38,7 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get("type");
 
   try {
-    let files: { url: string; name: string; type: "image" | "audio" }[] = [];
+    let files: { url: string; name: string; type: "image" | "audio" | "pdf" }[] = [];
 
     if (!type || type === "image") {
       const imageFiles = await getImageFiles();
@@ -46,7 +50,12 @@ export async function GET(req: NextRequest) {
       files.push(...audioFiles.map(f => ({ ...f, type: "audio" as const })));
     }
 
-    // Sort files by newest first (optional, maybe we can't easily without stat, but let's just reverse for now assuming names contain timestamp/uuid)
+    if (!type || type === "pdf") {
+      const pdfFiles = await getPdfFiles();
+      files.push(...pdfFiles.map(f => ({ ...f, type: "pdf" as const })));
+    }
+
+    // Sort files by newest first
     files.reverse();
 
     return NextResponse.json({ files });
@@ -88,6 +97,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url });
   }
 
+  if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+    if (file.size > MAX_PDF_BYTES) {
+      return NextResponse.json(
+        { error: "PDF exceeds 20MB limit" },
+        { status: 400 }
+      );
+    }
+    const url = await savePdfFile(file);
+    return NextResponse.json({ url });
+  }
+
   return NextResponse.json(
     { error: "Unsupported file format" },
     { status: 400 }
@@ -105,5 +125,6 @@ export async function DELETE(req: NextRequest) {
 
   await deleteAudioFile(url);
   await deleteImageFile(url);
+  await deletePdfFile(url);
   return NextResponse.json({ ok: true });
 }

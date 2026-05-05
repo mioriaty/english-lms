@@ -14,10 +14,11 @@ export async function createLecture(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const content = String(formData.get("content") ?? "");
   const isPublished = formData.get("isPublished") === "true";
+  const pdfUrl = String(formData.get("pdfUrl") ?? "").trim() || null;
   if (!title) throw new Error("Tiêu đề bắt buộc");
 
   const lecture = await prisma.lecture.create({
-    data: { title, content, isPublished },
+    data: { title, content, isPublished, pdfUrl },
   });
   revalidatePath("/teacher/lectures");
   revalidatePath("/student/lectures");
@@ -29,11 +30,12 @@ export async function updateLecture(lectureId: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const content = String(formData.get("content") ?? "");
   const isPublished = formData.get("isPublished") === "true";
+  const pdfUrl = String(formData.get("pdfUrl") ?? "").trim() || null;
   if (!title) throw new Error("Tiêu đề bắt buộc");
 
   await prisma.lecture.update({
     where: { id: lectureId },
-    data: { title, content, isPublished },
+    data: { title, content, isPublished, pdfUrl },
   });
   revalidatePath("/teacher/lectures");
   revalidatePath(`/teacher/lectures/${lectureId}/edit`);
