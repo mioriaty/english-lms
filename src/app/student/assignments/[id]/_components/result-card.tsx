@@ -56,9 +56,10 @@ export function ResultCard({ result }: ResultCardProps) {
                     key={d.questionId}
                     className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950"
                   >
-                    <p className="mb-1 text-xl font-medium text-zinc-800 dark:text-zinc-200">
-                      {d.questionText}
-                    </p>
+                    <div
+                      className="prose prose-zinc prose-xl dark:prose-invert mb-1 max-w-none font-medium text-zinc-800 dark:text-zinc-200"
+                      dangerouslySetInnerHTML={{ __html: d.questionText }}
+                    />
                     {d.blankResults ? (
                       <div className="mt-1 space-y-1">
                         {d.blankResults.map((r, i) => (

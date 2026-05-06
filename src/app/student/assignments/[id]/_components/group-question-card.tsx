@@ -60,14 +60,16 @@ export function GroupQuestionCard({
                 />
               )}
               {group.question.text && (
-                <p className="mb-2 text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-                  {group.question.text}
-                </p>
+                <div
+                  className="prose prose-zinc prose-xl dark:prose-invert mb-2 max-w-none font-semibold leading-snug text-zinc-900 dark:text-zinc-100"
+                  dangerouslySetInnerHTML={{ __html: group.question.text }}
+                />
               )}
               {group.question.description && (
-                <p className="whitespace-pre-wrap text-xl leading-relaxed text-zinc-700 dark:text-zinc-300">
-                  {group.question.description}
-                </p>
+                <div
+                  className="prose prose-zinc prose-xl dark:prose-invert max-w-none leading-relaxed text-zinc-700 dark:text-zinc-300"
+                  dangerouslySetInnerHTML={{ __html: group.question.description }}
+                />
               )}
             </div>
           </div>

@@ -59,7 +59,7 @@ export function OptionRow({
       className={rowClass}
     >
       <span className={badgeClass}>{label}</span>
-      <span className="flex-1 px-4 py-3.5">{text}</span>
+      <span className="flex-1 px-4 py-3.5 prose prose-zinc prose-xl dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: text }} />
       {((!isReview && selected) || reviewMode === "correct") && (
         <CheckCircle2
           className="mr-3 h-5 w-5 shrink-0 text-[#2F5B94]"

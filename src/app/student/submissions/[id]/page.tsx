@@ -111,12 +111,17 @@ export default async function StudentSubmissionReviewPage({
                   : "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20"
               }`}
             >
-              <p className="font-medium text-zinc-700 dark:text-zinc-200">
+              <div className="font-medium text-zinc-700 dark:text-zinc-200">
                 <span className="mr-2 text-xs text-zinc-400">Q{idx + 1}</span>
-                {d.questionText ?? (
+                {d.questionText ? (
+                  <span
+                    className="prose prose-zinc prose-xl dark:prose-invert max-w-none inline"
+                    dangerouslySetInnerHTML={{ __html: d.questionText }}
+                  />
+                ) : (
                   <span className="italic text-zinc-400">—</span>
                 )}
-              </p>
+              </div>
 
               <div className="mt-2 space-y-1 text-xs">
                 {d.blankResults ? (
@@ -180,9 +185,13 @@ export default async function StudentSubmissionReviewPage({
               </div>
 
               {!d.isCorrect && d.explain ? (
-                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  💡 {d.explain}
-                </p>
+                <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  💡{" "}
+                  <span
+                    className="prose prose-zinc prose-sm dark:prose-invert max-w-none inline"
+                    dangerouslySetInnerHTML={{ __html: d.explain }}
+                  />
+                </div>
               ) : null}
             </li>
           ))}

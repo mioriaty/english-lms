@@ -58,9 +58,10 @@ export function QuestionCardContent({
       )}
 
       {question.type === "MULTIPLE_CHOICE" ? (
-        <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-          {question.question.text}
-        </p>
+        <div
+          className="prose prose-zinc prose-xl dark:prose-invert max-w-none font-semibold leading-snug text-zinc-900 dark:text-zinc-100"
+          dangerouslySetInnerHTML={{ __html: question.question.text }}
+        />
       ) : (
         <p className="text-xl font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
           Fill in the blank
@@ -68,9 +69,10 @@ export function QuestionCardContent({
       )}
 
       {question.question.description && (
-        <p className="text-xl leading-relaxed text-zinc-500 dark:text-zinc-400">
-          {question.question.description}
-        </p>
+        <div
+          className="prose prose-zinc prose-xl dark:prose-invert max-w-none leading-relaxed text-zinc-500 dark:text-zinc-400"
+          dangerouslySetInnerHTML={{ __html: question.question.description }}
+        />
       )}
 
       {question.question.audio && (
@@ -126,7 +128,10 @@ export function QuestionCardContent({
       {submitted && question.explain && (
         <div className="rounded-md border border-b-blue-200 bg-blue-50 px-4 py-3 text-xl text-blue-800 dark:border-b-blue-800/40 dark:bg-blue-900/20 dark:text-blue-300">
           <span className="font-semibold">Explain: </span>
-          {question.explain}
+          <span
+            className="prose prose-zinc prose-xl dark:prose-invert max-w-none inline"
+            dangerouslySetInnerHTML={{ __html: question.explain }}
+          />
         </div>
       )}
     </div>
