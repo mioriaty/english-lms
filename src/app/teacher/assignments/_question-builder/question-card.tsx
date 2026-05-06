@@ -11,9 +11,8 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/libs/components/ui/button";
-import { Input } from "@/libs/components/ui/input";
 import { FormItem, FormLabel } from "@/libs/components/ui/form";
-import { Textarea } from "@/libs/components/ui/textarea";
+import { MiniRichTextEditor } from "@/libs/components/mini-rich-text-editor";
 import {
   Select,
   SelectContent,
@@ -110,7 +109,7 @@ export function QuestionCard({
         draft.type === "GROUP"
           ? "border border-zinc-200 border-l-4 border-l-blue-400 dark:border-zinc-700 dark:border-l-blue-500"
           : "border border-zinc-200 dark:border-zinc-700",
-        isDragging && "opacity-50 shadow-lg"
+        isDragging && "opacity-50 shadow-lg",
       )}
     >
       {/* Header */}
@@ -135,9 +134,10 @@ export function QuestionCard({
           >
             {draft.questionText && (
               <span className="truncate text-base text-zinc-700 dark:text-zinc-300">
-                {draft.questionText.length > 50
-                  ? draft.questionText.slice(0, 50) + "..."
-                  : draft.questionText}
+                {(() => {
+                  const plain = draft.questionText.replace(/<[^>]*>/g, "");
+                  return plain.length > 50 ? plain.slice(0, 50) + "..." : plain;
+                })()}
               </span>
             )}
           </Button>
@@ -213,7 +213,7 @@ function LeafCardBody({
     const blankCount = (text.match(/\[BLANK\]/g) ?? []).length;
     const newFillBlanks = Array.from(
       { length: blankCount },
-      (_, i) => draft.fillBlanks[i] ?? []
+      (_, i) => draft.fillBlanks[i] ?? [],
     );
     onChange({ ...draft, questionText: text, fillBlanks: newFillBlanks });
   }
@@ -222,28 +222,23 @@ function LeafCardBody({
     <>
       <div className="mb-4 space-y-3">
         <FormItem>
-          <Textarea
+          <MiniRichTextEditor
             value={draft.description}
-            onChange={(e) =>
-              onChange({ ...draft, description: e.target.value })
-            }
+            onChange={(html) => onChange({ ...draft, description: html })}
             placeholder="Description (optional)"
-            rows={2}
           />
         </FormItem>
 
         <FormItem>
           <FormLabel>Question text</FormLabel>
-          <Textarea
+          <MiniRichTextEditor
             value={draft.questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
+            onChange={(html) => setQuestionText(html)}
             placeholder={
               draft.type === "FILL_IN_THE_BLANK"
                 ? "Exp: A child born in late July to parents who defied Voldemort [BLANK] times…"
                 : "Exp: What is the capital of France?"
             }
-            rows={2}
-            required
           />
           {draft.type === "FILL_IN_THE_BLANK" && (
             <p className="text-xs text-zinc-400">
@@ -254,8 +249,8 @@ function LeafCardBody({
               to mark the blank.
               {detectedBlankCount > 0 && (
                 <span className="ml-1 font-medium text-zinc-500">
-                  {detectedBlankCount} blank{detectedBlankCount > 1 ? "s" : ""}{" "}
-                  detected.
+                  {detectedBlankCount} blank
+                  {detectedBlankCount > 1 ? "s" : ""} detected.
                 </span>
               )}
             </p>
@@ -283,15 +278,6 @@ function LeafCardBody({
       ) : (
         <FillBlankEditor draft={draft} onChange={onChange} />
       )}
-
-      <FormItem>
-        <FormLabel>Explanation (optional)</FormLabel>
-        <Input
-          value={draft.explain}
-          onChange={(e) => onChange({ ...draft, explain: e.target.value })}
-          placeholder="Exp: Paris is the capital of France."
-        />
-      </FormItem>
     </>
   );
 }
@@ -331,27 +317,20 @@ function GroupCardBody({
       <div className="mb-3 space-y-3">
         <FormItem>
           <FormLabel>Question text</FormLabel>
-          <Textarea
+          <MiniRichTextEditor
             value={draft.questionText}
-            onChange={(e) =>
-              onChange({ ...draft, questionText: e.target.value })
-            }
+            onChange={(html) => onChange({ ...draft, questionText: html })}
             placeholder="Exp: Read the following passage and answer the questions below…"
-            rows={2}
-            className="resize-y"
-            required
           />
         </FormItem>
 
         <FormItem>
           <FormLabel>Context / Passage</FormLabel>
-          <Textarea
+          <MiniRichTextEditor
             value={draft.description}
-            onChange={(e) =>
-              onChange({ ...draft, description: e.target.value })
-            }
+            onChange={(html) => onChange({ ...draft, description: html })}
             placeholder="Description (optional)"
-            rows={2}
+            minHeight="120px"
           />
         </FormItem>
 

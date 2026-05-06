@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/libs/components/ui/button";
-import { Input } from "@/libs/components/ui/input";
 import { FormItem, FormLabel } from "@/libs/components/ui/form";
-import { Textarea } from "@/libs/components/ui/textarea";
+import { MiniRichTextEditor } from "@/libs/components/mini-rich-text-editor";
 import {
   Select,
   SelectContent,
@@ -68,9 +67,10 @@ export function SubQuestionCard({
             </span>
             {collapsed && draft.questionText && (
               <span className="truncate text-base text-zinc-700 dark:text-zinc-300">
-                {draft.questionText.length > 50
-                  ? draft.questionText.slice(0, 50) + "..."
-                  : draft.questionText}
+                {(() => {
+                  const plain = draft.questionText.replace(/<[^>]*>/g, "");
+                  return plain.length > 50 ? plain.slice(0, 50) + "..." : plain;
+                })()}
               </span>
             )}
           </Button>
@@ -119,28 +119,25 @@ export function SubQuestionCard({
         <div className="border-t border-zinc-200 px-3 pb-3 pt-2.5 dark:border-zinc-700">
           <div className="mb-4 space-y-3">
             <FormItem>
-              <Textarea
+              <MiniRichTextEditor
                 value={draft.description}
-                onChange={(e) =>
-                  onChange({ ...draft, description: e.target.value })
+                onChange={(html) =>
+                  onChange({ ...draft, description: html })
                 }
                 placeholder="Description (optional)"
-                rows={2}
               />
             </FormItem>
 
             <FormItem>
               <FormLabel>Question text</FormLabel>
-              <Textarea
+              <MiniRichTextEditor
                 value={draft.questionText}
-                onChange={(e) => setQuestionText(e.target.value)}
+                onChange={(html) => setQuestionText(html)}
                 placeholder={
                   draft.type === "FILL_IN_THE_BLANK"
                     ? "Exp: The answer is [BLANK] and [BLANK]."
                     : "Exp: What is the capital of France?"
                 }
-                rows={2}
-                required
               />
               {draft.type === "FILL_IN_THE_BLANK" && (
                 <p className="text-xs text-zinc-400">
@@ -181,14 +178,6 @@ export function SubQuestionCard({
             <FillBlankEditor draft={draft} onChange={onChange} />
           )}
 
-          <FormItem>
-            <FormLabel>Explanation (optional)</FormLabel>
-            <Input
-              value={draft.explain}
-              onChange={(e) => onChange({ ...draft, explain: e.target.value })}
-              placeholder="Exp: Paris is the capital of France."
-            />
-          </FormItem>
         </div>
       )}
     </div>

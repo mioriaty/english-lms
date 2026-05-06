@@ -14,12 +14,12 @@ interface FillBlankEditorProps {
 
 export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
   const [blankInputs, setBlankInputs] = useState<string[]>(() =>
-    Array(draft.fillBlanks.length).fill("")
+    Array(draft.fillBlanks.length).fill(""),
   );
 
   useEffect(() => {
     setBlankInputs((prev) =>
-      Array.from({ length: draft.fillBlanks.length }, (_, i) => prev[i] ?? "")
+      Array.from({ length: draft.fillBlanks.length }, (_, i) => prev[i] ?? ""),
     );
   }, [draft.fillBlanks.length]);
 
@@ -27,7 +27,7 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
     const trimmed = (blankInputs[blankIdx] ?? "").trim();
     if (!trimmed || draft.fillBlanks[blankIdx]?.includes(trimmed)) return;
     const newFillBlanks = draft.fillBlanks.map((accepted, i) =>
-      i === blankIdx ? [...accepted, trimmed] : accepted
+      i === blankIdx ? [...accepted, trimmed] : accepted,
     );
     onChange({ ...draft, fillBlanks: newFillBlanks });
     setBlankInputs((prev) => {
@@ -39,7 +39,7 @@ export function FillBlankEditor({ draft, onChange }: FillBlankEditorProps) {
 
   function removeBlankAnswer(blankIdx: number, val: string) {
     const newFillBlanks = draft.fillBlanks.map((accepted, i) =>
-      i === blankIdx ? accepted.filter((a) => a !== val) : accepted
+      i === blankIdx ? accepted.filter((a) => a !== val) : accepted,
     );
     onChange({ ...draft, fillBlanks: newFillBlanks });
   }
