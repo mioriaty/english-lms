@@ -55,7 +55,7 @@ export default async function TeacherLecturesPage() {
               lectures.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="font-medium">
-                    <Link href={`/teacher/lectures/${l.id}/edit`}>
+                    <Link href={`/teacher/lectures/${l.id}`}>
                       {l.title}
                     </Link>
                   </TableCell>
