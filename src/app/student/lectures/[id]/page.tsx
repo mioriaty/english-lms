@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, FileText, Download } from "lucide-react";
+import { auth } from "@/auth";
 import { prisma } from "@/libs/utils/db";
 import { RichTextContent } from "@/libs/components/rich-text-content";
 import { Button } from "@/libs/components/ui/button";
+import { getLectureCommentsUseCase } from "@/core/lecture-comments/factories/lecture-comment.factory";
+import { LectureCommentsSection } from "@/containers/lecture-comments/components/lecture-comments-section";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -11,10 +14,16 @@ interface Props {
 
 export default async function StudentLectureDetailPage({ params }: Props) {
   const { id } = await params;
-  const lecture = await prisma.lecture.findUnique({
-    where: { id, isPublished: true },
-  });
+
+  const [lecture, session] = await Promise.all([
+    prisma.lecture.findUnique({ where: { id, isPublished: true } }),
+    auth(),
+  ]);
+
   if (!lecture) notFound();
+  if (!session?.user?.id) notFound();
+
+  const comments = await getLectureCommentsUseCase.execute(id);
 
   return (
     <div className="space-y-6">
@@ -55,6 +64,15 @@ export default async function StudentLectureDetailPage({ params }: Props) {
           />
         </div>
       )}
+
+      {/* Comment section */}
+      <LectureCommentsSection
+        lectureId={id}
+        initialComments={comments}
+        currentUserId={session.user.id}
+        currentUsername={session.user.name ?? "Ẩn danh"}
+        isAdmin={session.user.isAdmin ?? false}
+      />
     </div>
   );
 }

@@ -15,6 +15,7 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   submissions  Submission[]
+  comments     LectureComment[]
 }
 
 model Assignment {
@@ -30,13 +31,37 @@ model Assignment {
 }
 
 model Lecture {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
   content     String
   pdfUrl      String?
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isPublished Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  comments    LectureComment[]
+}
+
+model LectureComment {
+  id                 String           @id @default(cuid())
+  content            String
+  mentionedUsernames String[]         @default([])
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  lectureId String
+  lecture   Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Self-referential: 1 level only (replies to top-level comments)
+  parentId String?
+  parent   LectureComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  LectureComment[] @relation("CommentReplies")
+
+  @@index([lectureId])
+  @@index([authorId])
+  @@index([parentId])
 }
 
 model Submission {

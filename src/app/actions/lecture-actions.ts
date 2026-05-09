@@ -56,3 +56,75 @@ export async function deleteLecture(lectureId: string) {
   await prisma.lecture.delete({ where: { id: lectureId } });
   revalidatePath("/teacher/lectures");
 }
+
+// ─── Comment Actions ──────────────────────────────────────────────────────────
+
+/**
+ * Extracts @mentioned usernames from comment content.
+ * e.g. "@alice hello" → ["alice"]
+ */
+function extractMentions(content: string): string[] {
+  const matches = content.match(/@([a-zA-Z0-9_]+)/g) ?? [];
+  return [...new Set(matches.map((m) => m.slice(1)))];
+}
+
+export async function createLectureComment(
+  lectureId: string,
+  content: string,
+  parentId?: string | null
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const trimmed = content.trim();
+  if (!trimmed) throw new Error("Nội dung comment không được để trống");
+
+  // Prevent replying to a reply (enforce 1-level only)
+  if (parentId) {
+    const parent = await prisma.lectureComment.findUnique({
+      where: { id: parentId },
+      select: { parentId: true },
+    });
+    if (parent?.parentId) throw new Error("Chỉ được reply 1 cấp");
+  }
+
+  const mentionedUsernames = extractMentions(trimmed);
+
+  await prisma.lectureComment.create({
+    data: {
+      content: trimmed,
+      mentionedUsernames,
+      lectureId,
+      authorId: session.user.id,
+      parentId: parentId ?? null,
+    },
+  });
+
+  revalidatePath(`/student/lectures/${lectureId}`);
+  revalidatePath(`/teacher/lectures/${lectureId}`);
+  return { ok: true as const };
+}
+
+export async function deleteLectureComment(
+  commentId: string,
+  lectureId: string
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const comment = await prisma.lectureComment.findUnique({
+    where: { id: commentId },
+    select: { authorId: true },
+  });
+  if (!comment) throw new Error("Comment không tồn tại");
+
+  const isAdmin = session.user.isAdmin;
+  const isOwner = comment.authorId === session.user.id;
+  if (!isAdmin && !isOwner) throw new Error("Không có quyền xóa comment này");
+
+  await prisma.lectureComment.delete({ where: { id: commentId } });
+
+  revalidatePath(`/student/lectures/${lectureId}`);
+  revalidatePath(`/teacher/lectures/${lectureId}`);
+  return { ok: true as const };
+}
