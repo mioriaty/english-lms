@@ -13,7 +13,10 @@ import {
   createLectureComment,
   deleteLectureComment,
 } from "@/app/actions/lecture-actions";
-import type { CommentWithAuthor, ReplyWithAuthor } from "@/core/lecture-comments/domain/entities/lecture-comment.entity";
+import type {
+  CommentWithAuthor,
+  ReplyWithAuthor,
+} from "@/core/lecture-comments/domain/entities/lecture-comment.entity";
 
 interface Props {
   lectureId: string;
@@ -26,7 +29,7 @@ interface Props {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function formatDate(date: Date | string) {
-  return new Date(date).toLocaleString("vi-VN", {
+  return new Date(date).toLocaleString("en-US", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -45,7 +48,7 @@ function getInitials(username: string) {
 function CommentContent({ text }: { text: string }) {
   const parts = text.split(/(@[a-zA-Z0-9_]+)/g);
   return (
-    <span className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+    <span className="whitespace-pre-wrap wrap-break-word text-sm leading-relaxed">
       {parts.map((part, i) =>
         part.startsWith("@") ? (
           <span
@@ -56,7 +59,7 @@ function CommentContent({ text }: { text: string }) {
           </span>
         ) : (
           part
-        )
+        ),
       )}
     </span>
   );
@@ -78,7 +81,7 @@ interface CommentFormProps {
 function CommentForm({
   lectureId,
   parentId,
-  placeholder = "Viết bình luận…",
+  placeholder = "Write a comment…",
   defaultValue = "",
   onSuccess,
   onCancel,
@@ -96,10 +99,12 @@ function CommentForm({
       try {
         await createLectureComment(lectureId, value, parentId);
         setValue("");
-        toast.success(parentId ? "Đã gửi reply!" : "Đã gửi bình luận!");
+        toast.success(parentId ? "Reply sent!" : "Comment posted!");
         onSuccess?.();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
+        toast.error(
+          err instanceof Error ? err.message : "Something went wrong",
+        );
       }
     });
   };
@@ -123,7 +128,7 @@ function CommentForm({
         }}
       />
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">Ctrl+Enter để gửi</p>
+        <p className="text-xs text-muted-foreground">Ctrl+Enter to send</p>
         <div className="flex gap-2">
           {onCancel && (
             <Button
@@ -134,12 +139,12 @@ function CommentForm({
               disabled={isPending}
             >
               <X className="mr-1 h-3.5 w-3.5" />
-              Huỷ
+              Cancel
             </Button>
           )}
           <Button type="submit" size="sm" disabled={isPending || !value.trim()}>
             <Send className="mr-1.5 h-3.5 w-3.5" />
-            {isPending ? "Đang gửi…" : parentId ? "Gửi reply" : "Gửi bình luận"}
+            {isPending ? "Sending…" : parentId ? "Send reply" : "Post comment"}
           </Button>
         </div>
       </div>
@@ -156,7 +161,12 @@ interface ReplyCardProps {
   isAdmin: boolean;
 }
 
-function ReplyCard({ reply, lectureId, currentUserId, isAdmin }: ReplyCardProps) {
+function ReplyCard({
+  reply,
+  lectureId,
+  currentUserId,
+  isAdmin,
+}: ReplyCardProps) {
   const [isPending, startTransition] = useTransition();
   const canDelete = isAdmin || reply.authorId === currentUserId;
 
@@ -164,9 +174,11 @@ function ReplyCard({ reply, lectureId, currentUserId, isAdmin }: ReplyCardProps)
     startTransition(async () => {
       try {
         await deleteLectureComment(reply.id, lectureId);
-        toast.success("Đã xóa reply");
+        toast.success("Reply deleted");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
+        toast.error(
+          err instanceof Error ? err.message : "Something went wrong",
+        );
       }
     });
   };
@@ -184,7 +196,7 @@ function ReplyCard({ reply, lectureId, currentUserId, isAdmin }: ReplyCardProps)
           {reply.author.isAdmin && (
             <Badge variant="secondary" className="h-4 gap-0.5 px-1 text-[10px]">
               <Shield className="h-2.5 w-2.5" />
-              Giáo viên
+              Teacher
             </Badge>
           )}
           <span className="text-[11px] text-muted-foreground">
@@ -200,7 +212,7 @@ function ReplyCard({ reply, lectureId, currentUserId, isAdmin }: ReplyCardProps)
           type="button"
           onClick={handleDelete}
           disabled={isPending}
-          title="Xóa"
+          title="Delete"
           className="ml-auto self-start rounded p-1 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -235,9 +247,11 @@ function CommentCard({
     startTransition(async () => {
       try {
         await deleteLectureComment(comment.id, lectureId);
-        toast.success("Đã xóa bình luận");
+        toast.success("Comment deleted");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
+        toast.error(
+          err instanceof Error ? err.message : "Something went wrong",
+        );
       }
     });
   };
@@ -265,7 +279,7 @@ function CommentCard({
                 className="h-4 gap-0.5 px-1.5 text-[10px]"
               >
                 <Shield className="h-2.5 w-2.5" />
-                Giáo viên
+                Teacher
               </Badge>
             )}
             <span className="text-xs text-muted-foreground">
@@ -288,7 +302,9 @@ function CommentCard({
               onClick={() => setShowReplyForm((v) => !v)}
             >
               <Reply className="h-3.5 w-3.5" />
-              {showReplyForm ? "Huỷ" : `Reply${comment.replies.length > 0 ? ` (${comment.replies.length})` : ""}`}
+              {showReplyForm
+                ? "Cancel"
+                : `Reply${comment.replies.length > 0 ? ` (${comment.replies.length})` : ""}`}
             </Button>
           </div>
         </div>
@@ -299,7 +315,7 @@ function CommentCard({
             type="button"
             onClick={handleDelete}
             disabled={isPending}
-            title="Xóa bình luận"
+            title="Delete comment"
             className="shrink-0 self-start rounded p-1 text-muted-foreground/40 opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 disabled:opacity-40"
           >
             <Trash2 className="h-4 w-4" />
@@ -328,7 +344,7 @@ function CommentCard({
           <CommentForm
             lectureId={lectureId}
             parentId={comment.id}
-            placeholder={`Reply cho @${comment.author.username}…`}
+            placeholder={`Reply to @${comment.author.username}…`}
             defaultValue={replyPrefix}
             autoFocus
             compact
@@ -357,10 +373,11 @@ export function LectureCommentsSection({
       <div className="flex items-center gap-2">
         <MessageSquare className="h-5 w-5 text-muted-foreground" />
         <h2 className="text-base font-semibold">
-          Thảo luận
+          Discussion
           {initialComments.length > 0 && (
             <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({initialComments.length} bình luận)
+              ({initialComments.length}{" "}
+              {initialComments.length === 1 ? "comment" : "comments"})
             </span>
           )}
         </h2>
@@ -369,7 +386,7 @@ export function LectureCommentsSection({
       {/* New comment form */}
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
         <p className="mb-3 text-xs font-medium text-muted-foreground">
-          Bình luận với tư cách{" "}
+          Commenting as{" "}
           <span className="font-semibold text-foreground">
             @{currentUsername}
           </span>
@@ -379,13 +396,13 @@ export function LectureCommentsSection({
               className="ml-1.5 h-4 gap-0.5 px-1.5 text-[10px]"
             >
               <Shield className="h-2.5 w-2.5" />
-              Giáo viên
+              Teacher
             </Badge>
           )}
         </p>
         <CommentForm
           lectureId={lectureId}
-          placeholder="Đặt câu hỏi hoặc chia sẻ suy nghĩ của bạn… (dùng @tên để mention)"
+          placeholder="Ask a question or share your thoughts… (use @name to mention someone)"
         />
       </div>
 
@@ -393,7 +410,7 @@ export function LectureCommentsSection({
       <div className="space-y-4">
         {initialComments.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-            Chưa có bình luận nào. Hãy là người đầu tiên!
+            No comments yet. Be the first to start the discussion!
           </div>
         ) : (
           initialComments.map((comment) => (

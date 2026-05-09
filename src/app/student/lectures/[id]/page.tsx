@@ -59,7 +59,7 @@ export default async function StudentLectureDetailPage({ params }: Props) {
           </div>
           <iframe
             src={lecture.pdfUrl}
-            className="h-[600px] w-full rounded-md border border-zinc-200 dark:border-zinc-700"
+            className="h-150 w-full rounded-md border border-zinc-200 dark:border-zinc-700"
             title="Lecture PDF"
           />
         </div>
