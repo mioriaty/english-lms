@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-mono", jetbrainsMono.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("font-mono", jetbrainsMono.variable)}>
       <body
         className={`${robotoSlab.variable} ${spectral.variable} min-h-screen font-body text-xl antialiased`}
       >

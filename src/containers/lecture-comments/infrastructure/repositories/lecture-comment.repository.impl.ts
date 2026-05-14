@@ -43,6 +43,9 @@ export class LectureCommentRepositoryImpl
         lectureId: data.lectureId,
         authorId: data.authorId,
         parentId: data.parentId ?? null,
+        mediaUrl: data.mediaUrl ?? null,
+        mediaType: data.mediaType ?? null,
+        mediaName: data.mediaName ?? null,
       },
     });
     return comment as unknown as LectureComment;

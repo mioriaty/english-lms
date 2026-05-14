@@ -7,6 +7,9 @@ export interface LectureComment {
   lectureId: string;
   authorId: string;
   parentId: string | null;
+  mediaUrl?: string | null;
+  mediaType?: string | null;
+  mediaName?: string | null;
 }
 
 export interface CommentAuthor {
@@ -30,4 +33,7 @@ export interface CreateCommentInput {
   lectureId: string;
   authorId: string;
   parentId?: string | null;
+  mediaUrl?: string | null;
+  mediaType?: string | null;
+  mediaName?: string | null;
 }

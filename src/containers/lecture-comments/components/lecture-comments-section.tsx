@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition, useRef, useCallback } from "react";
-import { MessageSquare, Reply, Trash2, Send, X, Shield } from "lucide-react";
+import { useState, useTransition, useRef } from "react";
+import { MessageSquare, Reply, Trash2, Send, X, Shield, Paperclip, ImageIcon, Music, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/libs/components/ui/button";
 import { Textarea } from "@/libs/components/ui/textarea";
@@ -65,6 +65,28 @@ function CommentContent({ text }: { text: string }) {
   );
 }
 
+function CommentMedia({ mediaUrl, mediaType, mediaName }: { mediaUrl?: string | null; mediaType?: string | null; mediaName?: string | null }) {
+  if (!mediaUrl || !mediaType) return null;
+  return (
+    <div className="mt-2">
+      {mediaType === "image" && (
+        <a href={mediaUrl} target="_blank" rel="noreferrer">
+          <img src={mediaUrl} alt={mediaName || "Image"} className="max-h-48 rounded-md border object-contain" />
+        </a>
+      )}
+      {mediaType === "audio" && (
+        <audio controls src={mediaUrl} className="h-10 w-full max-w-sm outline-none" />
+      )}
+      {mediaType === "pdf" && (
+        <a href={mediaUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm hover:bg-muted/50 transition-colors">
+          <FileText className="h-4 w-4 text-red-500" />
+          <span className="font-medium">{mediaName || "Tài liệu PDF"}</span>
+        </a>
+      )}
+    </div>
+  );
+}
+
 // ── Comment Form ───────────────────────────────────────────────────────────────
 
 interface CommentFormProps {
@@ -90,15 +112,52 @@ function CommentForm({
 }: CommentFormProps) {
   const [value, setValue] = useState(defaultValue);
   const [isPending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const [media, setMedia] = useState<{ url: string; type: string; name: string } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    let type = "";
+    if (file.type.startsWith("image/")) type = "image";
+    else if (file.type.startsWith("audio/") || file.name.endsWith(".mp3")) type = "audio";
+    else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) type = "pdf";
+    else {
+      toast.error("Chỉ hỗ trợ file ảnh, audio (.mp3) và pdf");
+      return;
+    }
+
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload/comment", { method: "POST", body: fd });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || "Upload failed");
+      }
+      const data = await res.json();
+      setMedia({ url: data.url, type, name: file.name });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!value.trim()) return;
+    if (!value.trim() && !media) return;
     startTransition(async () => {
       try {
-        await createLectureComment(lectureId, value, parentId);
+        await createLectureComment(lectureId, value, parentId, media?.url, media?.type, media?.name);
         setValue("");
+        setMedia(null);
         toast.success(parentId ? "Reply sent!" : "Comment posted!");
         onSuccess?.();
       } catch (err) {
@@ -111,6 +170,21 @@ function CommentForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      {media && (
+        <div className="relative inline-flex items-center gap-2 rounded-md border bg-muted/50 p-2 pr-8 text-sm w-fit max-w-full">
+          {media.type === "image" && <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />}
+          {media.type === "audio" && <Music className="h-4 w-4 shrink-0 text-muted-foreground" />}
+          {media.type === "pdf" && <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />}
+          <span className="truncate font-medium">{media.name}</span>
+          <button
+            type="button"
+            onClick={() => setMedia(null)}
+            className="absolute right-1 top-1 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      )}
       <Textarea
         ref={textareaRef}
         value={value}
@@ -129,20 +203,39 @@ function CommentForm({
       />
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-muted-foreground">Ctrl+Enter to send</p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="image/*,audio/mpeg,.mp3,application/pdf" 
+            onChange={handleFileChange} 
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            disabled={isPending || uploading || media !== null}
+            onClick={() => fileInputRef.current?.click()}
+            title="Đính kèm file (Ảnh, Audio, PDF)"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+          </Button>
+
           {onCancel && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={onCancel}
-              disabled={isPending}
+              disabled={isPending || uploading}
             >
               <X className="mr-1 h-3.5 w-3.5" />
               Cancel
             </Button>
           )}
-          <Button type="submit" size="sm" disabled={isPending || !value.trim()}>
+          <Button type="submit" size="sm" disabled={isPending || uploading || (!value.trim() && !media)}>
             <Send className="mr-1.5 h-3.5 w-3.5" />
             {isPending ? "Sending…" : parentId ? "Send reply" : "Post comment"}
           </Button>
@@ -205,6 +298,7 @@ function ReplyCard({
         </div>
         <div className="mt-1">
           <CommentContent text={reply.content} />
+          <CommentMedia mediaUrl={reply.mediaUrl} mediaType={reply.mediaType} mediaName={reply.mediaName} />
         </div>
       </div>
       {canDelete && (
@@ -290,6 +384,7 @@ function CommentCard({
           {/* Content */}
           <div className="mt-1.5">
             <CommentContent text={comment.content} />
+            <CommentMedia mediaUrl={comment.mediaUrl} mediaType={comment.mediaType} mediaName={comment.mediaName} />
           </div>
 
           {/* Actions */}

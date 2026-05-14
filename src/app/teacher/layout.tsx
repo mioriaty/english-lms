@@ -8,6 +8,7 @@ import {
 import { TooltipProvider } from "@/libs/components/ui/tooltip";
 import { Separator } from "@/libs/components/ui/separator";
 import { AppSidebar } from "@/libs/components/layout/app-sidebar";
+import { DarkModeToggle } from "@/libs/components/layout/dark-mode-toggle";
 
 export default async function TeacherLayout({
   children,
@@ -32,6 +33,9 @@ export default async function TeacherLayout({
             <span className="text-xl font-medium text-muted-foreground">
               Teacher Portal
             </span>
+            <div className="ml-auto">
+              <DarkModeToggle />
+            </div>
           </header>
           <div className="flex-1 p-6">{children}</div>
         </SidebarInset>

@@ -71,13 +71,16 @@ function extractMentions(content: string): string[] {
 export async function createLectureComment(
   lectureId: string,
   content: string,
-  parentId?: string | null
+  parentId?: string | null,
+  mediaUrl?: string | null,
+  mediaType?: string | null,
+  mediaName?: string | null,
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
   const trimmed = content.trim();
-  if (!trimmed) throw new Error("Nội dung comment không được để trống");
+  if (!trimmed && !mediaUrl) throw new Error("Nội dung comment hoặc file đính kèm không được để trống");
 
   // Prevent replying to a reply (enforce 1-level only)
   if (parentId) {
@@ -97,6 +100,9 @@ export async function createLectureComment(
       lectureId,
       authorId: session.user.id,
       parentId: parentId ?? null,
+      mediaUrl,
+      mediaType,
+      mediaName,
     },
   });
 
