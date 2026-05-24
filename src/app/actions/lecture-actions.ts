@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/libs/utils/db";
+import { deleteImageFile, deleteAudioFile, deletePdfFile } from "@/libs/utils/file-storage";
 
 async function requireAdmin() {
   const session = await auth();
@@ -120,13 +121,43 @@ export async function deleteLectureComment(
 
   const comment = await prisma.lectureComment.findUnique({
     where: { id: commentId },
-    select: { authorId: true },
+    select: { authorId: true, mediaUrl: true, mediaType: true, parentId: true },
   });
   if (!comment) throw new Error("Comment không tồn tại");
 
   const isAdmin = session.user.isAdmin;
   const isOwner = comment.authorId === session.user.id;
   if (!isAdmin && !isOwner) throw new Error("Không có quyền xóa comment này");
+
+  // Collect media to delete (from the comment itself, and if it's a parent, from all its replies)
+  const mediaToDelete: { url: string; type: string }[] = [];
+  if (comment.mediaUrl && comment.mediaType) {
+    mediaToDelete.push({ url: comment.mediaUrl, type: comment.mediaType });
+  }
+
+  // If this is a top-level comment, its replies will be cascade-deleted. We should clean up their media too.
+  if (!comment.parentId) {
+    const replies = await prisma.lectureComment.findMany({
+      where: { parentId: commentId },
+      select: { mediaUrl: true, mediaType: true },
+    });
+    for (const reply of replies) {
+      if (reply.mediaUrl && reply.mediaType) {
+        mediaToDelete.push({ url: reply.mediaUrl, type: reply.mediaType });
+      }
+    }
+  }
+
+  // Delete files
+  for (const media of mediaToDelete) {
+    try {
+      if (media.type === "image") await deleteImageFile(media.url);
+      else if (media.type === "audio") await deleteAudioFile(media.url);
+      else if (media.type === "pdf") await deletePdfFile(media.url);
+    } catch (e) {
+      console.error(`Failed to delete comment media: ${media.url}`, e);
+    }
+  }
 
   await prisma.lectureComment.delete({ where: { id: commentId } });
 

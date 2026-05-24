@@ -1,18 +1,28 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
-import { MessageSquare, Reply, Trash2, Send, X, Shield, Paperclip, ImageIcon, Music, FileText, Loader2 } from "lucide-react";
+import { useState, useTransition, useRef, useCallback } from "react";
+import { MessageSquare, Reply, Trash2, Send, X, Shield, Paperclip, ImageIcon, Music, FileText, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/libs/components/ui/button";
 import { Textarea } from "@/libs/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/libs/components/ui/avatar";
 import { Badge } from "@/libs/components/ui/badge";
 import { Separator } from "@/libs/components/ui/separator";
-import { cn } from "@/libs/utils/string";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/libs/components/ui/alert-dialog";
 import {
   createLectureComment,
   deleteLectureComment,
 } from "@/app/actions/lecture-actions";
+import { useNavigationGuard } from "@/libs/hooks/use-navigation-guard";
 import type {
   CommentWithAuthor,
   ReplyWithAuthor,
@@ -117,6 +127,23 @@ function CommentForm({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ── Navigation guard ──────────────────────────────────────────────────────────
+  const [guardOpen, setGuardOpen] = useState(false);
+  const proceedRef = useRef<(() => void) | null>(null);
+
+  const isDirty = value.trim() !== "" || media !== null;
+
+  const handleBlock = useCallback(
+    (proceed: () => void, _cancel: () => void) => {
+      proceedRef.current = proceed;
+      setGuardOpen(true);
+    },
+    []
+  );
+
+  useNavigationGuard({ isDirty, onBlock: handleBlock });
+
+  // ── File upload ───────────────────────────────────────────────────────────────
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -169,79 +196,113 @@ function CommentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      {media && (
-        <div className="relative inline-flex items-center gap-2 rounded-md border bg-muted/50 p-2 pr-8 text-sm w-fit max-w-full">
-          {media.type === "image" && <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />}
-          {media.type === "audio" && <Music className="h-4 w-4 shrink-0 text-muted-foreground" />}
-          {media.type === "pdf" && <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />}
-          <span className="truncate font-medium">{media.name}</span>
-          <button
-            type="button"
-            onClick={() => setMedia(null)}
-            className="absolute right-1 top-1 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </div>
-      )}
-      <Textarea
-        ref={textareaRef}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        rows={compact ? 2 : 3}
-        autoFocus={autoFocus}
-        disabled={isPending}
-        className="resize-none text-sm"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-            e.preventDefault();
-            if (value.trim()) handleSubmit(e as unknown as React.FormEvent);
-          }
-        }}
-      />
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">Ctrl+Enter to send</p>
-        <div className="flex gap-2 items-center">
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            className="hidden" 
-            accept="image/*,audio/mpeg,.mp3,application/pdf" 
-            onChange={handleFileChange} 
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            disabled={isPending || uploading || media !== null}
-            onClick={() => fileInputRef.current?.click()}
-            title="Đính kèm file (Ảnh, Audio, PDF)"
-          >
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
-          </Button>
+    <>
+      {/* ── Leave-page confirmation dialog ──────────────────────────────────── */}
+      <AlertDialog open={guardOpen} onOpenChange={setGuardOpen}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <AlertDialogTitle>Bỏ comment chưa gửi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn đang có nội dung chưa được gửi. Nếu rời trang, nội dung này sẽ bị mất.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setGuardOpen(false)}>
+              Ở lại
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                setGuardOpen(false);
+                setValue("");
+                setMedia(null);
+                proceedRef.current?.();
+                proceedRef.current = null;
+              }}
+            >
+              Rời trang
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-          {onCancel && (
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        {media && (
+          <div className="relative inline-flex items-center gap-2 rounded-md border bg-muted/50 p-2 pr-8 text-sm w-fit max-w-full">
+            {media.type === "image" && <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />}
+            {media.type === "audio" && <Music className="h-4 w-4 shrink-0 text-muted-foreground" />}
+            {media.type === "pdf" && <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />}
+            <span className="truncate font-medium">{media.name}</span>
+            <button
+              type="button"
+              onClick={() => setMedia(null)}
+              className="absolute right-1 top-1 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+        <Textarea
+          ref={textareaRef}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          rows={compact ? 2 : 3}
+          autoFocus={autoFocus}
+          disabled={isPending}
+          className="resize-none text-sm"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              if (value.trim()) handleSubmit(e as unknown as React.FormEvent);
+            }
+          }}
+        />
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">Ctrl+Enter to send</p>
+          <div className="flex gap-2 items-center">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept="image/*,audio/mpeg,.mp3,application/pdf" 
+              onChange={handleFileChange} 
+            />
             <Button
               type="button"
               variant="ghost"
-              size="sm"
-              onClick={onCancel}
-              disabled={isPending || uploading}
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              disabled={isPending || uploading || media !== null}
+              onClick={() => fileInputRef.current?.click()}
+              title="Đính kèm file (Ảnh, Audio, PDF)"
             >
-              <X className="mr-1 h-3.5 w-3.5" />
-              Cancel
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
             </Button>
-          )}
-          <Button type="submit" size="sm" disabled={isPending || uploading || (!value.trim() && !media)}>
-            <Send className="mr-1.5 h-3.5 w-3.5" />
-            {isPending ? "Sending…" : parentId ? "Send reply" : "Post comment"}
-          </Button>
+
+            {onCancel && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onCancel}
+                disabled={isPending || uploading}
+              >
+                <X className="mr-1 h-3.5 w-3.5" />
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" size="sm" disabled={isPending || uploading || (!value.trim() && !media)}>
+              <Send className="mr-1.5 h-3.5 w-3.5" />
+              {isPending ? "Sending…" : parentId ? "Send reply" : "Post comment"}
+            </Button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </>
   );
 }
 
