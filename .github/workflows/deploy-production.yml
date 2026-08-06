@@ -17,7 +17,7 @@ jobs:
           node-version: 22.19.0
           cache: "npm"
       - name: Create .env file
-        run: printf '%s' "${{ secrets.ENV_PRODUCTION }}" > .env
+        run: printf '%b' "${{ secrets.ENV_PRODUCTION }}" > .env
       - run: npm i --force
       - run: npm run build
   deploy:
@@ -32,12 +32,14 @@ jobs:
           password: ${{ secrets.PASSWORD_PRODUCTION }}
           port: ${{ secrets.PORT_PRODUCTION }}
           script: |
+            set -euo pipefail
+            set -f
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             cd ~/english-lms
             git fetch --all
             git reset --hard origin/main
-            printf '%s' "${{ secrets.ENV_PRODUCTION }}" > .env
+            printf '%b' "${{ secrets.ENV_PRODUCTION }}" > .env
             npm i --force
             npx prisma generate
             npm run build
