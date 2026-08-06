@@ -26,20 +26,21 @@ jobs:
     steps:
       - name: Executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.2.5
+        env:
+          ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
         with:
           host: ${{ secrets.HOST_PRODUCTION }}
           username: ${{ secrets.USERNAME_PRODUCTION }}
           password: ${{ secrets.PASSWORD_PRODUCTION }}
           port: ${{ secrets.PORT_PRODUCTION }}
+          envs: ENV_PRODUCTION
           script: |
-            set -euo pipefail
-            set -f
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             cd ~/english-lms
             git fetch --all
             git reset --hard origin/main
-            printf '%b' "${{ secrets.ENV_PRODUCTION }}" > .env
+            printf '%s' "$ENV_PRODUCTION" > .env
             npm i --force
             npx prisma generate
             npm run build
