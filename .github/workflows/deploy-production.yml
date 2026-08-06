@@ -17,7 +17,7 @@ jobs:
           node-version: 22.19.0
           cache: "npm"
       - name: Create .env file
-        run: echo "${{secrets.ENV_PRODUCTION}}" > .env
+        run: printf '%s' "${{ secrets.ENV_PRODUCTION }}" > .env
       - run: npm i --force
       - run: npm run build
   deploy:
@@ -37,7 +37,7 @@ jobs:
             cd ~/english-lms
             git fetch --all
             git reset --hard origin/main
-            echo "${{secrets.ENV_PRODUCTION}}" > .env
+            printf '%s' "${{ secrets.ENV_PRODUCTION }}" > .env
             npm i --force
             npx prisma generate
             npm run build
