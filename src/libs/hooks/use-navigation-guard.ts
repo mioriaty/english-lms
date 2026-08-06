@@ -29,6 +29,8 @@ export function useNavigationGuard({ isDirty, onBlock }: UseNavigationGuardOptio
   const onBlockRef = useRef(onBlock);
   // Flag to skip our own popstate handler when we trigger history.forward()/.back()
   const ignoringPopstateRef = useRef(false);
+  // Lock to prevent state corruption when user spams Back/Forward quickly
+  const popstateLockedRef = useRef(false);
 
   // Keep refs in sync so event handlers always see latest values without re-registering
   useEffect(() => { isDirtyRef.current = isDirty; }, [isDirty]);
@@ -60,14 +62,23 @@ export function useNavigationGuard({ isDirty, onBlock }: UseNavigationGuardOptio
 
       const href = anchor.getAttribute("href") ?? "";
 
-      // Skip: hash-only links, external URLs, modifier-key clicks (open new tab)
+      // Skip: hash-only links, external URLs, modifier-key clicks, new-tab, download, same page
       const isHashOnly = href.startsWith("#");
       const isExternal =
         href.startsWith("http") && !href.startsWith(window.location.origin);
       const isModified = e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
       const isNewTab = anchor.target === "_blank";
+      const isDownload = anchor.hasAttribute("download");
 
-      if (!href || isHashOnly || isExternal || isModified || isNewTab) return;
+      let isSamePage = false;
+      try {
+        const target = new URL(href, window.location.origin);
+        isSamePage = target.pathname === window.location.pathname;
+      } catch {
+        // malformed href — treat as different page
+      }
+
+      if (!href || isHashOnly || isExternal || isModified || isNewTab || isDownload || isSamePage) return;
 
       // Stop Next.js from processing this click
       e.preventDefault();
@@ -99,7 +110,10 @@ export function useNavigationGuard({ isDirty, onBlock }: UseNavigationGuardOptio
   // ── 3. Browser Back / Forward button ─────────────────────────────────────────
   useEffect(() => {
     const handlePopState = () => {
-      if (!isDirtyRef.current || ignoringPopstateRef.current) return;
+      if (!isDirtyRef.current || ignoringPopstateRef.current || popstateLockedRef.current) return;
+
+      // Lock immediately to reject any further popstate events until resolved
+      popstateLockedRef.current = true;
 
       // Undo the back/forward navigation by going in the opposite direction.
       // We set the flag so our own handler doesn't re-trigger.
@@ -115,9 +129,15 @@ export function useNavigationGuard({ isDirty, onBlock }: UseNavigationGuardOptio
             // User confirmed — actually go back now
             ignoringPopstateRef.current = true;
             window.history.back();
-            setTimeout(() => { ignoringPopstateRef.current = false; }, 200);
+            setTimeout(() => {
+              ignoringPopstateRef.current = false;
+              popstateLockedRef.current = false;
+            }, 200);
           },
-          () => {}, // cancel: stay on page (forward() already restored it)
+          () => {
+            // cancel: stay on page (forward() already restored it)
+            popstateLockedRef.current = false;
+          },
         );
       }, 100);
     };
