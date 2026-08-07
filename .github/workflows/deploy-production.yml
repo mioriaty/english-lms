@@ -26,30 +26,14 @@ jobs:
           curl -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "${{ secrets.TELEGRAM_TO }}",
-              "message_thread_id": ${{ secrets.TELEGRAM_THREAD }},
-              "text": "🚀 Build completed!
-
-              👤 Actor: ${{ github.actor }}
-              📦 Repository: ${{ github.repository }}
-              📝 Commit: ${{ github.event.head_commit.message }}"
-            }'
+            -d "{\"chat_id\": \"${{ secrets.TELEGRAM_TO }}\", \"message_thread_id\": ${{ secrets.TELEGRAM_THREAD }}, \"text\": \"🚀 Build completed!\n\n👤 Actor: ${{ github.actor }}\n📦 Repository: ${{ github.repository }}\n📝 Commit: ${{ github.event.head_commit.message }}\"}"
       - name: send telegram message on build failed
         if: failure()
         run: |
           curl -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "${{ secrets.TELEGRAM_TO }}",
-              "message_thread_id": ${{ secrets.TELEGRAM_THREAD }},
-              "text": "🚀 Build failed!
-
-              👤 Actor: ${{ github.actor }}
-              📦 Repository: ${{ github.repository }}
-              📝 Commit: ${{ github.event.head_commit.message }}"
-            }'
+            -d "{\"chat_id\": \"${{ secrets.TELEGRAM_TO }}\", \"message_thread_id\": ${{ secrets.TELEGRAM_THREAD }}, \"text\": \"❌ Build failed!\n\n👤 Actor: ${{ github.actor }}\n📦 Repository: ${{ github.repository }}\n📝 Commit: ${{ github.event.head_commit.message }}\"}"
 
   test:
     runs-on: ubuntu-latest
@@ -95,25 +79,11 @@ jobs:
           curl -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "${{ secrets.TELEGRAM_TO }}",
-              "message_thread_id": ${{ secrets.TELEGRAM_THREAD }},
-              "text": "🚀 Deploy completed!
-
-              👤 Actor: ${{ github.actor }}
-              📦 Repository: ${{ github.repository }}
-              📝 Commit: ${{ github.event.head_commit.message }}"
+            -d "{\"chat_id\": \"${{ secrets.TELEGRAM_TO }}\", \"message_thread_id\": ${{ secrets.TELEGRAM_THREAD }}, \"text\": \"✅ Deploy completed!\n\n👤 Actor: ${{ github.actor }}\n📦 Repository: ${{ github.repository }}\n📝 Commit: ${{ github.event.head_commit.message }}\"}"
       - name: send telegram message on deploy fail
         if: failure()
         run: |
           curl -X POST \
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "${{ secrets.TELEGRAM_TO }}",
-              "message_thread_id": ${{ secrets.TELEGRAM_THREAD }},
-              "text": "🚀 Deploy failed!
-
-              👤 Actor: ${{ github.actor }}
-              📦 Repository: ${{ github.repository }}
-              📝 Commit: ${{ github.event.head_commit.message }}"
+            -d "{\"chat_id\": \"${{ secrets.TELEGRAM_TO }}\", \"message_thread_id\": ${{ secrets.TELEGRAM_THREAD }}, \"text\": \"❌ Deploy failed!\n\n👤 Actor: ${{ github.actor }}\n📦 Repository: ${{ github.repository }}\n📝 Commit: ${{ github.event.head_commit.message }}\"}"
