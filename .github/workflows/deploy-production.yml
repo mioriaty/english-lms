@@ -20,6 +20,10 @@ jobs:
         run: printf '%b' "${{ secrets.ENV_PRODUCTION }}" > .env
       - run: npm i --force
       - run: npm run build
+      - name: Debug Telegram
+        run: |
+          echo "CHAT_ID=${{ secrets.TELEGRAM_TO }}"
+          echo "THREAD=${{ secrets.TELEGRAM_THREAD }}"
       - name: send telegram message on build success
         if: success()
         uses: appleboy/telegram-action@master
