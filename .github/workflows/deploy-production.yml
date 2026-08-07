@@ -26,7 +26,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message_thread_id: ${{ secrets.TELEGRAM_THREAD }}
+          message_thread_id: 3
           message: |
             🚀 Build completed! 🟢
             👤 Actor: ${{ github.actor }}
@@ -39,7 +39,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message_thread_id: ${{ secrets.TELEGRAM_THREAD }}
+          message_thread_id: 3
           message: |
             🚀 Build failed! 🔴
             👤 Actor: ${{ github.actor }}
@@ -90,7 +90,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message_thread_id: ${{ secrets.TELEGRAM_THREAD }}
+          message_thread_id: 3
           message: |
             🚀 Deploy completed! 🟢
             👤 Actor: ${{ github.actor }}
@@ -103,7 +103,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message_thread_id: ${{ secrets.TELEGRAM_THREAD }}
+          message_thread_id: 3
           message: |
             🚀 Deploy failed! 🔴
             👤 Actor: ${{ github.actor }}
