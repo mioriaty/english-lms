@@ -70,7 +70,9 @@ export function FillBlankInline({
 
   const hasPlaceholder = blankCount > 0;
 
-  // Sync React state → DOM without touching innerHTML (prevents focus loss while typing)
+
+  // Sync React state → DOM only when html structure changes (initial mount or after submit).
+  // Must NOT run on every render — that would overwrite user's in-progress typing.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -78,10 +80,11 @@ export function FillBlankInline({
       .querySelectorAll<HTMLInputElement>("[data-blank]")
       .forEach((input) => {
         const i = Number(input.dataset.blank);
-        const val = valuesRef.current[i] ?? "";
-        if (input.value !== val) input.value = val;
+        input.value = valuesRef.current[i] ?? "";
       });
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [html]);
+
 
   // Assign questionId to first blank for label association
   useEffect(() => {
