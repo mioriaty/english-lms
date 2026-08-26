@@ -278,6 +278,15 @@ function LeafCardBody({
       ) : (
         <FillBlankEditor draft={draft} onChange={onChange} />
       )}
+
+      <FormItem className="mt-4">
+        <FormLabel className="text-xs text-zinc-500">Explain (optional)</FormLabel>
+        <MiniRichTextEditor
+          value={draft.explain}
+          onChange={(html) => onChange({ ...draft, explain: html })}
+          placeholder="Explain why the correct answer is correct…"
+        />
+      </FormItem>
     </>
   );
 }
