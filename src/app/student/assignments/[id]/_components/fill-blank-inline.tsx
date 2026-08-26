@@ -49,9 +49,10 @@ export function FillBlankInline({
   if (!hasPlaceholder) {
     return (
       <div className="space-y-3">
-        <p className="whitespace-pre-wrap text-xl leading-relaxed text-zinc-700 dark:text-zinc-300">
-          {template}
-        </p>
+        <div
+          className="prose prose-zinc prose-xl dark:prose-invert max-w-none leading-relaxed text-zinc-700 dark:text-zinc-300"
+          dangerouslySetInnerHTML={{ __html: template }}
+        />
         <input
           id={questionId}
           type="text"
@@ -70,18 +71,14 @@ export function FillBlankInline({
 
   return (
     <div className="space-y-2">
-      <p className="whitespace-pre-wrap text-xl leading-relaxed text-zinc-700 dark:text-zinc-300">
+      <div className="prose prose-zinc prose-xl dark:prose-invert max-w-none leading-relaxed text-zinc-700 dark:text-zinc-300">
         {segments.map((seg, i) => {
           if (seg.kind === "text")
             return (
-              <span key={i}>
-                {seg.text.split("\n").map((line, j, arr) => (
-                  <span key={j}>
-                    {line}
-                    {j < arr.length - 1 && <br />}
-                  </span>
-                ))}
-              </span>
+              <span
+                key={i}
+                dangerouslySetInnerHTML={{ __html: seg.text }}
+              />
             );
 
           const result = blankResults?.[seg.idx];
@@ -124,7 +121,7 @@ export function FillBlankInline({
             </span>
           );
         })}
-      </p>
+      </div>
 
       {hasWrongBlanks && blankResults && (
         <div className="space-y-0.5 pt-1">
