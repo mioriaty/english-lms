@@ -1,24 +1,7 @@
-import { CheckCircle2, XCircleIcon } from "lucide-react";
-import { cn } from "@/libs/utils/string";
+"use client";
+
+import { useRef, useEffect, useCallback, useMemo } from "react";
 import type { BlankResult } from "@/core/lms/application/grade-submission";
-
-type Segment = { kind: "text"; text: string } | { kind: "blank"; idx: number };
-
-function parseSegments(template: string): {
-  segments: Segment[];
-  blankCount: number;
-} {
-  const segments: Segment[] = [];
-  let blankCount = 0;
-  for (const part of template.split(/(\[BLANK\])/)) {
-    if (part === "[BLANK]") {
-      segments.push({ kind: "blank", idx: blankCount++ });
-    } else if (part) {
-      segments.push({ kind: "text", text: part });
-    }
-  }
-  return { segments, blankCount };
-}
 
 interface FillBlankInlineProps {
   template: string;
@@ -29,6 +12,43 @@ interface FillBlankInlineProps {
   blankResults?: BlankResult[];
 }
 
+/**
+ * Build HTML string with [BLANK] replaced by <input> elements.
+ * Values are NOT embedded here — synced imperatively via DOM refs
+ * to avoid replacing innerHTML (losing focus) on every keystroke.
+ */
+function buildInputHtml(
+  template: string,
+  disabled: boolean,
+  blankResults?: BlankResult[]
+): { html: string; blankCount: number } {
+  let blankCount = 0;
+
+  const html = template.replace(/\[BLANK\]/g, () => {
+    const i = blankCount++;
+    const result = blankResults?.[i];
+    const isReview = !!result;
+
+    const classes = [
+      "inline-block min-w-[8rem] border-b bg-transparent px-1 pb-0.5 text-center focus:outline-none dark:text-zinc-100",
+      !isReview
+        ? "border-zinc-400 focus:border-[#2F5B94] dark:border-zinc-500"
+        : "",
+      isReview && result.isCorrect ? "border-[#2F5B94] text-[#2F5B94]" : "",
+      isReview && !result.isCorrect
+        ? "border-zinc-300 text-zinc-400 line-through dark:border-zinc-600"
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    const disabledAttr = disabled ? " disabled" : "";
+    return `<input data-blank="${i}" type="text" autocomplete="off" aria-label="Blank ${i + 1}" class="${classes}"${disabledAttr} />`;
+  });
+
+  return { html, blankCount };
+}
+
 export function FillBlankInline({
   template,
   values,
@@ -37,15 +57,63 @@ export function FillBlankInline({
   questionId,
   blankResults,
 }: FillBlankInlineProps) {
-  const { segments, blankCount } = parseSegments(template);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
+
+  // Only rebuild HTML when structure-affecting props change — NOT on every keystroke
+  const { html, blankCount } = useMemo(
+    () => buildInputHtml(template, disabled, blankResults),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [template, disabled, blankResults]
+  );
+
   const hasPlaceholder = blankCount > 0;
 
-  function updateValue(idx: number, v: string) {
-    const next = [...values];
-    next[idx] = v;
-    onChange(next);
-  }
+  // Sync React state → DOM without touching innerHTML (prevents focus loss while typing)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container
+      .querySelectorAll<HTMLInputElement>("[data-blank]")
+      .forEach((input) => {
+        const i = Number(input.dataset.blank);
+        const val = valuesRef.current[i] ?? "";
+        if (input.value !== val) input.value = val;
+      });
+  });
 
+  // Assign questionId to first blank for label association
+  useEffect(() => {
+    const first = containerRef.current?.querySelector<HTMLInputElement>(
+      '[data-blank="0"]'
+    );
+    if (first) first.id = questionId;
+  }, [questionId, html]);
+
+  // Event delegation — native listener avoids React controlled-input conflict
+  const handleInput = useCallback(
+    (e: Event) => {
+      const input = e.target as HTMLInputElement;
+      if (input.dataset.blank === undefined) return;
+      const i = Number(input.dataset.blank);
+      const next = [...valuesRef.current];
+      next[i] = input.value;
+      onChange(next);
+    },
+    [onChange]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.addEventListener("input", handleInput);
+    return () => container.removeEventListener("input", handleInput);
+  }, [handleInput, html]);
+
+  const hasWrongBlanks = blankResults?.some((r) => !r.isCorrect);
+
+  // No [BLANK] markers → single free-text input below the passage
   if (!hasPlaceholder) {
     return (
       <div className="space-y-3">
@@ -57,7 +125,11 @@ export function FillBlankInline({
           id={questionId}
           type="text"
           value={values[0] ?? ""}
-          onChange={(e) => updateValue(0, e.target.value)}
+          onChange={(e) => {
+            const next = [...values];
+            next[0] = e.target.value;
+            onChange(next);
+          }}
           disabled={disabled}
           autoComplete="off"
           placeholder="Type your answer…"
@@ -67,61 +139,14 @@ export function FillBlankInline({
     );
   }
 
-  const hasWrongBlanks = blankResults?.some((r) => !r.isCorrect);
-
   return (
     <div className="space-y-2">
-      <div className="prose prose-zinc prose-xl dark:prose-invert max-w-none leading-relaxed text-zinc-700 dark:text-zinc-300">
-        {segments.map((seg, i) => {
-          if (seg.kind === "text")
-            return (
-              <span
-                key={i}
-                dangerouslySetInnerHTML={{ __html: seg.text }}
-              />
-            );
-
-          const result = blankResults?.[seg.idx];
-          const isReview = !!result;
-
-          return (
-            <span key={i} className="mx-1 inline-flex items-center gap-0.5">
-              <input
-                type="text"
-                id={seg.idx === 0 ? questionId : undefined}
-                value={values[seg.idx] ?? ""}
-                onChange={(e) => updateValue(seg.idx, e.target.value)}
-                disabled={disabled}
-                autoComplete="off"
-                aria-label={`Blank ${seg.idx + 1}`}
-                className={cn(
-                  "inline-block min-w-35 border-b bg-transparent px-1 pb-0.5 text-center not-italic focus:outline-none dark:text-zinc-100",
-                  !isReview &&
-                    "border-zinc-400 focus:border-[#2F5B94] dark:border-zinc-500",
-                  isReview &&
-                    result.isCorrect &&
-                    "border-[#2F5B94] text-[#2F5B94]",
-                  isReview &&
-                    !result.isCorrect &&
-                    "border-zinc-300 text-zinc-400 line-through dark:border-zinc-600"
-                )}
-              />
-              {isReview && result.isCorrect && (
-                <CheckCircle2
-                  className="h-4 w-4 shrink-0 text-[#2F5B94]"
-                  aria-hidden="true"
-                />
-              )}
-              {isReview && !result.isCorrect && (
-                <XCircleIcon
-                  className="h-4 w-4 shrink-0 text-zinc-400"
-                  aria-hidden="true"
-                />
-              )}
-            </span>
-          );
-        })}
-      </div>
+      {/* Full HTML structure (ol/li/p) preserved — inputs injected inline */}
+      <div
+        ref={containerRef}
+        className="prose prose-zinc prose-xl dark:prose-invert max-w-none leading-relaxed text-zinc-700 dark:text-zinc-300"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
 
       {hasWrongBlanks && blankResults && (
         <div className="space-y-0.5 pt-1">
